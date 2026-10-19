@@ -1461,7 +1461,8 @@ function loadImage(file) {
     const url = URL.createObjectURL(file);
     const MAX_SIDE = 5000; // cegah crash memori di HP/tab
     img.onload = async () => {
-      URL.revokeObjectURL(url);
+      // JANGAN revoke di sini: <img> thumbnail & tile memakai img.src lagi nanti
+      // (kalau di-revoke, di WebView Android gambarnya jadi ikon rusak)
       const w = img.naturalWidth, h = img.naturalHeight;
       if (Math.max(w, h) > MAX_SIDE) {
         const k = MAX_SIDE / Math.max(w, h);
@@ -1906,7 +1907,8 @@ function canvasToImage(cv) {
     const im = new Image();
     cv.toBlob(b => {
       const u = URL.createObjectURL(b);
-      im.onload = () => { URL.revokeObjectURL(u); res(im); };
+      // blob URL sengaja tidak di-revoke: im.src dipakai ulang oleh <img> di kanvas
+      im.onload = () => res(im);
       im.onerror = () => { URL.revokeObjectURL(u); res(im); };
       im.src = u;
     }, 'image/png');
@@ -4272,15 +4274,35 @@ function drawTileCaptionCanvas(ctx, caption, clipX, clipY, clipW, clipH) {
 /* ---------- NATIVE (Capacitor Android) ---------- */
 const CAP = window.Capacitor;
 const IS_NATIVE = !!(CAP && CAP.isNativePlatform && CAP.isNativePlatform());
+
+function blobToBase64(blob) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result).split(',')[1]);
+    r.onerror = () => rej(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+
+// Simpan langsung ke Galeri (Pictures/Collage Studio) lewat plugin native GallerySaver.
+// Kalau plugin tidak tersedia / gagal -> jatuh ke lembar Share seperti sebelumnya.
 async function nativeSaveBlob(blob, name) {
+  let b64;
+  try { b64 = await blobToBase64(blob); }
+  catch (err) { showToast('Gagal membaca gambar: ' + (err && err.message || err), '⚠️'); return; }
+
+  try {
+    const GS = (CAP.Plugins && CAP.Plugins.GallerySaver) || (CAP.registerPlugin && CAP.registerPlugin('GallerySaver'));
+    if (!GS) throw new Error('GallerySaver tidak tersedia');
+    await GS.saveImage({ data: b64, fileName: name, mimeType: blob.type || 'image/png', album: 'Collage Studio' });
+    showToast('Tersimpan di Galeri → album "Collage Studio"', '✅');
+    return;
+  } catch (err) {
+    console.warn('GallerySaver gagal, fallback ke Share:', err);
+  }
+
   try {
     const { Filesystem, Share } = CAP.Plugins;
-    const b64 = await new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = () => res(String(r.result).split(',')[1]);
-      r.onerror = () => rej(r.error);
-      r.readAsDataURL(blob);
-    });
     const saved = await Filesystem.writeFile({ path: name, data: b64, directory: 'CACHE' });
     showToast('Pilih "Simpan" / Galeri / aplikasi tujuan', '📤');
     await Share.share({ title: 'Collage Studio', files: [saved.uri], dialogTitle: 'Simpan atau bagikan' });

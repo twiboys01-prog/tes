@@ -25,3 +25,6 @@ npm install && npx cap add android && npx capacitor-assets generate --android &&
 - Ketuk foto = buka panel edit (bottom sheet). **Tahan lalu geser** = tukar posisi foto (geser biasa tidak menukar apa-apa).
 - Tab **Template** berisi Poster Sinematik dan Bingkai Caption. Pengaturan teksnya hanya muncul saat template dipilih. Saat template aktif, Gaya Tata Letak di tab Layout dikunci supaya tidak bentrok.
 - Kalau menambah class Tailwind baru di `www/index.html`, tidak perlu apa-apa: workflow menjalankan `npm run build:css` otomatis. Untuk tes lokal: `npm install && npm run build:css`.
+
+## Menu utama (beranda)
+Saat aplikasi dibuka muncul 3 kartu: **Kolase** (kolase biasa tanpa template), **Template** (pilih Poster Sinematik / Bingkai Caption), dan **Kanvas Kosong** (kanvas teks). Tombol rumah di pojok kiri atas editor (atau tombol Kembali Android) membawa kembali ke menu; proyek yang sedang dikerjakan bisa dilanjutkan lewat tombol "Lanjutkan proyek". Memulai proyek baru mengembalikan semua pengaturan ke bawaan.

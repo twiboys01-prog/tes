@@ -4,21 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#090a0c">
+<meta name="theme-color" content="#0a0a14">
 <title>Collage Studio — Smart Layout & Poster Engine</title>
 <link rel="stylesheet" href="tailwind.css">
 <link rel="stylesheet" href="fonts.css">
 <style>
   :root {
-    --bg-main: #090a0c;
-    --bg-panel: #111317;
-    --bg-elevated: #171a20;
-    --border-subtle: #22262f;
+    --bg-main: #0a0a14;
+    --bg-panel: #12121f;
+    --bg-elevated: #1a1b2a;
+    --border-subtle: #272a3d;
     --border-hover: #323846;
     --text-main: #f1f3f5;
-    --text-muted: #868e96;
-    --accent: #34d399;
-    --accent-dim: rgba(52, 211, 153, 0.12);
+    --text-muted: #8f94ad;
+    --accent: #a78bfa;
+    --accent-dim: rgba(167, 139, 250, 0.12);
   }
 
   * {
@@ -56,7 +56,7 @@
 
   /* Workspace Dot Grid Background */
   .dot-grid {
-    background-color: #090a0c;
+    background-color: #0a0a14;
     background-image: radial-gradient(#1f232b 1px, transparent 1px);
     background-size: 20px 20px;
   }
@@ -82,7 +82,7 @@
     height: 20px;
   }
   input[type="range"]::-webkit-slider-runnable-track {
-    background: #22262f;
+    background: #272a3d;
     height: 4px;
     border-radius: 999px;
   }
@@ -94,7 +94,7 @@
     height: 14px;
     width: 14px;
     border-radius: 50%;
-    border: 2px solid #090a0c;
+    border: 2px solid #0a0a14;
     box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     transition: transform 0.15s ease, background-color 0.15s ease;
   }
@@ -140,11 +140,11 @@
     transition: box-shadow 0.15s ease;
   }
   .tile:hover {
-    box-shadow: inset 0 0 0 1.5px rgba(52, 211, 153, 0.75);
+    box-shadow: inset 0 0 0 1.5px rgba(167, 139, 250, 0.75);
     z-index: 25;
   }
   .tile.selected-tile {
-    box-shadow: inset 0 0 0 2.5px #34d399, 0 0 18px rgba(52, 211, 153, 0.25) !important;
+    box-shadow: inset 0 0 0 2.5px #a78bfa, 0 0 18px rgba(167, 139, 250, 0.25) !important;
     z-index: 28 !important;
   }
   .tile.dragging {
@@ -223,9 +223,9 @@
     transition: all 0.15s ease;
   }
   .sidebar-tab.active {
-    color: #34d399;
-    background-color: rgba(52, 211, 153, 0.08);
-    border-color: rgba(52, 211, 153, 0.3);
+    color: #a78bfa;
+    background-color: rgba(167, 139, 250, 0.08);
+    border-color: rgba(167, 139, 250, 0.3);
   }
 
   /* Toast animation */
@@ -240,22 +240,22 @@
   /* ===== Crop Editor ===== */
   #cropModal { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; background: rgba(5,6,8,0.88); backdrop-filter: blur(6px); padding: 16px; }
   #cropModal.open { display: flex; }
-  .crop-card { background: #111317; border: 1px solid #2b303c; border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,.7); max-width: 96vw; max-height: 96vh; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; overflow: auto; }
+  .crop-card { background: #12121f; border: 1px solid #2b303c; border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,.7); max-width: 96vw; max-height: 96vh; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; overflow: auto; }
   .crop-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .crop-title { font-size: 13px; font-weight: 600; color: #f1f3f5; }
-  .crop-info { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #34d399; }
+  .crop-info { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #a78bfa; }
   .crop-presets { display: flex; flex-wrap: wrap; gap: 6px; }
-  .crop-chip { font-size: 11.5px; padding: 5px 10px; border-radius: 999px; border: 1px solid #22262f; background: #171a20; color: #a1a8b3; cursor: pointer; transition: all .15s ease; }
+  .crop-chip { font-size: 11.5px; padding: 5px 10px; border-radius: 999px; border: 1px solid #272a3d; background: #1a1b2a; color: #a1a8b3; cursor: pointer; transition: all .15s ease; }
   .crop-chip:hover { color: #f1f3f5; border-color: #323846; }
-  .crop-chip.active { background: rgba(52,211,153,.14); border-color: rgba(52,211,153,.5); color: #6ee7b7; }
+  .crop-chip.active { background: rgba(167,139,250,.14); border-color: rgba(167,139,250,.5); color: #c4b5fd; }
   .crop-chip.auto { border-color: rgba(96,165,250,.4); color: #93c5fd; background: rgba(96,165,250,.08); }
   .crop-stage-wrap { display: flex; justify-content: center; }
   .crop-stage { position: relative; overflow: hidden; touch-action: none; user-select: none; background: repeating-conic-gradient(#1a1d24 0% 25%, #12141a 0% 50%) 0 0 / 16px 16px; border-radius: 6px; }
   .crop-stage canvas { display: block; width: 100%; height: 100%; pointer-events: none; }
-  .crop-box { position: absolute; box-shadow: 0 0 0 9999px rgba(0,0,0,.62); outline: 2px solid #34d399; cursor: move;
+  .crop-box { position: absolute; box-shadow: 0 0 0 9999px rgba(0,0,0,.62); outline: 2px solid #a78bfa; cursor: move;
     background-image: linear-gradient(to right, transparent 33.2%, rgba(255,255,255,.28) 33.3%, transparent 33.5%, transparent 66.5%, rgba(255,255,255,.28) 66.6%, transparent 66.8%),
                       linear-gradient(to bottom, transparent 33.2%, rgba(255,255,255,.28) 33.3%, transparent 33.5%, transparent 66.5%, rgba(255,255,255,.28) 66.6%, transparent 66.8%); }
-  .crop-handle { position: absolute; width: 16px; height: 16px; background: #34d399; border: 2px solid #0b0e17; border-radius: 4px; transform: translate(-50%, -50%); }
+  .crop-handle { position: absolute; width: 16px; height: 16px; background: #a78bfa; border: 2px solid #0b0e17; border-radius: 4px; transform: translate(-50%, -50%); }
   .crop-handle[data-h="nw"] { left: 0; top: 0; cursor: nwse-resize; }
   .crop-handle[data-h="n"]  { left: 50%; top: 0; cursor: ns-resize; }
   .crop-handle[data-h="ne"] { left: 100%; top: 0; cursor: nesw-resize; }
@@ -267,10 +267,10 @@
   .crop-box.locked .crop-handle[data-h="n"], .crop-box.locked .crop-handle[data-h="e"],
   .crop-box.locked .crop-handle[data-h="s"], .crop-box.locked .crop-handle[data-h="w"] { display: none; }
   .crop-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
-  .crop-btn { font-size: 12px; padding: 8px 14px; border-radius: 10px; border: 1px solid #282d38; background: #171a20; color: #e4e4e7; cursor: pointer; font-weight: 500; }
+  .crop-btn { font-size: 12px; padding: 8px 14px; border-radius: 10px; border: 1px solid #282d38; background: #1a1b2a; color: #e4e4e7; cursor: pointer; font-weight: 500; }
   .crop-btn:hover { background: #1e222a; }
-  .crop-btn.primary { background: #34d399; border-color: #34d399; color: #04130c; font-weight: 700; }
-  .crop-btn.primary:hover { background: #6ee7b7; }
+  .crop-btn.primary { background: #a78bfa; border-color: #a78bfa; color: #140a2c; font-weight: 700; }
+  .crop-btn.primary:hover { background: #c4b5fd; }
   .crop-hint { font-size: 10.5px; color: #868e96; }
 
   /* ===== Text Block (Blank Canvas Teks) ===== */
@@ -279,7 +279,7 @@
   .tb-card { width: min(1040px, 96vw); }
   .tb-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
   @media (max-width: 820px) { .tb-grid { grid-template-columns: minmax(0, 1fr); } }
-  .tb-preview { display: flex; align-items: center; justify-content: center; min-height: 220px; padding: 14px; border-radius: 10px; border: 1px solid #22262f; background: #0b0d11; }
+  .tb-preview { display: flex; align-items: center; justify-content: center; min-height: 220px; padding: 14px; border-radius: 10px; border: 1px solid #272a3d; background: #0b0d11; }
   .tb-preview.checker { background: repeating-conic-gradient(#1a1d24 0% 25%, #12141a 0% 50%) 0 0 / 16px 16px; }
   .tb-preview canvas { display: block; max-width: 100%; max-height: 56vh; width: auto; height: auto; box-shadow: 0 10px 30px rgba(0,0,0,.55); border-radius: 2px; }
   .tb-controls { display: flex; flex-direction: column; gap: 12px; max-height: 66vh; overflow-y: auto; padding-right: 4px; }
@@ -294,15 +294,15 @@
   .tb-chip-sq { min-width: 34px; text-align: center; }
 
   /* ===== Template cards ===== */
-  .tpl-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;text-align:center;padding:10px 4px;min-height:84px;border-radius:14px;border:1px solid #22262f;background:#171a20;color:#e4e4e7;transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent}
+  .tpl-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;text-align:center;padding:10px 4px;min-height:84px;border-radius:14px;border:1px solid #272a3d;background:#1a1b2a;color:#e4e4e7;transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent}
   .tpl-card:active{transform:scale(.99)}
-  .tpl-card .tpl-ico{font-size:21px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#0e1014;border:1px solid #22262f;flex:0 0 auto}
+  .tpl-card .tpl-ico{font-size:21px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#0d0e1a;border:1px solid #272a3d;flex:0 0 auto}
   .tpl-card b{display:block;font-size:12px;font-weight:600;line-height:1.2}
   .tpl-card small{display:none}
   .tpl-card{position:relative}
   .tpl-card .tpl-check{position:absolute;top:6px;right:6px;margin-left:auto;width:18px;height:18px;font-size:10px;border-radius:50%;border:1.5px solid #3a3f4b;display:flex;align-items:center;justify-content:center;color:transparent;flex:0 0 auto}
-  .tpl-card.active{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.08)}
-  .tpl-card.active .tpl-check{background:#34d399;border-color:#34d399;color:#04130c}
+  .tpl-card.active{border-color:rgba(167,139,250,.55);background:rgba(167,139,250,.08)}
+  .tpl-card.active .tpl-check{background:#a78bfa;border-color:#a78bfa;color:#140a2c}
   select.ui-select:disabled{opacity:.45;pointer-events:none}
 
   /* ===== Header preview: chips yang bisa digeser ===== */
@@ -311,7 +311,7 @@
   .chips-scroll::-webkit-scrollbar{display:none}
   .chips-scroll>button{flex:0 0 auto;white-space:nowrap}
   .ws-tools{display:flex;align-items:center;gap:6px;flex:0 0 auto}
-  .ws-iconbtn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#14171d;border:1px solid #22262f;color:#a1a1aa}
+  .ws-iconbtn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#161725;border:1px solid #272a3d;color:#a1a1aa}
   .hint-touch{display:none}
   @media (min-width:1024px){
     #previewSizeBtn{display:none}
@@ -331,12 +331,12 @@
   .insp-row input[type=range]{width:80px}
   .insp-row .mono{min-width:28px;color:#d4d4d8;font-size:10px}
   .insp-actions{display:flex;align-items:center;gap:4px;padding-left:8px;border-left:1px solid #262b36}
-  .insp-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 9px;border-radius:9px;background:#1b1f28;color:#e4e4e7;font-size:11px;border:1px solid transparent;-webkit-tap-highlight-color:transparent}
+  .insp-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 9px;border-radius:9px;background:#1e2030;color:#e4e4e7;font-size:11px;border:1px solid transparent;-webkit-tap-highlight-color:transparent}
   .insp-btn:active{background:#2a303c}
-  .insp-accent{background:rgba(16,185,129,.15);color:#6ee7b7;border-color:rgba(16,185,129,.3)}
+  .insp-accent{background:rgba(139,92,246,.15);color:#c4b5fd;border-color:rgba(139,92,246,.3)}
   .insp-danger{background:rgba(244,63,94,.14);color:#fb7185}
   @media (min-width:1024px){
-    #tileInspector{position:absolute;top:64px;left:50%;transform:translateX(-50%);z-index:40;display:flex;flex-wrap:wrap;align-items:center;gap:12px;max-width:95%;padding:10px 16px;background:rgba(19,22,28,.95);backdrop-filter:blur(8px);border:1px solid rgba(16,185,129,.4);border-radius:16px;box-shadow:0 24px 50px rgba(0,0,0,.6)}
+    #tileInspector{position:absolute;top:64px;left:50%;transform:translateX(-50%);z-index:40;display:flex;flex-wrap:wrap;align-items:center;gap:12px;max-width:95%;padding:10px 16px;background:rgba(19,22,28,.95);backdrop-filter:blur(8px);border:1px solid rgba(139,92,246,.4);border-radius:16px;box-shadow:0 24px 50px rgba(0,0,0,.6)}
     .insp-close{margin-left:0;width:28px;height:28px}
     .insp-btn .lbl{display:none}
     #tileEditTextBtn .lbl,#tileCropBtn .lbl,#tileResetCropBtn .lbl,#tileReplaceBtn .lbl{display:inline}
@@ -352,7 +352,7 @@
     .hint-touch{display:inline}
     .chips-scroll>button{min-height:38px;padding-left:12px;padding-right:12px}
     .tile:hover{box-shadow:none}
-    .tile.selected-tile:hover{box-shadow:inset 0 0 0 2.5px #34d399, 0 0 18px rgba(52,211,153,.25) !important}
+    .tile.selected-tile:hover{box-shadow:inset 0 0 0 2.5px #a78bfa, 0 0 18px rgba(167,139,250,.25) !important}
   }
   .pl-btn{width:24px;height:24px}
   @media (pointer:coarse){ .pl-btn{width:38px;height:38px} }
@@ -379,7 +379,7 @@
     #actionBar button{min-height:46px}
     #workspaceHeader{padding-top:calc(6px + env(safe-area-inset-top))}
     /* edit foto = bottom sheet, preview di atas tetap kelihatan */
-    #tileInspector{position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;z-index:60;display:flex;flex-direction:column;gap:8px;max-height:48dvh;overflow-y:auto;padding:8px 14px calc(12px + env(safe-area-inset-bottom));background:rgba(19,22,28,.98);backdrop-filter:blur(10px);border-top:1px solid rgba(16,185,129,.4);border-radius:20px 20px 0 0;box-shadow:0 -14px 40px rgba(0,0,0,.6)}
+    #tileInspector{position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;z-index:60;display:flex;flex-direction:column;gap:8px;max-height:48dvh;overflow-y:auto;padding:8px 14px calc(12px + env(safe-area-inset-bottom));background:rgba(19,22,28,.98);backdrop-filter:blur(10px);border-top:1px solid rgba(139,92,246,.4);border-radius:20px 20px 0 0;box-shadow:0 -14px 40px rgba(0,0,0,.6)}
     .insp-grab{display:block}
     .insp-sliders{flex-direction:column;align-items:stretch;gap:0}
     .insp-row{display:grid;grid-template-columns:62px 1fr 38px;gap:10px;min-height:36px}
@@ -391,13 +391,164 @@
   @media (max-width:1023.98px) and (orientation:landscape){
     body{flex-direction:row}
     #workspaceMain{order:1;flex:1 1 55%;height:auto}
-    #sidePanel{order:2;flex:1 1 45%;border-top:none;border-left:1px solid #22262f}
+    #sidePanel{order:2;flex:1 1 45%;border-top:none;border-left:1px solid #272a3d}
     #tileInspector{left:auto;width:46%;max-height:100dvh;border-radius:16px 0 0 0}
     body.kb-open{--preview-h:auto}
   }
+
+  /* ===== BERANDA (menu utama) ===== */
+  .hm-root{position:fixed;inset:0;z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch;background:radial-gradient(110% 55% at 50% -5%,#2a1a6e 0%,#10102a 48%,#08080f 100%);padding:calc(18px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));transition:opacity .22s ease,transform .22s ease}
+  .hm-root.hm-hide{opacity:0;transform:scale(1.02);pointer-events:none;visibility:hidden;transition:opacity .2s ease,transform .2s ease,visibility 0s .2s}
+  .hm-wrap{max-width:520px;margin:0 auto;position:relative}
+  @media (min-width:900px){.hm-wrap{max-width:780px}.hm-card{min-height:260px}}
+  .hm-top{text-align:center;padding:8px 0 20px}
+  .hm-logo{width:46px;height:46px;margin:0 auto 10px;border-radius:15px;background:linear-gradient(135deg,#8b5cf6,#ec4899);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 10px 30px rgba(139,92,246,.45)}
+  .hm-title{font-size:27px;font-weight:800;letter-spacing:-.02em;color:#fff;line-height:1.1}
+  .hm-title span{background:linear-gradient(90deg,#a78bfa,#f472b6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hm-sub{font-size:12.5px;color:#9a9fc0;margin-top:6px}
+  .hm-resume{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:14px;border-radius:18px;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);color:#e9e5ff;text-align:left;font-size:13px;-webkit-tap-highlight-color:transparent}
+  .hm-resume b{font-weight:600}
+  .hm-resume small{display:block;color:#b4aee0;font-size:11px;margin-top:1px}
+  .hm-resume .hm-chev{margin-left:auto;opacity:.8}
+  .hm-hide{display:none}
+  .hm-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .hm-card{position:relative;overflow:hidden;text-align:left;border-radius:28px;padding:20px 18px;color:#fff;border:1px solid rgba(255,255,255,.12);min-height:268px;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;transition:transform .15s ease;isolation:isolate}
+  .hm-card:active{transform:scale(.985)}
+  .hm-card>*{position:relative;z-index:2}
+  .hm-card .hm-deco,.hm-card .hm-blob{position:absolute;z-index:1;pointer-events:none}
+  .hm-card .hm-blob{z-index:0}
+  .hm-kolase{grid-column:1/-1;min-height:250px;background:linear-gradient(135deg,#3d1f96 0%,#25145f 52%,#5a1f88 100%)}
+  .hm-template{background:linear-gradient(165deg,#7a1f63 0%,#3b103c 58%,#8d2166 100%)}
+  .hm-blank{background:linear-gradient(165deg,#1a3fa6 0%,#0f2060 58%,#2152c9 100%)}
+  .hm-ico{width:54px;height:54px;border-radius:17px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+  .hm-kolase .hm-ico{background:linear-gradient(135deg,#9b6dff,#6d3df0)}
+  .hm-template .hm-ico{background:linear-gradient(135deg,#ff7ab8,#ec4899)}
+  .hm-blank .hm-ico{background:linear-gradient(135deg,#6fb0ff,#3b82f6)}
+  .hm-card h2{font-size:22px;font-weight:700;margin-top:14px;letter-spacing:-.01em}
+  .hm-card p{font-size:12.5px;line-height:1.45;color:rgba(255,255,255,.74);margin-top:5px}
+  .hm-kolase p{max-width:44%}
+  .hm-card:not(.hm-kolase) h2{font-size:19px;white-space:nowrap}
+  .hm-card:not(.hm-kolase){min-height:284px}
+  .hm-arrow{margin-top:14px;width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,.42);display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06)}
+  .hm-blob{border-radius:50%;filter:blur(2px)}
+  /* dekorasi kolase */
+  .hm-pol{position:absolute;background:#fff;padding:5px;border-radius:4px;box-shadow:0 12px 26px rgba(0,0,0,.5)}
+  .hm-pol i{display:block;width:100%;height:100%;border-radius:2px}
+  .hm-pol.a{width:92px;height:110px;right:88px;top:50px;transform:rotate(-8deg)}
+  .hm-pol.a i{background:radial-gradient(circle at 70% 24%,#fde68a 0 9px,transparent 10px),linear-gradient(180deg,#7dd3fc 0 48%,#22d3ee 48% 72%,#f5d28a 72%)}
+  .hm-pol.b{width:116px;height:98px;right:12px;top:20px;transform:rotate(7deg)}
+  .hm-pol.b i{background:linear-gradient(135deg,transparent 52%,#475569 52% 70%,transparent 70%),linear-gradient(180deg,#bfdbfe 0 55%,#2f6f4f 55%)}
+  .hm-pol.c{width:96px;height:96px;right:24px;bottom:22px;transform:rotate(-5deg)}
+  .hm-pol.c i{background:radial-gradient(circle at 28% 36%,#fff 0 5px,transparent 6px),radial-gradient(circle at 66% 30%,#fff 0 5px,transparent 6px),radial-gradient(circle at 48% 66%,#fff 0 6px,transparent 7px),#22884f}
+  /* dekorasi template */
+  .hm-mp{position:absolute;border-radius:8px;box-shadow:0 12px 24px rgba(0,0,0,.5)}
+  .hm-mp.poster{width:86px;height:112px;left:14px;bottom:-14px;transform:rotate(-9deg);background:linear-gradient(180deg,#1d3a8a,#0b1030 45%);padding:8px}
+  .hm-mp.poster u{display:block;height:4px;width:60%;background:#60a5fa;border-radius:2px;margin-top:34px}
+  .hm-mp.poster em{display:block;height:3px;width:80%;background:rgba(255,255,255,.55);border-radius:2px;margin-top:5px}
+  .hm-mp.poster s{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:8px;text-decoration:none}
+  .hm-mp.poster s b{display:block;height:15px;background:linear-gradient(135deg,#38bdf8,#6366f1);border-radius:2px}
+  .hm-mp.frame{width:92px;height:118px;right:-6px;bottom:-18px;transform:rotate(8deg);background:#fff;padding:8px}
+  .hm-mp.frame u{display:block;height:3px;width:80%;background:#222;border-radius:2px;box-shadow:0 5px 0 #222}
+  .hm-mp.frame s{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin:12px 0 8px;text-decoration:none;border:2px solid #222;padding:3px}
+  .hm-mp.frame s b{display:block;height:16px;background:linear-gradient(135deg,#f9a8d4,#a78bfa);border-radius:1px}
+  .hm-mp.frame em{display:block;height:3px;width:60%;background:#222;border-radius:2px}
+  /* dekorasi kanvas kosong */
+  .hm-dash{position:absolute;width:92px;height:92px;right:12px;bottom:14px;border-radius:16px;border:2px dashed rgba(255,255,255,.6);background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:#fff;transform:rotate(7deg);box-shadow:0 12px 26px rgba(0,0,0,.35)}
+  .hm-dash.back{right:40px;bottom:26px;transform:rotate(-9deg);border:none;background:rgba(255,255,255,.1)}
+  .hm-foot{text-align:center;font-size:11px;color:#6f7496;margin-top:18px}
+
+  /* ===== Pilih template (sheet) ===== */
+  .hm-sheetwrap{position:fixed;inset:0;z-index:120;display:flex;align-items:flex-end;justify-content:center}
+  .hm-sheetwrap.hm-hide{display:none}
+  .hm-sheetbg{position:absolute;inset:0;background:rgba(4,4,12,.7);backdrop-filter:blur(4px)}
+  .hm-sheet{position:relative;width:100%;max-width:520px;background:#14152a;border:1px solid rgba(167,139,250,.3);border-bottom:none;border-radius:26px 26px 0 0;padding:10px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -20px 50px rgba(0,0,0,.6)}
+  @media (min-width:700px){.hm-sheetwrap{align-items:center}.hm-sheet{border-radius:26px;border-bottom:1px solid rgba(167,139,250,.3);padding-bottom:18px}}
+  .hm-sheet h3{font-size:17px;font-weight:700;color:#fff;margin-top:8px}
+  .hm-sheet .hm-sdesc{font-size:12px;color:#9a9fc0;margin:3px 0 14px}
+  .hm-tpl{width:100%;display:flex;align-items:center;gap:14px;padding:12px;margin-bottom:10px;border-radius:18px;border:1px solid #2c2f46;background:#1a1b2e;color:#fff;text-align:left;-webkit-tap-highlight-color:transparent}
+  .hm-tpl:active{background:#23244a;border-color:#a78bfa}
+  .hm-tpl .hm-tpl-pic{position:relative;flex:0 0 74px;height:92px}
+  .hm-tpl .hm-mp{left:6px;right:auto;bottom:auto;top:4px;transform:rotate(-4deg);width:62px;height:82px;padding:6px;box-shadow:0 8px 18px rgba(0,0,0,.5)}
+  .hm-tpl .hm-mp.poster u{margin-top:22px}
+  .hm-tpl .hm-mp.poster s b{height:9px}
+  .hm-tpl .hm-mp.frame s b{height:10px}
+  .hm-tpl b.t{display:block;font-size:14px;font-weight:700}
+  .hm-tpl small{display:block;font-size:11.5px;color:#9a9fc0;line-height:1.4;margin-top:3px}
+  .hm-sheet .hm-cancel{width:100%;padding:12px;border-radius:14px;background:#1e2030;color:#c9cbe0;font-size:13px;font-weight:500}
+  #homeBtn{flex:0 0 auto}
+  #downloadBtn{background-image:linear-gradient(90deg,#a78bfa,#f472b6);color:#140a2c}
+  #downloadBtn:hover{filter:brightness(1.08)}
 </style>
 </head>
-<body class="min-h-screen flex flex-col lg:flex-row selection:bg-emerald-500/20 selection:text-emerald-300">
+<body class="min-h-screen flex flex-col lg:flex-row selection:bg-violet-500/20 selection:text-violet-300">
+
+  <!-- ================= BERANDA ================= -->
+  <div id="homeView" class="hm-root" role="main" aria-label="Menu utama">
+    <div class="hm-wrap">
+      <header class="hm-top">
+        <div class="hm-logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></div>
+        <h1 class="hm-title">Collage <span>Studio</span></h1>
+        <p class="hm-sub">Mau bikin apa hari ini?</p>
+      </header>
+
+      <button type="button" id="hmResume" class="hm-resume hm-hide">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+        <span><b>Lanjutkan proyek</b><small id="hmResumeCount">0 foto</small></span>
+        <svg class="hm-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+      <div class="hm-grid">
+        <button type="button" class="hm-card hm-kolase" data-home="kolase">
+          <span class="hm-blob" style="width:230px;height:230px;right:-60px;top:-50px;background:radial-gradient(circle,rgba(139,92,246,.55),transparent 70%)"></span>
+          <span class="hm-blob" style="width:200px;height:200px;right:10px;bottom:-90px;background:radial-gradient(circle,rgba(236,72,153,.5),transparent 70%)"></span>
+          <span class="hm-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="18" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></span>
+          <h2>Kolase</h2>
+          <p>Gabungkan beberapa foto jadi satu karya yang lebih berkesan.</p>
+          <span class="hm-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+          <span class="hm-deco" style="inset:0"><span class="hm-pol a"><i></i></span><span class="hm-pol b"><i></i></span><span class="hm-pol c"><i></i></span></span>
+        </button>
+
+        <button type="button" class="hm-card hm-template" data-home="template">
+          <span class="hm-blob" style="width:170px;height:170px;right:-50px;top:70px;background:radial-gradient(circle,rgba(244,114,182,.5),transparent 70%)"></span>
+          <span class="hm-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg></span>
+          <h2>Template</h2>
+          <p>Pilih template keren untuk foto Anda.</p>
+          <span class="hm-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+          <span class="hm-deco" style="inset:0"><span class="hm-mp poster"><u></u><em></em><s><b></b><b></b><b></b><b></b></s></span><span class="hm-mp frame"><u></u><s><b></b><b></b><b></b><b></b></s><em></em></span></span>
+        </button>
+
+        <button type="button" class="hm-card hm-blank" data-home="blank">
+          <span class="hm-blob" style="width:190px;height:190px;right:-40px;bottom:-60px;background:radial-gradient(circle,rgba(59,130,246,.6),transparent 70%)"></span>
+          <span class="hm-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="4" width="16" height="16" rx="3"/></svg></span>
+          <h2>Kanvas Kosong</h2>
+          <p>Mulai dari awal dengan kanvas teks baru.</p>
+          <span class="hm-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+          <span class="hm-deco" style="inset:0"><span class="hm-dash back"></span><span class="hm-dash"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></span>
+        </button>
+      </div>
+      <p class="hm-foot">Hasil kolase disimpan langsung ke Galeri</p>
+    </div>
+  </div>
+
+  <!-- Pilih template -->
+  <div id="tplPicker" class="hm-sheetwrap hm-hide" role="dialog" aria-label="Pilih template">
+    <div class="hm-sheetbg" data-close="1"></div>
+    <div class="hm-sheet">
+      <div class="insp-grab" style="display:block"></div>
+      <h3>Pilih Template</h3>
+      <p class="hm-sdesc">Bisa diganti kapan saja di tab Template.</p>
+      <button type="button" class="hm-tpl" data-pick="poster">
+        <span class="hm-tpl-pic"><span class="hm-mp poster"><u></u><em></em><s><b></b><b></b><b></b><b></b></s></span></span>
+        <span><b class="t">Poster Sinematik</b><small>Foto pertama jadi Hero, lengkap dengan judul, metadata, dan footer ala poster film.</small></span>
+      </button>
+      <button type="button" class="hm-tpl" data-pick="frame">
+        <span class="hm-tpl-pic"><span class="hm-mp frame"><u></u><s><b></b><b></b><b></b><b></b></s><em></em></span></span>
+        <span><b class="t">Bingkai Caption</b><small>Teks di atas, kotak berisi grid foto di tengah, lalu teks di bawah.</small></span>
+      </button>
+      <button type="button" class="hm-cancel" data-close="1">Batal</button>
+    </div>
+  </div>
+
 
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2"></div>
@@ -406,12 +557,12 @@
   <input type="file" id="replaceFileInput" accept="image/*" class="hidden">
 
   <!-- LEFT SIDEBAR: TABBED CONTROLS & PHOTO LIST -->
-  <aside id="sidePanel" class="w-full lg:w-[400px] xl:w-[430px] flex-shrink-0 bg-[#111317] border-t lg:border-t-0 lg:border-r border-[#22262f] flex flex-col lg:h-screen lg:sticky lg:top-0 z-30">
+  <aside id="sidePanel" class="w-full lg:w-[400px] xl:w-[430px] flex-shrink-0 bg-[#12121f] border-t lg:border-t-0 lg:border-r border-[#272a3d] flex flex-col lg:h-screen lg:sticky lg:top-0 z-30">
     
     <!-- Brand Header + Quick Actions -->
-    <header class="px-5 py-3.5 border-b border-[#22262f] hidden lg:flex items-center justify-between">
+    <header class="px-5 py-3.5 border-b border-[#272a3d] hidden lg:flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner">
+        <div class="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-violet-400 shadow-inner">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="9" rx="1.5"/>
             <rect x="14" y="3" width="7" height="5" rx="1.5"/>
@@ -422,14 +573,14 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-sm font-bold tracking-tight text-zinc-100 leading-none">Collage Studio</h1>
-            <span class="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Pro</span>
+            <span class="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-300 border border-violet-500/30">Pro</span>
           </div>
           <p class="text-[11px] text-zinc-500 mt-1">Auto-Layout & Cinematic Poster Engine</p>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5">
-        <button type="button" id="demoHeaderBtn" title="Muat 7 Foto Contoh Sinematik" class="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/25 transition-colors flex items-center gap-1">
+        <button type="button" id="demoHeaderBtn" title="Muat 7 foto contoh" class="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/25 transition-colors flex items-center gap-1">
           <span>✨ Demo</span>
         </button>
         <span id="badgeCount" class="mono text-[11px] px-2 py-1 rounded-lg bg-zinc-800/90 text-zinc-300 border border-zinc-700/60">0 foto</span>
@@ -437,11 +588,11 @@
     </header>
 
     <!-- Step-by-Step Navigation Tabs -->
-    <nav id="panelNav" class="px-3 pt-2 pb-2 border-b border-[#22262f] bg-[#0e1014] grid grid-cols-4 gap-1" aria-label="Menu Pengaturan">
+    <nav id="panelNav" class="px-3 pt-2 pb-2 border-b border-[#272a3d] bg-[#0d0e1a] grid grid-cols-4 gap-1" aria-label="Menu Pengaturan">
       <button type="button" data-tab="tab-photos" class="sidebar-tab py-2 px-1 rounded-lg border border-transparent text-[11px] font-medium text-zinc-400 hover:text-zinc-200 flex flex-col items-center gap-1 relative active">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         <span>1. Foto</span>
-        <span id="photoCountMini" class="mono text-[9px] absolute top-1 right-1.5 text-emerald-400"></span>
+        <span id="photoCountMini" class="mono text-[9px] absolute top-1 right-1.5 text-violet-400"></span>
       </button>
       <button type="button" data-tab="tab-layout" class="sidebar-tab py-2 px-1 rounded-lg border border-transparent text-[11px] font-medium text-zinc-400 hover:text-zinc-200 flex flex-col items-center gap-1 relative">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
@@ -466,8 +617,8 @@
         <!-- Upload Dropzone -->
         <section>
           <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
-          <div id="dropzone" class="border border-dashed border-[#2b303c] hover:border-emerald-500/50 rounded-xl p-4 text-center cursor-pointer transition-all bg-[#14171d]/70 hover:bg-[#171b22] group">
-            <div class="w-9 h-9 rounded-full bg-zinc-800/80 border border-zinc-700/50 mx-auto flex items-center justify-center text-zinc-400 group-hover:text-emerald-400 group-hover:border-emerald-500/30 transition-colors">
+          <div id="dropzone" class="border border-dashed border-[#2b303c] hover:border-violet-500/50 rounded-xl p-4 text-center cursor-pointer transition-all bg-[#161725]/70 hover:bg-[#171b22] group">
+            <div class="w-9 h-9 rounded-full bg-zinc-800/80 border border-zinc-700/50 mx-auto flex items-center justify-center text-zinc-400 group-hover:text-violet-400 group-hover:border-violet-500/30 transition-colors">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="17 8 12 3 7 8"/>
@@ -475,11 +626,11 @@
               </svg>
             </div>
             <p class="text-xs font-medium text-zinc-200 mt-2">Klik, tarik foto, atau tekan <kbd class="px-1.5 py-0.5 text-[10px] rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Ctrl+V</kbd></p>
-            <p class="text-[11px] text-zinc-500 mt-0.5">Tips Poster Perfect Blue: Unggah 7 foto (1 Hero + 6 Grid)</p>
+            <p class="text-[11px] text-zinc-500 mt-0.5">Pilih beberapa foto sekaligus. Template (poster/bingkai) bersifat opsional di tab Template.</p>
           </div>
         </section>
 
-        <button type="button" id="addTextBlockBtn" class="w-full text-xs font-semibold py-2.5 rounded-xl border border-emerald-500/35 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 transition-colors flex items-center justify-center gap-2">
+        <button type="button" id="addTextBlockBtn" class="w-full text-xs font-semibold py-2.5 rounded-xl border border-violet-500/35 bg-violet-500/10 hover:bg-violet-500/20 text-violet-300 transition-colors flex items-center justify-center gap-2">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
           ＋ Blank Canvas Teks (ketik / tempel tulisan)
         </button>
@@ -501,10 +652,10 @@
 
         <!-- Photo List -->
         <div id="photoList" class="space-y-2">
-          <div class="text-xs text-zinc-500 py-6 px-4 text-center border border-dashed border-[#22262f] rounded-xl space-y-2">
+          <div class="text-xs text-zinc-500 py-6 px-4 text-center border border-dashed border-[#272a3d] rounded-xl space-y-2">
             <p>Belum ada foto yang dipilih.</p>
             <button type="button" id="sideDemoBtn" class="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 transition-colors">
-              ✨ Muat 7 Foto Contoh (Poster Perfect Blue)
+              ✨ Muat 7 Foto Contoh
             </button>
           </div>
         </div>
@@ -537,9 +688,9 @@
             <option value="hero">Hero Besar di Atas + Grid Bawah</option>
             <option value="strips">Strip Komik / Manga + Masonry</option>
           </select>
-          <div id="layoutTplNotice" class="hidden p-2.5 rounded-lg bg-emerald-500/[0.07] border border-emerald-500/25 text-[11.5px] text-emerald-200 leading-snug">
+          <div id="layoutTplNotice" class="hidden p-2.5 rounded-lg bg-violet-500/[0.07] border border-violet-500/25 text-[11.5px] text-violet-200 leading-snug">
             Template <b id="layoutTplName"></b> sedang aktif, jadi tata letak diatur oleh template.
-            <button type="button" id="goTemplateTabBtn" class="underline underline-offset-2 text-emerald-300 font-medium">Ubah template</button>
+            <button type="button" id="goTemplateTabBtn" class="underline underline-offset-2 text-violet-300 font-medium">Ubah template</button>
           </div>
         </div>
 
@@ -576,8 +727,8 @@
         <!-- Fit Foto (Contain vs Cover) -->
         <div class="grid grid-cols-3 items-center gap-2">
           <label class="text-xs text-zinc-400">Pemotongan</label>
-          <div class="col-span-2 grid grid-cols-2 p-0.5 bg-[#171a20] border border-[#22262f] rounded-lg">
-            <button type="button" id="fitContainBtn" class="text-xs py-1.5 rounded-md font-medium transition-all bg-zinc-800 text-emerald-400 shadow-sm">
+          <div class="col-span-2 grid grid-cols-2 p-0.5 bg-[#1a1b2a] border border-[#272a3d] rounded-lg">
+            <button type="button" id="fitContainBtn" class="text-xs py-1.5 rounded-md font-medium transition-all bg-zinc-800 text-violet-400 shadow-sm">
               Utuh (Contain)
             </button>
             <button type="button" id="fitCoverBtn" class="text-xs py-1.5 rounded-md font-medium transition-all text-zinc-400 hover:text-zinc-200">
@@ -586,7 +737,7 @@
           </div>
         </div>
 
-        <hr class="border-[#22262f]">
+        <hr class="border-[#272a3d]">
 
 
         <!-- Pengaturan Jarak & Margin -->
@@ -626,8 +777,8 @@
           <span class="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors">Acak urutan foto saat klik "Layout Lain"</span>
           <div class="relative inline-flex items-center">
             <input type="checkbox" id="shuffleCheck" class="sr-only peer">
-            <div class="w-8 h-4.5 bg-zinc-800 border border-zinc-700 rounded-full peer peer-checked:bg-emerald-500/20 peer-checked:border-emerald-500/50 transition-all h-[18px]"></div>
-            <div class="w-3 h-3 bg-zinc-400 rounded-full absolute left-1 top-[3px] peer-checked:translate-x-3.5 peer-checked:bg-emerald-400 transition-all"></div>
+            <div class="w-8 h-4.5 bg-zinc-800 border border-zinc-700 rounded-full peer peer-checked:bg-violet-500/20 peer-checked:border-violet-500/50 transition-all h-[18px]"></div>
+            <div class="w-3 h-3 bg-zinc-400 rounded-full absolute left-1 top-[3px] peer-checked:translate-x-3.5 peer-checked:bg-violet-400 transition-all"></div>
           </div>
         </label>
       </div>
@@ -667,6 +818,7 @@
           <div class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/25 text-xs text-blue-200 leading-snug">
             <span class="font-semibold block">🎬 Poster Sinematik aktif</span>
             <span class="text-[11px] text-blue-300/80">Foto #1 otomatis menjadi Hero dengan gradasi halus di atas grid. Tata letak diatur oleh template ini.</span>
+            <button type="button" id="demoPosterBtn" class="mt-2 block text-[11px] font-medium px-3 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 border border-blue-500/35">✨ Muat 7 foto contoh poster</button>
           </div>
         <!-- Title, Font & Accent Color -->
         <div class="space-y-2">
@@ -744,10 +896,11 @@
         </div>
 
         <!-- ============ PANEL BINGKAI CAPTION (muncul saat mode Bingkai Caption aktif) ============ -->
-        <div id="framePanel" class="hidden space-y-3.5 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20">
-          <div class="text-xs text-emerald-200 leading-snug">
+        <div id="framePanel" class="hidden space-y-3.5 p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/20">
+          <div class="text-xs text-violet-200 leading-snug">
             <span class="font-semibold block">🖼️ Bingkai Caption</span>
-            <span class="text-[11px] text-emerald-300/70">Teks di atas, garis tebal, kotak berisi grid foto di tengah, garis tebal, lalu teks di bawah. Ukuran kanvas mengikuti <em>Rasio Kanvas</em> di tab Layout.</span>
+            <span class="text-[11px] text-violet-300/70">Teks di atas, garis tebal, kotak berisi grid foto di tengah, garis tebal, lalu teks di bawah. Ukuran kanvas mengikuti <em>Rasio Kanvas</em> di tab Layout.</span>
+            <button type="button" id="demoFrameBtn" class="mt-2 block text-[11px] font-medium px-3 py-2 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 text-violet-200 border border-violet-500/35">✨ Muat 7 foto contoh bingkai</button>
           </div>
 
           <div class="space-y-1.5">
@@ -854,13 +1007,13 @@ definitely flicker.</textarea>
         <div class="grid grid-cols-3 items-center gap-2">
           <label class="text-xs text-zinc-400">Background</label>
           <div class="col-span-2 flex items-center gap-2 flex-wrap">
-            <button type="button" data-bg="#0b0e17" title="Navy Poster (Perfect Blue)" class="bg-swatch w-6 h-6 rounded-full bg-[#0b0e17] border-2 border-emerald-400 scale-105 transition-transform"></button>
+            <button type="button" data-bg="#0b0e17" title="Navy Poster (Perfect Blue)" class="bg-swatch w-6 h-6 rounded-full bg-[#0b0e17] border-2 border-violet-400 scale-105 transition-transform"></button>
             <button type="button" data-bg="#000000" title="Hitam Pekat" class="bg-swatch w-6 h-6 rounded-full bg-black border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
             <button type="button" data-bg="#14161a" title="Abu Gelap" class="bg-swatch w-6 h-6 rounded-full bg-[#14161a] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
             <button type="button" data-bg="#f8fafc" title="Putih Bersih" class="bg-swatch w-6 h-6 rounded-full bg-[#f8fafc] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
             <button type="button" data-bg="#f5ebe0" title="Krem Editorial" class="bg-swatch w-6 h-6 rounded-full bg-[#f5ebe0] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
             <button type="button" data-bg="transparent" title="Transparan (PNG)" class="bg-swatch w-6 h-6 rounded-full checkerboard border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
-            <label title="Pilih Warna Kustom" class="relative w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-400 via-sky-400 to-purple-500 border-2 border-zinc-700 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center overflow-hidden">
+            <label title="Pilih Warna Kustom" class="relative w-6 h-6 rounded-full bg-gradient-to-tr from-violet-400 via-sky-400 to-purple-500 border-2 border-zinc-700 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center overflow-hidden">
               <input type="color" id="customColorInput" value="#0b0e17" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer">
             </label>
           </div>
@@ -876,25 +1029,25 @@ definitely flicker.</textarea>
           </div>
         </div>
 
-        <hr class="border-[#22262f]">
+        <hr class="border-[#272a3d]">
 
         <!-- Image Filter Presets -->
         <div class="space-y-2.5">
           <div class="flex items-center justify-between">
             <h3 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Filter Mood Sinematik</h3>
-            <span id="activeFilterBadge" class="text-[10px] text-emerald-400 mono">Normal</span>
+            <span id="activeFilterBadge" class="text-[10px] text-violet-400 mono">Normal</span>
           </div>
           <div class="grid grid-cols-3 gap-2" id="filterPresetGrid">
-            <button type="button" data-filter="none" class="filter-btn py-2 px-2.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-medium transition-all text-center">Normal</button>
-            <button type="button" data-filter="vivid" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Vivid Pop</button>
-            <button type="button" data-filter="cinema" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Cool Blue</button>
-            <button type="button" data-filter="warm" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Warm Gold</button>
-            <button type="button" data-filter="noir" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Noir B&amp;W</button>
-            <button type="button" data-filter="vintage" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Soft Fade</button>
+            <button type="button" data-filter="none" class="filter-btn py-2 px-2.5 rounded-lg border border-violet-500/40 bg-violet-500/10 text-violet-300 text-xs font-medium transition-all text-center">Normal</button>
+            <button type="button" data-filter="vivid" class="filter-btn py-2 px-2.5 rounded-lg border border-[#272a3d] bg-[#1a1b2a] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Vivid Pop</button>
+            <button type="button" data-filter="cinema" class="filter-btn py-2 px-2.5 rounded-lg border border-[#272a3d] bg-[#1a1b2a] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Cool Blue</button>
+            <button type="button" data-filter="warm" class="filter-btn py-2 px-2.5 rounded-lg border border-[#272a3d] bg-[#1a1b2a] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Warm Gold</button>
+            <button type="button" data-filter="noir" class="filter-btn py-2 px-2.5 rounded-lg border border-[#272a3d] bg-[#1a1b2a] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Noir B&amp;W</button>
+            <button type="button" data-filter="vintage" class="filter-btn py-2 px-2.5 rounded-lg border border-[#272a3d] bg-[#1a1b2a] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Soft Fade</button>
           </div>
         </div>
 
-        <hr class="border-[#22262f]">
+        <hr class="border-[#272a3d]">
 
         <!-- Export Settings -->
         <div class="space-y-3">
@@ -924,8 +1077,8 @@ definitely flicker.</textarea>
     </div>
 
     <!-- Bottom Sticky Action Bar -->
-    <footer id="actionBar" class="p-4 border-t border-[#22262f] bg-[#111317]/95 backdrop-blur flex gap-2">
-      <button id="shuffleBtn" disabled title="Coba alternatif tata letak berikutnya" class="px-3 py-2.5 rounded-lg border border-[#282d38] bg-[#171a20] hover:bg-[#1e222a] text-xs font-medium text-zinc-200 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5">
+    <footer id="actionBar" class="p-4 border-t border-[#272a3d] bg-[#12121f]/95 backdrop-blur flex gap-2">
+      <button id="shuffleBtn" disabled title="Coba alternatif tata letak berikutnya" class="px-3 py-2.5 rounded-lg border border-[#282d38] bg-[#1a1b2a] hover:bg-[#1e222a] text-xs font-medium text-zinc-200 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5">
         <svg class="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
           <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
@@ -934,13 +1087,13 @@ definitely flicker.</textarea>
         <span>Layout Lain</span>
       </button>
 
-      <button id="copyClipboardBtn" disabled title="Salin Gambar Kolase ke Clipboard" class="px-3 py-2.5 rounded-lg border border-[#282d38] bg-[#171a20] hover:bg-[#1e222a] text-xs font-medium text-zinc-200 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center">
+      <button id="copyClipboardBtn" disabled title="Salin Gambar Kolase ke Clipboard" class="px-3 py-2.5 rounded-lg border border-[#282d38] bg-[#1a1b2a] hover:bg-[#1e222a] text-xs font-medium text-zinc-200 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center">
         <svg class="w-4 h-4 text-zinc-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
         </svg>
       </button>
 
-      <button id="downloadBtn" disabled class="flex-1 py-2.5 px-4 rounded-lg bg-emerald-400 hover:bg-emerald-300 active:scale-[0.99] text-zinc-950 font-semibold text-xs disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10">
+      <button id="downloadBtn" disabled class="flex-1 py-2.5 px-4 rounded-lg bg-violet-400 hover:bg-violet-300 active:scale-[0.99] text-zinc-950 font-semibold text-xs disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center gap-2 shadow-lg shadow-violet-500/10">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
@@ -956,13 +1109,16 @@ definitely flicker.</textarea>
     
     <!-- Top Bar: rekomendasi layout (geser horizontal), Undo/Redo, ukuran preview -->
     <div id="workspaceHeader" class="ws-header">
+      <button type="button" id="homeBtn" title="Menu utama" aria-label="Kembali ke menu utama" class="ws-iconbtn">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+      </button>
       <div id="chips" class="chips-scroll">
         <span class="text-xs text-zinc-500">Pilih atau muat foto contoh untuk melihat rekomendasi tata letak...</span>
       </div>
 
       <div class="ws-tools">
         <!-- Undo / Redo Buttons -->
-        <div class="flex items-center bg-[#14171d] border border-[#22262f] rounded-lg p-0.5">
+        <div class="flex items-center bg-[#161725] border border-[#272a3d] rounded-lg p-0.5">
           <button type="button" id="undoBtn" disabled title="Batalkan (Ctrl+Z)" class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 disabled:opacity-30 disabled:pointer-events-none transition-colors">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
@@ -978,7 +1134,7 @@ definitely flicker.</textarea>
         <button type="button" id="previewSizeBtn" title="Perbesar / perkecil preview" aria-label="Perbesar atau perkecil preview" class="lg:hidden ws-iconbtn">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
         </button>
-        <div id="layoutInfo" class="mono text-[11px] text-zinc-400 bg-[#14171d] px-2.5 py-1.5 rounded-lg border border-[#22262f] hidden"></div>
+        <div id="layoutInfo" class="mono text-[11px] text-zinc-400 bg-[#161725] px-2.5 py-1.5 rounded-lg border border-[#272a3d] hidden"></div>
       </div>
     </div>
 
@@ -986,7 +1142,7 @@ definitely flicker.</textarea>
     <div id="tileInspector" class="hidden" role="dialog" aria-label="Edit foto">
       <div class="insp-grab" aria-hidden="true"></div>
       <div class="insp-head">
-        <span id="inspectorTitle" class="mono text-[12px] font-semibold text-emerald-400">Foto #1</span>
+        <span id="inspectorTitle" class="mono text-[12px] font-semibold text-violet-400">Foto #1</span>
         <button type="button" id="makeHeroBtn" title="Jadikan Foto Utama (Hero Paling Atas)" class="insp-hero">★ Jadikan Hero</button>
         <button type="button" id="closeInspectorBtn" title="Tutup (Esc)" aria-label="Tutup panel edit foto" class="insp-close">✕</button>
       </div>
@@ -1026,7 +1182,7 @@ definitely flicker.</textarea>
       
       <!-- Empty State Placeholder -->
       <div id="emptyState" class="max-w-md text-center space-y-4 py-10 px-4">
-        <div class="w-14 h-14 rounded-2xl bg-[#14171d] border border-[#22262f] flex items-center justify-center mx-auto text-emerald-400 shadow-inner">
+        <div class="w-14 h-14 rounded-2xl bg-[#161725] border border-[#272a3d] flex items-center justify-center mx-auto text-violet-400 shadow-inner">
           <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
             <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -1036,21 +1192,21 @@ definitely flicker.</textarea>
         <div class="space-y-1.5">
           <h3 class="text-base font-semibold text-zinc-100">Mulai Buat Kolase atau Poster Film</h3>
           <p class="text-xs text-zinc-400 leading-relaxed">
-            Unggah foto dari perangkat Anda, tempel langsung dengan <kbd class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Ctrl+V</kbd>, atau coba langsung menggunakan 7 foto contoh bergaya poster sinematik <strong class="text-zinc-200">Perfect Blue</strong>.
+            Unggah foto dari perangkat Anda, tempel langsung dengan <kbd class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Ctrl+V</kbd>, atau coba langsung dengan 7 foto contoh.
           </p>
         </div>
         <div class="flex flex-wrap items-center justify-center gap-2.5 pt-2">
-          <button type="button" id="emptyUploadBtn" class="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-zinc-950 transition-all shadow-lg shadow-emerald-500/10">
+          <button type="button" id="emptyUploadBtn" class="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl bg-violet-400 hover:bg-violet-300 text-zinc-950 transition-all shadow-lg shadow-violet-500/10">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
             Pilih Foto dari Perangkat
           </button>
-          <button type="button" id="emptyTextBtn" class="inline-flex items-center gap-2 text-xs font-medium px-4 py-2.5 rounded-xl bg-[#171a20] hover:bg-[#1f242d] text-emerald-300 border border-emerald-500/30 transition-all">
+          <button type="button" id="emptyTextBtn" class="inline-flex items-center gap-2 text-xs font-medium px-4 py-2.5 rounded-xl bg-[#1a1b2a] hover:bg-[#1f242d] text-violet-300 border border-violet-500/30 transition-all">
             <span>Ｔ Mulai dengan Blank Canvas Teks</span>
           </button>
-          <button type="button" id="emptyDemoBtn" class="inline-flex items-center gap-2 text-xs font-medium px-4 py-2.5 rounded-xl bg-[#171a20] hover:bg-[#1f242d] text-blue-300 border border-blue-500/30 transition-all">
-            <span>✨ Coba 7 Foto Contoh (Demo Poster)</span>
+          <button type="button" id="emptyDemoBtn" class="inline-flex items-center gap-2 text-xs font-medium px-4 py-2.5 rounded-xl bg-[#1a1b2a] hover:bg-[#1f242d] text-blue-300 border border-blue-500/30 transition-all">
+            <span>✨ Coba 7 Foto Contoh</span>
           </button>
         </div>
       </div>
@@ -1058,7 +1214,7 @@ definitely flicker.</textarea>
       <!-- Interactive Stage -->
       <div id="stageWrapper" class="hidden flex-col items-center">
         <div id="stage"></div>
-        <div id="stageHint" class="text-[11px] text-zinc-400 mt-2.5 text-center flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 bg-[#12141a]/90 px-3.5 py-1.5 rounded-full border border-[#22262f]">
+        <div id="stageHint" class="text-[11px] text-zinc-400 mt-2.5 text-center flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 bg-[#12141a]/90 px-3.5 py-1.5 rounded-full border border-[#272a3d]">
           <span class="hint-desktop"><b>Tarik foto</b> untuk menukar posisi • <b>Klik foto</b> untuk Zoom, Geser Fokus, Putar &amp; Crop (klik 2× = Crop)</span>
           <span class="hint-touch"><b>Ketuk foto</b> untuk edit • <b>Tahan lalu geser</b> untuk menukar posisi</span>
         </div>
@@ -1235,7 +1391,7 @@ const NW = 1000; // Base width unit for layout calculation
 function showToast(message, icon = '✨') {
   const container = $('toastContainer');
   const toast = document.createElement('div');
-  toast.className = 'toast-enter bg-[#161922]/95 backdrop-blur-md text-zinc-100 border border-emerald-500/30 px-4 py-2 rounded-full shadow-xl text-xs font-medium flex items-center gap-2';
+  toast.className = 'toast-enter bg-[#161922]/95 backdrop-blur-md text-zinc-100 border border-violet-500/30 px-4 py-2 rounded-full shadow-xl text-xs font-medium flex items-center gap-2';
   toast.setAttribute('role', 'status');
   const ic = document.createElement('span'); ic.textContent = icon;
   const tx = document.createElement('span'); tx.textContent = message;
@@ -1382,8 +1538,8 @@ function setFilterUI(filterKey) {
   document.querySelectorAll('.filter-btn').forEach(btn => {
     const active = btn.dataset.filter === filterKey;
     btn.className = active
-      ? 'filter-btn py-2 px-2.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-medium transition-all text-center'
-      : 'filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center';
+      ? 'filter-btn py-2 px-2.5 rounded-lg border border-violet-500/40 bg-violet-500/10 text-violet-300 text-xs font-medium transition-all text-center'
+      : 'filter-btn py-2 px-2.5 rounded-lg border border-[#272a3d] bg-[#1a1b2a] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center';
   });
 }
 
@@ -1396,7 +1552,8 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 });
 
 /* ---------- DEMO SAMPLE GENERATOR (7 CINEMATIC SCENES) ---------- */
-async function loadDemoPhotos() {
+async function loadDemoPhotos(kind) {
+  if (kind !== 'poster' && kind !== 'frame') kind = null;   // klik tombol biasa = demo kolase biasa
   const scenes = [
     { title: 'Hero — Stage Spotlight', c1: '#0f172a', c2: '#1e3a8a', accent: '#60a5fa', type: 'hero' },
     { title: 'Scene 01 — Subway Reflection', c1: '#090d16', c2: '#1e293b', accent: '#38bdf8', type: 'city' },
@@ -1499,18 +1656,23 @@ async function loadDemoPhotos() {
     flipH: false
   }));
 
-  modeSelect.value = 'poster';
-  syncModeUI();
-  applyPosterPresetDefaults();
+  if (kind) {
+    // Demo khusus template: hanya dipakai dari tombol di tab Template
+    modeSelect.value = kind;
+    syncModeUI();
+    if (kind === 'poster') applyPosterPresetDefaults(); else applyFramePresetDefaults();
+  }
   renderPhotoList();
   saveHistory();
   computeLayoutAndRender();
-  showToast('7 Foto Contoh Poster Perfect Blue dimuat!', '🎬');
+  showToast(kind === 'poster' ? '7 foto contoh poster dimuat!' : kind === 'frame' ? '7 foto contoh bingkai dimuat!' : '7 foto contoh dimuat!', kind === 'poster' ? '🎬' : kind === 'frame' ? '🖼️' : '✨');
 }
 
 [emptyDemoBtn, demoHeaderBtn, sideDemoBtn].forEach(btn => {
-  if (btn) btn.addEventListener('click', loadDemoPhotos);
+  if (btn) btn.addEventListener('click', () => loadDemoPhotos());
 });
+$('demoPosterBtn').addEventListener('click', () => loadDemoPhotos('poster'));
+$('demoFrameBtn').addEventListener('click', () => loadDemoPhotos('frame'));
 
 /* ---------- UPLOAD, DRAG-DROP & PASTE EVENTS ---------- */
 dropzone.addEventListener('click', () => fileInput.click());
@@ -1731,10 +1893,10 @@ frameOpacitySlider.addEventListener('input', () => {
 function setFitModeUI(mode) {
   fitMode = mode;
   if (mode === 'contain') {
-    fitContainBtn.className = 'text-xs py-1.5 rounded-md font-medium transition-all bg-zinc-800 text-emerald-400 shadow-sm';
+    fitContainBtn.className = 'text-xs py-1.5 rounded-md font-medium transition-all bg-zinc-800 text-violet-400 shadow-sm';
     fitCoverBtn.className = 'text-xs py-1.5 rounded-md font-medium transition-all text-zinc-400 hover:text-zinc-200';
   } else {
-    fitCoverBtn.className = 'text-xs py-1.5 rounded-md font-medium transition-all bg-zinc-800 text-emerald-400 shadow-sm';
+    fitCoverBtn.className = 'text-xs py-1.5 rounded-md font-medium transition-all bg-zinc-800 text-violet-400 shadow-sm';
     fitContainBtn.className = 'text-xs py-1.5 rounded-md font-medium transition-all text-zinc-400 hover:text-zinc-200';
   }
 }
@@ -1756,9 +1918,9 @@ function setBgColorUI(color) {
   document.querySelectorAll('.bg-swatch').forEach(b => {
     if (b.dataset.bg === color) {
       b.classList.remove('border-zinc-700');
-      b.classList.add('border-emerald-400', 'scale-105');
+      b.classList.add('border-violet-400', 'scale-105');
     } else {
-      b.classList.remove('border-emerald-400', 'scale-105');
+      b.classList.remove('border-violet-400', 'scale-105');
       b.classList.add('border-zinc-700');
     }
   });
@@ -1775,7 +1937,7 @@ document.querySelectorAll('.bg-swatch').forEach(btn => {
 customColorInput.addEventListener('input', (e) => {
   bgColor = e.target.value;
   document.querySelectorAll('.bg-swatch').forEach(b => {
-    b.classList.remove('border-emerald-400', 'scale-105');
+    b.classList.remove('border-violet-400', 'scale-105');
     b.classList.add('border-zinc-700');
   });
   renderStage();
@@ -2562,7 +2724,7 @@ function tbSetRatio(k) {
             <button type="button" class="crop-chip" id="tbCenterX" title="Pusatkan kotak ini secara horizontal">⇔ Tengah</button>
             <button type="button" class="crop-chip" id="tbCenterY" title="Pusatkan kotak ini secara vertikal">⇕ Tengah</button>
           </div>
-          <hr style="border:0;border-top:1px solid #22262f;margin:2px 0">
+          <hr style="border:0;border-top:1px solid #272a3d;margin:2px 0">
           <div class="tb-row">
             <span style="font-size:11px;color:#868e96">Warna Latar</span><input type="color" id="tbBg" class="tb-color">
             <label class="tb-check" style="margin-left:6px"><input type="checkbox" id="tbTransparent"> Transparan</label>
@@ -2671,7 +2833,7 @@ async function tbRenderPreview() {
     ctx.save();
     ctx.translate(b.cx, b.cy);
     ctx.rotate(b.rot * Math.PI / 180);
-    ctx.strokeStyle = '#34d399';
+    ctx.strokeStyle = '#a78bfa';
     ctx.lineWidth = Math.max(1.5, pv.width / 500);
     ctx.setLineDash([pv.width / 100, pv.width / 160]);
     ctx.strokeRect(-b.w / 2 - 6, -b.h / 2 - 4, b.w + 12, b.h + 8);
@@ -2872,14 +3034,14 @@ function renderPhotoList() {
 
   if (photos.length === 0) {
     photoListEl.innerHTML = `
-      <div class="text-xs text-zinc-500 py-6 px-4 text-center border border-dashed border-[#22262f] rounded-xl space-y-2">
+      <div class="text-xs text-zinc-500 py-6 px-4 text-center border border-dashed border-[#272a3d] rounded-xl space-y-2">
         <p>Belum ada foto yang dipilih.</p>
         <button type="button" id="sideDemoBtnDynamic" class="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 transition-colors">
-          ✨ Muat 7 Foto Contoh (Poster Perfect Blue)
+          ✨ Muat 7 Foto Contoh
         </button>
       </div>`;
     const dynBtn = $('sideDemoBtnDynamic');
-    if (dynBtn) dynBtn.addEventListener('click', loadDemoPhotos);
+    if (dynBtn) dynBtn.addEventListener('click', () => loadDemoPhotos());
 
     shuffleBtn.disabled = true;
     downloadBtn.disabled = true;
@@ -2898,7 +3060,7 @@ function renderPhotoList() {
   photos.forEach((p, i) => {
     const isHeroSlot = i === 0 && (modeSelect.value === 'poster' || modeSelect.value === 'hero');
     const row = document.createElement('div');
-    row.className = `flex items-center gap-2 bg-[#171a20] border ${isHeroSlot ? 'border-blue-500/40' : 'border-[#22262f]'} hover:border-[#323846] rounded-lg p-1.5 transition-colors`;
+    row.className = `flex items-center gap-2 bg-[#1a1b2a] border ${isHeroSlot ? 'border-blue-500/40' : 'border-[#272a3d]'} hover:border-[#323846] rounded-lg p-1.5 transition-colors`;
 
     const idxBadge = document.createElement('span');
     idxBadge.className = `mono text-[10px] ${isHeroSlot ? 'text-blue-400 font-bold' : 'text-zinc-500'} w-5 text-center select-none`;
@@ -2916,7 +3078,7 @@ function renderPhotoList() {
     capInput.type = 'text';
     capInput.placeholder = isHeroSlot ? 'Foto Hero Utama (Atas)' : 'Teks / caption (opsional)';
     capInput.value = p.caption;
-    capInput.className = 'ui-input flex-1 min-w-0 !py-1 !px-2 !text-xs !bg-[#111317]';
+    capInput.className = 'ui-input flex-1 min-w-0 !py-1 !px-2 !text-xs !bg-[#12121f]';
     capInput.addEventListener('input', () => {
       p.caption = capInput.value;
       renderStage();
@@ -3455,9 +3617,6 @@ function buildCandidates(seq, spec, mode, param) {
       const gl = g * spec.Lw / NW;
       [true, false].forEach(right => raw.push(stripsLayout(seq, spec.Lw, spec.Lh, gl, right)));
     }
-    if (mode === 'auto' && n >= 2) {
-      raw.push(posterLayout(seq, spec, 2, 2));
-    }
   }
 
   const done = raw.map(c => finalize(c, spec)).sort((a, b) => b.score - a.score);
@@ -3505,8 +3664,8 @@ function renderChips() {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = active
-      ? 'px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm'
-      : 'px-2.5 py-1 rounded-full text-xs text-zinc-400 hover:text-zinc-200 bg-[#14171d] hover:bg-[#1b1f27] border border-[#22262f] transition-all flex items-center gap-1.5';
+      ? 'px-2.5 py-1 rounded-full text-xs font-medium bg-violet-500/15 text-violet-300 border border-violet-500/40 transition-all flex items-center gap-1.5 shadow-sm'
+      : 'px-2.5 py-1 rounded-full text-xs text-zinc-400 hover:text-zinc-200 bg-[#161725] hover:bg-[#1b1f27] border border-[#272a3d] transition-all flex items-center gap-1.5';
     b.innerHTML = `<span>${c.label}</span><span class="mono text-[10px] opacity-75">${Math.round(c.eff * 100)}%</span>`;
     b.onclick = () => selectCandidate(i);
     chipsEl.appendChild(b);
@@ -4497,6 +4656,7 @@ async function nativeSaveBlob(blob, name) {
     return;
   } catch (err) {
     console.warn('GallerySaver gagal, fallback ke Share:', err);
+    showToast('Simpan ke galeri gagal (' + ((err && err.message) || err) + '), membuka Bagikan', '⚠️');
   }
 
   try {
@@ -4512,7 +4672,9 @@ if (IS_NATIVE && CAP.Plugins.App) {
   CAP.Plugins.App.addListener('backButton', () => {
     if (tbModal.classList.contains('open')) return closeTextEditor();
     if (cropModal.classList.contains('open')) return closeCropEditor();
+    if (!tplPicker.classList.contains('hm-hide')) return closeTplPicker();
     if (!tileInspector.classList.contains('hidden')) return closeTileInspector();
+    if (!isHomeOpen()) return showHome();   // dari editor -> kembali ke menu utama
     CAP.Plugins.App.exitApp();
   });
 }
@@ -4576,6 +4738,84 @@ document.addEventListener('focusout', () => {
 if (typeof IS_NATIVE !== 'undefined' && IS_NATIVE) copyClipboardBtn.style.display = 'none';
 
 syncModeUI();
+
+/* ============================================================
+   BERANDA: Kolase / Template / Kanvas Kosong
+   ============================================================ */
+const homeView = $('homeView');
+const tplPicker = $('tplPicker');
+const isHomeOpen = () => !homeView.classList.contains('hm-hide');
+
+function updateHomeResume() {
+  const n = photos.length;
+  $('hmResume').classList.toggle('hm-hide', n === 0);
+  $('hmResumeCount').textContent = `${n} foto di kanvas`;
+}
+function showHome() {
+  closeTileInspector();
+  updateHomeResume();
+  homeView.classList.remove('hm-hide');
+  homeView.scrollTop = 0;
+}
+function hideHome() {
+  homeView.classList.add('hm-hide');
+  setTimeout(() => { if (current) renderStage(); }, 40);
+}
+const openTplPicker = () => tplPicker.classList.remove('hm-hide');
+const closeTplPicker = () => tplPicker.classList.add('hm-hide');
+
+// Proyek baru = semua pengaturan kembali ke bawaan (tanpa template)
+function resetProject() {
+  closeTileInspector();
+  photos = [];
+  selectedPhotoId = null;
+  modeSelect.value = 'auto';
+  lastLayoutStyle = 'auto';
+  paramSelect.value = '0';
+  ratioSelect.value = '9:16';
+  gapSlider.value = 8;    gapValLabel.textContent = '8px';
+  marginSlider.value = 0; marginValLabel.textContent = '0px';
+  radiusSlider.value = 6; radiusValLabel.textContent = '6px';
+  setFitModeUI('contain');
+  setBgColorUI('#0b0e17');
+  setFilterUI('none');
+  historyStack = []; historyIndex = -1;
+  syncModeUI();
+  renderPhotoList();
+  saveHistory();
+  computeLayoutAndRender();
+}
+
+function startProject(kind, template) {
+  if (photos.length > 0 && !confirm('Mulai proyek baru? Foto yang sedang dikerjakan akan dihapus.')) return;
+  resetProject();
+  if (template) {
+    modeSelect.value = template;
+    onModeChanged();
+  }
+  hideHome();
+  switchTab('tab-photos');
+  if (kind === 'blank') openTextEditor(null);
+  else fileInput.click();   // langsung buka pilihan foto
+}
+
+document.querySelectorAll('[data-home]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const k = btn.dataset.home;
+    if (k === 'template') openTplPicker();
+    else startProject(k);
+  });
+});
+document.querySelectorAll('#tplPicker [data-pick]').forEach(btn => {
+  btn.addEventListener('click', () => { closeTplPicker(); startProject('template', btn.dataset.pick); });
+});
+tplPicker.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeTplPicker));
+$('hmResume').addEventListener('click', hideHome);
+$('homeBtn').addEventListener('click', showHome);
+window.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (!tplPicker.classList.contains('hm-hide')) closeTplPicker();
+});
 </script>
 </body>
 </html>

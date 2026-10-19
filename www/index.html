@@ -128,16 +128,27 @@
     border-radius: 8px;
     box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.78), 0 0 0 1px rgba(255, 255, 255, 0.08);
     overflow: hidden;
-    touch-action: none;
+    touch-action: pan-y;
     transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), height 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  #stage.swap-unlocked {
+    touch-action: none;
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.78), 0 0 0 2px rgba(52, 211, 153, 0.55);
   }
 
   .tile {
     position: absolute;
-    cursor: grab;
+    cursor: pointer;
     user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     overflow: hidden;
-    transition: box-shadow 0.15s ease;
+    touch-action: pan-y;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  #stage.swap-unlocked .tile {
+    cursor: grab;
+    touch-action: none;
   }
   .tile:hover {
     box-shadow: inset 0 0 0 1.5px rgba(52, 211, 153, 0.75);
@@ -147,151 +158,103 @@
     box-shadow: inset 0 0 0 2.5px #34d399, 0 0 18px rgba(52, 211, 153, 0.25) !important;
     z-index: 28 !important;
   }
+  .tile.swap-source-tile {
+    box-shadow: inset 0 0 0 3px #60a5fa, 0 0 20px rgba(96, 165, 250, 0.4) !important;
+    z-index: 29 !important;
+  }
   .tile.dragging {
     cursor: grabbing;
     z-index: 60 !important;
     box-shadow: 0 14px 30px rgba(0,0,0,0.65), 0 0 0 2px var(--accent);
     opacity: 0.92;
+    transform: scale(1.02);
   }
   .tile.drop-target {
     box-shadow: inset 0 0 0 3px var(--accent) !important;
     filter: brightness(1.18);
     z-index: 30;
   }
-  .tile-inner {
-    position: absolute;
-    overflow: hidden;
+
+  /* ===== Mobile Responsive Split-View & Touch UX ===== */
+  .template-card {
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .tile-inner img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    pointer-events: none;
-    transform-origin: center center;
-  }
-  .tile .cap {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 6%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.82));
-    color: #fff;
-    font-weight: 500;
-    line-height: 1.1;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    pointer-events: none;
+  .template-card.active {
+    border-color: rgba(52, 211, 153, 0.55) !important;
+    background-color: rgba(52, 211, 153, 0.1) !important;
+    box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.25), 0 8px 20px -4px rgba(0, 0, 0, 0.4);
   }
 
-  /* Tile Quick Badge on Hover */
-  .tile-badge {
-    position: absolute;
-    top: 6px;
-    left: 6px;
-    background: rgba(9, 10, 12, 0.75);
-    backdrop-filter: blur(4px);
-    color: #e4e4e7;
-    font-size: 10px;
-    font-family: 'JetBrains Mono', monospace;
-    padding: 2px 6px;
-    border-radius: 5px;
-    border: 1px solid rgba(255,255,255,0.12);
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    pointer-events: none;
-    z-index: 12;
+  @media (max-width: 1023px) {
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    #mainWorkspace {
+      order: 1;
+      position: sticky;
+      top: 0;
+      z-index: 35;
+      min-height: auto !important;
+      border-bottom: 1px solid #22262f;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+    }
+    #controlSidebar {
+      order: 2;
+      z-index: 30;
+    }
+    #workspaceHeader {
+      padding: 8px 12px !important;
+      gap: 6px !important;
+    }
+    #chips {
+      flex-wrap: nowrap !important;
+      overflow-x: auto;
+      max-width: 100%;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    #chips::-webkit-scrollbar {
+      display: none;
+    }
+    #chips button {
+      flex-shrink: 0;
+    }
+    #workspaceCanvasArea {
+      padding: 10px 12px !important;
+      max-height: 44vh;
+      transition: max-height 0.25s ease, padding 0.25s ease;
+    }
+    #mainWorkspace.preview-collapsed #workspaceCanvasArea {
+      display: none !important;
+    }
+    #mainWorkspace.preview-expanded #workspaceCanvasArea {
+      max-height: 72vh;
+    }
+    /* Bottom-sheet Tile Inspector untuk Layar Sentuh Smartphone */
+    #tileInspector {
+      position: fixed !important;
+      top: auto !important;
+      bottom: 12px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: calc(100vw - 20px) !important;
+      max-width: 480px !important;
+      z-index: 120 !important;
+      padding: 12px 14px !important;
+      border-radius: 18px !important;
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(52, 211, 153, 0.4) !important;
+    }
+    input[type="range"] {
+      height: 26px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      height: 18px;
+      width: 18px;
+      margin-top: -7px;
+    }
   }
-  .tile:hover .tile-badge,
-  .tile.selected-tile .tile-badge {
-    opacity: 1;
-  }
-
-  /* Dropzone highlight */
-  .dropzone-active {
-    border-color: var(--accent) !important;
-    background-color: var(--accent-dim) !important;
-  }
-
-  /* Tab navigation active state */
-  .sidebar-tab {
-    position: relative;
-    transition: all 0.15s ease;
-  }
-  .sidebar-tab.active {
-    color: #34d399;
-    background-color: rgba(52, 211, 153, 0.08);
-    border-color: rgba(52, 211, 153, 0.3);
-  }
-
-  /* Toast animation */
-  @keyframes toastIn {
-    from { opacity: 0; transform: translate(-50%, 12px); }
-    to { opacity: 1; transform: translate(-50%, 0); }
-  }
-  .toast-enter {
-    animation: toastIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  /* ===== Crop Editor ===== */
-  #cropModal { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; background: rgba(5,6,8,0.88); backdrop-filter: blur(6px); padding: 16px; }
-  #cropModal.open { display: flex; }
-  .crop-card { background: #111317; border: 1px solid #2b303c; border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,.7); max-width: 96vw; max-height: 96vh; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; overflow: auto; }
-  .crop-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .crop-title { font-size: 13px; font-weight: 600; color: #f1f3f5; }
-  .crop-info { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #34d399; }
-  .crop-presets { display: flex; flex-wrap: wrap; gap: 6px; }
-  .crop-chip { font-size: 11.5px; padding: 5px 10px; border-radius: 999px; border: 1px solid #22262f; background: #171a20; color: #a1a8b3; cursor: pointer; transition: all .15s ease; }
-  .crop-chip:hover { color: #f1f3f5; border-color: #323846; }
-  .crop-chip.active { background: rgba(52,211,153,.14); border-color: rgba(52,211,153,.5); color: #6ee7b7; }
-  .crop-chip.auto { border-color: rgba(96,165,250,.4); color: #93c5fd; background: rgba(96,165,250,.08); }
-  .crop-stage-wrap { display: flex; justify-content: center; }
-  .crop-stage { position: relative; overflow: hidden; touch-action: none; user-select: none; background: repeating-conic-gradient(#1a1d24 0% 25%, #12141a 0% 50%) 0 0 / 16px 16px; border-radius: 6px; }
-  .crop-stage canvas { display: block; width: 100%; height: 100%; pointer-events: none; }
-  .crop-box { position: absolute; box-shadow: 0 0 0 9999px rgba(0,0,0,.62); outline: 2px solid #34d399; cursor: move;
-    background-image: linear-gradient(to right, transparent 33.2%, rgba(255,255,255,.28) 33.3%, transparent 33.5%, transparent 66.5%, rgba(255,255,255,.28) 66.6%, transparent 66.8%),
-                      linear-gradient(to bottom, transparent 33.2%, rgba(255,255,255,.28) 33.3%, transparent 33.5%, transparent 66.5%, rgba(255,255,255,.28) 66.6%, transparent 66.8%); }
-  .crop-handle { position: absolute; width: 16px; height: 16px; background: #34d399; border: 2px solid #0b0e17; border-radius: 4px; transform: translate(-50%, -50%); }
-  .crop-handle[data-h="nw"] { left: 0; top: 0; cursor: nwse-resize; }
-  .crop-handle[data-h="n"]  { left: 50%; top: 0; cursor: ns-resize; }
-  .crop-handle[data-h="ne"] { left: 100%; top: 0; cursor: nesw-resize; }
-  .crop-handle[data-h="e"]  { left: 100%; top: 50%; cursor: ew-resize; }
-  .crop-handle[data-h="se"] { left: 100%; top: 100%; cursor: nwse-resize; }
-  .crop-handle[data-h="s"]  { left: 50%; top: 100%; cursor: ns-resize; }
-  .crop-handle[data-h="sw"] { left: 0; top: 100%; cursor: nesw-resize; }
-  .crop-handle[data-h="w"]  { left: 0; top: 50%; cursor: ew-resize; }
-  .crop-box.locked .crop-handle[data-h="n"], .crop-box.locked .crop-handle[data-h="e"],
-  .crop-box.locked .crop-handle[data-h="s"], .crop-box.locked .crop-handle[data-h="w"] { display: none; }
-  .crop-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
-  .crop-btn { font-size: 12px; padding: 8px 14px; border-radius: 10px; border: 1px solid #282d38; background: #171a20; color: #e4e4e7; cursor: pointer; font-weight: 500; }
-  .crop-btn:hover { background: #1e222a; }
-  .crop-btn.primary { background: #34d399; border-color: #34d399; color: #04130c; font-weight: 700; }
-  .crop-btn.primary:hover { background: #6ee7b7; }
-  .crop-hint { font-size: 10.5px; color: #868e96; }
-
-  /* ===== Text Block (Blank Canvas Teks) ===== */
-  #tbModal { position: fixed; inset: 0; z-index: 210; display: none; align-items: center; justify-content: center; background: rgba(5,6,8,0.88); backdrop-filter: blur(6px); padding: 16px; }
-  #tbModal.open { display: flex; }
-  .tb-card { width: min(1040px, 96vw); }
-  .tb-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
-  @media (max-width: 820px) { .tb-grid { grid-template-columns: minmax(0, 1fr); } }
-  .tb-preview { display: flex; align-items: center; justify-content: center; min-height: 220px; padding: 14px; border-radius: 10px; border: 1px solid #22262f; background: #0b0d11; }
-  .tb-preview.checker { background: repeating-conic-gradient(#1a1d24 0% 25%, #12141a 0% 50%) 0 0 / 16px 16px; }
-  .tb-preview canvas { display: block; max-width: 100%; max-height: 56vh; width: auto; height: auto; box-shadow: 0 10px 30px rgba(0,0,0,.55); border-radius: 2px; }
-  .tb-controls { display: flex; flex-direction: column; gap: 12px; max-height: 66vh; overflow-y: auto; padding-right: 4px; }
-  .tb-label { font-size: 11px; font-weight: 600; color: #c9ced6; margin-bottom: 5px; display: block; }
-  .tb-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .tb-slider { display: flex; flex-direction: column; gap: 3px; }
-  .tb-slider > div { display: flex; justify-content: space-between; font-size: 11.5px; color: #868e96; }
-  .tb-slider > div span:last-child { font-family: 'JetBrains Mono', monospace; color: #c9ced6; font-size: 11px; }
-  .tb-check { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: #a1a8b3; cursor: pointer; }
-  .tb-color { width: 38px; height: 30px; padding: 0; border: 1px solid #2b303c; border-radius: 8px; background: transparent; cursor: pointer; }
-  .tb-num { width: 78px; }
-  .tb-chip-sq { min-width: 34px; text-align: center; }
 </style>
 </head>
 <body class="min-h-screen flex flex-col lg:flex-row selection:bg-emerald-500/20 selection:text-emerald-300">
@@ -303,7 +266,8 @@
   <input type="file" id="replaceFileInput" accept="image/*" class="hidden">
 
   <!-- LEFT SIDEBAR: TABBED CONTROLS & PHOTO LIST -->
-  <aside class="w-full lg:w-[400px] xl:w-[430px] flex-shrink-0 bg-[#111317] border-b lg:border-b-0 lg:border-r border-[#22262f] flex flex-col lg:h-screen lg:sticky lg:top-0 z-30">
+  <!-- LEFT SIDEBAR: TABBED CONTROLS & PHOTO LIST -->
+  <aside id="controlSidebar" class="w-full lg:w-[400px] xl:w-[430px] flex-shrink-0 bg-[#111317] border-b lg:border-b-0 lg:border-r border-[#22262f] flex flex-col lg:h-screen lg:sticky lg:top-0 z-30">
     
     <!-- Brand Header + Quick Actions -->
     <header class="px-5 py-3.5 border-b border-[#22262f] flex items-center justify-between">
@@ -321,7 +285,7 @@
             <h1 class="text-sm font-bold tracking-tight text-zinc-100 leading-none">Collage Studio</h1>
             <span class="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Pro</span>
           </div>
-          <p class="text-[11px] text-zinc-500 mt-1">Auto-Layout & Cinematic Poster Engine</p>
+          <p class="text-[11px] text-zinc-500 mt-1">Smart Layout &amp; Template Engine</p>
         </div>
       </div>
 
@@ -355,10 +319,10 @@
       </button>
       <button type="button" data-tab="tab-poster" id="posterTabBtn" class="sidebar-tab py-2 px-2 rounded-lg border border-transparent text-[11.5px] font-medium text-zinc-400 hover:text-zinc-200 flex flex-col items-center gap-1 relative">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/>
+          <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/>
         </svg>
-        <span>4. Poster</span>
-        <span id="posterActiveDot" class="hidden w-2 h-2 rounded-full bg-blue-400 absolute top-1.5 right-2 animate-pulse"></span>
+        <span>4. Template</span>
+        <span id="posterActiveDot" class="hidden w-2 h-2 rounded-full bg-emerald-400 absolute top-1.5 right-2 animate-pulse"></span>
       </button>
     </nav>
 
@@ -367,7 +331,6 @@
 
       <!-- ================= TAB 1: FOTO & DAFTAR URUTAN ================= -->
       <div id="tab-photos" class="tab-pane space-y-4">
-        <!-- Upload Dropzone -->
         <section>
           <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
           <div id="dropzone" class="border border-dashed border-[#2b303c] hover:border-emerald-500/50 rounded-xl p-4 text-center cursor-pointer transition-all bg-[#14171d]/70 hover:bg-[#171b22] group">
@@ -378,8 +341,8 @@
                 <line x1="12" y1="3" x2="12" y2="15"/>
               </svg>
             </div>
-            <p class="text-xs font-medium text-zinc-200 mt-2">Klik, tarik foto, atau tekan <kbd class="px-1.5 py-0.5 text-[10px] rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Ctrl+V</kbd></p>
-            <p class="text-[11px] text-zinc-500 mt-0.5">Tips Poster Perfect Blue: Unggah 7 foto (1 Hero + 6 Grid)</p>
+            <p class="text-xs font-medium text-zinc-200 mt-2">Ketuk untuk pilih foto atau <kbd class="px-1.5 py-0.5 text-[10px] rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Ctrl+V</kbd></p>
+            <p class="text-[11px] text-zinc-500 mt-0.5">Tips Poster Sinematik: Unggah 7 foto (1 Hero + 6 Grid)</p>
           </div>
         </section>
 
@@ -388,22 +351,14 @@
           ＋ Blank Canvas Teks (ketik / tempel tulisan)
         </button>
 
-        <!-- Quick Actions Row for Photos -->
         <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-1.5">
-            <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Daftar & Urutan Foto</h2>
-          </div>
+          <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Daftar &amp; Urutan Foto</h2>
           <div class="flex items-center gap-2">
-            <button type="button" id="reverseOrderBtn" class="hidden text-[11px] text-zinc-400 hover:text-zinc-200 transition-colors">
-              Balik Urutan
-            </button>
-            <button type="button" id="clearAllBtn" class="hidden text-[11px] text-rose-400 hover:text-rose-300 transition-colors font-medium">
-              Hapus Semua
-            </button>
+            <button type="button" id="reverseOrderBtn" class="hidden text-[11px] text-zinc-400 hover:text-zinc-200 transition-colors">Balik Urutan</button>
+            <button type="button" id="clearAllBtn" class="hidden text-[11px] text-rose-400 hover:text-rose-300 transition-colors font-medium">Hapus Semua</button>
           </div>
         </div>
 
-        <!-- Photo List -->
         <div id="photoList" class="space-y-2">
           <div class="text-xs text-zinc-500 py-6 px-4 text-center border border-dashed border-[#22262f] rounded-xl space-y-2">
             <p>Belum ada foto yang dipilih.</p>
@@ -414,19 +369,28 @@
         </div>
       </div>
 
-      <!-- ================= TAB 2: TATA LETAK & KANVAS ================= -->
+      <!-- ================= TAB 2: TATA LETAK & KANVAS (MURNI ALGORITMA) ================= -->
       <div id="tab-layout" class="tab-pane hidden space-y-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Algoritma & Dimensi Kanvas</h2>
+          <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Algoritma &amp; Dimensi Kanvas</h2>
         </div>
 
-        <!-- Mode Layout -->
-        <div class="space-y-1.5">
-          <label class="text-xs text-zinc-300 font-medium block">Gaya Tata Letak (Algoritma)</label>
+        <!-- Banner info jika Template sedang aktif -->
+        <div id="templateOverrideNotice" class="hidden p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-2">
+          <div class="text-[11px] text-amber-200 leading-snug">
+            <span class="font-semibold block" id="activeTemplateNoticeTitle">Template Aktif</span>
+            <span class="text-amber-300/80">Tata letak sedang diatur oleh menu Template.</span>
+          </div>
+          <button type="button" id="disableTemplateFromLayoutBtn" class="px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 border border-amber-500/30 text-[11px] font-medium flex-shrink-0">
+            Matikan Template
+          </button>
+        </div>
+
+        <!-- Mode Layout (Murni Algoritma, tidak dicampur dengan Template) -->
+        <div class="space-y-1.5" id="layoutAlgorithmBox">
+          <label class="text-xs text-zinc-300 font-medium block">Gaya Tata Letak (Algoritma Kolase)</label>
           <select id="modeSelect" class="ui-select w-full">
-            <option value="auto" selected>✨ Otomatis (Rekomendasi Terbaik)</option>
-            <option value="poster">🎬 Poster Sinematik (Gaya Perfect Blue)</option>
-            <option value="frame">🖼️ Bingkai Caption (Teks Atas + Kotak Grid + Teks Bawah)</option>
+            <option value="auto" selected>✨ Otomatis (Rekomendasi Kolase Terbaik)</option>
             <option value="grid">Grid Rapi (Ukuran Seragam)</option>
             <option value="justified">Baris Rata (Justified / Tanpa Celah)</option>
             <option value="masonry">Masonry (Kolom Pinterest)</option>
@@ -439,7 +403,7 @@
         <div class="grid grid-cols-3 items-center gap-2">
           <label class="text-xs text-zinc-400">Jumlah Kolom</label>
           <select id="paramSelect" class="ui-select col-span-2">
-            <option value="0" selected>Auto (Optimal / 2 Kolom Poster)</option>
+            <option value="0" selected>Auto (Optimal)</option>
             <option value="1">1 Kolom</option>
             <option value="2">2 Kolom</option>
             <option value="3">3 Kolom</option>
@@ -456,10 +420,10 @@
           <label class="text-xs text-zinc-400">Rasio Kanvas</label>
           <select id="ratioSelect" class="ui-select col-span-2">
             <option value="9:16" selected>9:16 — Story / Reels / TikTok</option>
-            <option value="3:4">3:4 — Poster Sinematik / Portrait</option>
+            <option value="3:4">3:4 — Poster / Portrait</option>
             <option value="4:5">4:5 — IG Feed Portrait</option>
             <option value="auto">Auto — Ikuti Isi (Tanpa Ruang Sisa)</option>
-            <option value="2:3">2:3 — Poster Film Klasik</option>
+            <option value="2:3">2:3 — Poster Klasik</option>
             <option value="1:1">1:1 — Persegi (Square)</option>
             <option value="16:9">16:9 — Landscape / Youtube</option>
           </select>
@@ -480,12 +444,255 @@
 
         <hr class="border-[#22262f]">
 
+        <!-- Pengaturan Jarak & Margin -->
+        <div class="space-y-3.5">
+          <h3 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Spasi &amp; Sudut</h3>
 
-        <!-- ============ PANEL BINGKAI CAPTION (muncul saat mode Bingkai Caption aktif) ============ -->
-        <div id="framePanel" class="hidden space-y-3.5 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20">
-          <div class="text-xs text-emerald-200 leading-snug">
-            <span class="font-semibold block">🖼️ Bingkai Caption</span>
-            <span class="text-[11px] text-emerald-300/70">Teks di atas, garis tebal, kotak berisi grid foto di tengah, garis tebal, lalu teks di bawah. Ukuran kanvas mengikuti <em>Rasio Kanvas</em> di atas.</span>
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Jarak Antar Foto / Tebal Garis Grid</span>
+              <span id="gapValLabel" class="mono text-zinc-300 text-[11px]">8px</span>
+            </div>
+            <input type="range" id="gapSlider" min="0" max="48" step="1" value="8" class="w-full">
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Margin Tepi Luar Kanvas</span>
+              <span id="marginValLabel" class="mono text-zinc-300 text-[11px]">0px</span>
+            </div>
+            <input type="range" id="marginSlider" min="0" max="80" step="2" value="0" class="w-full">
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Lengkungan Sudut Bingkai</span>
+              <span id="radiusValLabel" class="mono text-zinc-300 text-[11px]">6px</span>
+            </div>
+            <input type="range" id="radiusSlider" min="0" max="40" step="1" value="6" class="w-full">
+          </div>
+        </div>
+
+        <!-- Shuffle Toggle -->
+        <label class="flex items-center justify-between gap-3 pt-2 cursor-pointer select-none group">
+          <span class="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors">Acak urutan foto saat klik "Layout Lain"</span>
+          <div class="relative inline-flex items-center">
+            <input type="checkbox" id="shuffleCheck" class="sr-only peer">
+            <div class="w-8 h-4.5 bg-zinc-800 border border-zinc-700 rounded-full peer peer-checked:bg-emerald-500/20 peer-checked:border-emerald-500/50 transition-all h-[18px]"></div>
+            <div class="w-3 h-3 bg-zinc-400 rounded-full absolute left-1 top-[3px] peer-checked:translate-x-3.5 peer-checked:bg-emerald-400 transition-all"></div>
+          </div>
+        </label>
+      </div>
+
+      <!-- ================= TAB 3: GAYA, WARNA & FILTER ================= -->
+      <div id="tab-style" class="tab-pane hidden space-y-4">
+        <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Warna Latar &amp; Garis</h2>
+
+        <div class="grid grid-cols-3 items-center gap-2">
+          <label class="text-xs text-zinc-400">Background</label>
+          <div class="col-span-2 flex items-center gap-2 flex-wrap">
+            <button type="button" data-bg="#0b0e17" title="Navy Poster (Perfect Blue)" class="bg-swatch w-6 h-6 rounded-full bg-[#0b0e17] border-2 border-emerald-400 scale-105 transition-transform"></button>
+            <button type="button" data-bg="#000000" title="Hitam Pekat" class="bg-swatch w-6 h-6 rounded-full bg-black border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
+            <button type="button" data-bg="#14161a" title="Abu Gelap" class="bg-swatch w-6 h-6 rounded-full bg-[#14161a] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
+            <button type="button" data-bg="#f8fafc" title="Putih Bersih" class="bg-swatch w-6 h-6 rounded-full bg-[#f8fafc] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
+            <button type="button" data-bg="#f5ebe0" title="Krem Editorial" class="bg-swatch w-6 h-6 rounded-full bg-[#f5ebe0] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
+            <button type="button" data-bg="transparent" title="Transparan (PNG)" class="bg-swatch w-6 h-6 rounded-full checkerboard border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
+            <label title="Pilih Warna Kustom" class="relative w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-400 via-sky-400 to-purple-500 border-2 border-zinc-700 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center overflow-hidden">
+              <input type="color" id="customColorInput" value="#0b0e17" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer">
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 items-center gap-2">
+          <label class="text-xs text-zinc-400">Garis Bingkai</label>
+          <div class="col-span-2 flex items-center gap-2">
+            <input type="color" id="frameColorInput" value="#ffffff" class="w-8 h-7 rounded bg-transparent border border-zinc-700 cursor-pointer">
+            <input type="range" id="frameOpacitySlider" min="0" max="100" value="82" class="flex-1" title="Transparansi Garis Bingkai">
+            <span id="frameOpacityLabel" class="mono text-[11px] text-zinc-400 w-9 text-right">82%</span>
+          </div>
+        </div>
+
+        <hr class="border-[#22262f]">
+
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Filter Mood Sinematik</h3>
+            <span id="activeFilterBadge" class="text-[10px] text-emerald-400 mono">Normal</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2" id="filterPresetGrid">
+            <button type="button" data-filter="none" class="filter-btn py-2 px-2.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-medium transition-all text-center">Normal</button>
+            <button type="button" data-filter="vivid" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Vivid Pop</button>
+            <button type="button" data-filter="cinema" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Cool Blue</button>
+            <button type="button" data-filter="warm" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Warm Gold</button>
+            <button type="button" data-filter="noir" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Noir B&amp;W</button>
+            <button type="button" data-filter="vintage" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Soft Fade</button>
+          </div>
+        </div>
+
+        <hr class="border-[#22262f]">
+
+        <div class="space-y-3">
+          <h3 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Pengaturan Ekspor</h3>
+
+          <div class="grid grid-cols-3 items-center gap-2">
+            <label class="text-xs text-zinc-400">Resolusi</label>
+            <select id="resSelect" class="ui-select col-span-2">
+              <option value="1600">Cepat — Sosmed (1600px)</option>
+              <option value="2400">Standar — Jernih (2400px)</option>
+              <option value="3200" selected>Tinggi — HD Studio (3200px)</option>
+              <option value="4500">Ultra — Cetak Poster (4500px)</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-3 items-center gap-2">
+            <label class="text-xs text-zinc-400">Format File</label>
+            <select id="formatSelect" class="ui-select col-span-2">
+              <option value="image/png" selected>PNG — Kualitas Tanpa Kompresi</option>
+              <option value="image/jpeg">JPG — Ukuran File Ringan</option>
+              <option value="image/webp">WebP — Modern &amp; Tajam</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 4: MENU TEMPLATE KHUSUS ================= -->
+      <div id="tab-poster" class="tab-pane hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Pilih Template Desain</h2>
+            <p class="text-[11px] text-zinc-500 mt-0.5">Pengaturan hanya muncul saat template dipilih &amp; dipakai.</p>
+          </div>
+        </div>
+
+        <!-- Kartu Pilihan Template -->
+        <div class="grid grid-cols-1 gap-2">
+          <button type="button" data-template="none" class="template-card active text-left p-3 rounded-xl border border-[#22262f] bg-[#14171d] hover:border-zinc-700 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <span class="text-base">🧩</span>
+              <div>
+                <div class="text-xs font-semibold text-zinc-100">Tanpa Template (Kolase Murni)</div>
+                <div class="text-[11px] text-zinc-400">Gunakan algoritma tata letak dari menu 2. Layout</div>
+              </div>
+            </div>
+            <span class="tpl-status-badge text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Aktif</span>
+          </button>
+
+          <button type="button" data-template="poster" class="template-card text-left p-3 rounded-xl border border-[#22262f] bg-[#14171d] hover:border-zinc-700 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <span class="text-base">🎬</span>
+              <div>
+                <div class="text-xs font-semibold text-zinc-100">Poster Sinematik (Perfect Blue)</div>
+                <div class="text-[11px] text-zinc-400">Foto #1 jadi Hero di atas + tipografi film &amp; grid bawah</div>
+              </div>
+            </div>
+            <span class="tpl-status-badge text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">Pilih</span>
+          </button>
+
+          <button type="button" data-template="frame" class="template-card text-left p-3 rounded-xl border border-[#22262f] bg-[#14171d] hover:border-zinc-700 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <span class="text-base">🖼️</span>
+              <div>
+                <div class="text-xs font-semibold text-zinc-100">Bingkai Caption (Editorial)</div>
+                <div class="text-[11px] text-zinc-400">Teks atas + garis pemisah + kotak grid + teks bawah</div>
+              </div>
+            </div>
+            <span class="tpl-status-badge text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">Pilih</span>
+          </button>
+        </div>
+
+        <!-- Info saat belum ada template dipilih -->
+        <div id="templateNonePanel" class="p-4 rounded-xl border border-dashed border-[#22262f] text-center space-y-1.5">
+          <p class="text-xs text-zinc-300 font-medium">Mode Kolase Standar Aktif</p>
+          <p class="text-[11px] text-zinc-500 leading-relaxed">Ketuk salah satu template di atas (<strong>Poster Sinematik</strong> atau <strong>Bingkai Caption</strong>) untuk memunculkan pengaturan khususnya.</p>
+        </div>
+
+        <!-- ============ PANEL KHUSUS POSTER SINEMATIK (Muncul Hanya Saat Dipilih) ============ -->
+        <div id="posterConfigPanel" class="hidden space-y-4 p-3.5 rounded-xl bg-blue-500/[0.06] border border-blue-500/25">
+          <div class="flex items-center justify-between gap-2 pb-2 border-b border-blue-500/20">
+            <div class="text-xs text-blue-200">
+              <span class="font-semibold block">🎬 Pengaturan Poster Sinematik</span>
+              <span class="text-[11px] text-blue-300/80">Foto #1 menjadi Hero utama dengan gradasi halus.</span>
+            </div>
+            <!-- Tombol kompatibilitas untuk script lama -->
+            <button type="button" id="activatePosterModeBtn" class="hidden">Aktifkan</button>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[11px] font-medium text-zinc-300 block">Judul Utama &amp; Warna Aksen</label>
+            <div class="flex gap-2">
+              <input type="text" id="posterTitle" value="PERFECT BLUE" placeholder="Judul Film / Karya..." class="ui-input flex-1 font-semibold tracking-wide">
+              <label title="Warna Garis Aksen" class="w-9 h-[35px] rounded-lg border border-[#2b303c] flex items-center justify-center cursor-pointer overflow-hidden flex-shrink-0" style="background-color: #3b82f6;" id="posterAccentPreview">
+                <input type="color" id="posterAccent" value="#3b82f6" class="opacity-0 w-full h-full cursor-pointer">
+              </label>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <div>
+                <label class="text-[10px] text-zinc-500 block mb-1">Gaya Font Judul</label>
+                <select id="posterFontSelect" class="ui-select w-full !py-1.5 !text-xs">
+                  <option value="Inter" selected>Sans Modern (Inter)</option>
+                  <option value="Bebas Neue">Display Tinggi (Bebas)</option>
+                  <option value="Cinzel">Serif Sinematik (Cinzel)</option>
+                  <option value="JetBrains Mono">Minimalis (Mono)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] text-zinc-500 block mb-1">Rating Bintang (Opsional)</label>
+                <select id="posterRatingSelect" class="ui-select w-full !py-1.5 !text-xs">
+                  <option value="" selected>Tanpa Bintang</option>
+                  <option value="★★★★★">★★★★★ (5/5)</option>
+                  <option value="★★★★½">★★★★½ (4.5/5)</option>
+                  <option value="★★★★☆">★★★★☆ (4/5)</option>
+                  <option value="★★★½☆">★★★½☆ (3.5/5)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-medium text-zinc-300 block">4 Kolom Metadata Kiri (Label &amp; Isi)</label>
+            <div class="grid grid-cols-2 gap-1.5">
+              <div class="flex gap-1">
+                <input type="text" id="metaL1Label" value="YEAR" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 1">
+                <input type="text" id="metaL1Val" value="1998" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 1">
+              </div>
+              <div class="flex gap-1">
+                <input type="text" id="metaL2Label" value="STUDIO" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 2">
+                <input type="text" id="metaL2Val" value="MADHOUSE" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 2">
+              </div>
+              <div class="flex gap-1">
+                <input type="text" id="metaL3Label" value="RUNTIME" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 3">
+                <input type="text" id="metaL3Val" value="1H 21M" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 3">
+              </div>
+              <div class="flex gap-1">
+                <input type="text" id="metaL4Label" value="GENRE" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 4">
+                <input type="text" id="metaL4Val" value="PSYCHOLOGICAL" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 4">
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-medium text-zinc-300 block">Metadata Kanan (Sutradara / Kreator)</label>
+            <div class="grid grid-cols-2 gap-1.5">
+              <input type="text" id="metaRLabel" value="DIRECTED BY" class="ui-input !px-2.5 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label Kanan">
+              <input type="text" id="metaRVal" value="SATOSHI KON" class="ui-input !px-2.5 !py-1.5 !text-[11px] font-semibold" placeholder="Isi Kanan">
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-medium text-zinc-300 block">Teks Catatan Kaki (Footer Bawah)</label>
+            <div class="grid grid-cols-3 gap-1.5">
+              <input type="text" id="footerLeft" value="GOOD ANIME MOVIES WITH NO SEQUEL - VOL. 1" class="ui-input col-span-2 !px-2.5 !py-1.5 !text-[11px]" placeholder="Footer Kiri">
+              <input type="text" id="footerRight" value="ANIME GATE" class="ui-input col-span-1 !px-2.5 !py-1.5 !text-[11px]" placeholder="Footer Kanan">
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ PANEL KHUSUS BINGKAI CAPTION (Muncul Hanya Saat Dipilih) ============ -->
+        <div id="framePanel" class="hidden space-y-3.5 p-3.5 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20">
+          <div class="text-xs text-emerald-200 leading-snug pb-2 border-b border-emerald-500/20">
+            <span class="font-semibold block">🖼️ Pengaturan Bingkai Caption</span>
+            <span class="text-[11px] text-emerald-300/70">Teks di atas, garis pemisah, kotak grid foto di tengah, garis pemisah, lalu teks di bawah.</span>
           </div>
 
           <div class="space-y-1.5">
@@ -580,211 +787,7 @@ definitely flicker.</textarea>
               <span>Garis</span>
             </label>
           </div>
-          <p class="text-[10.5px] text-zinc-500 leading-snug">Jumlah kolom grid diatur di “Jumlah Kolom”, jarak antar foto di “Spasi &amp; Sudut”. Pilih <em>Auto — Ikuti Isi</em> pada Rasio Kanvas agar tinggi kanvas menyesuaikan isi.</p>
-        </div>
-
-        <!-- Pengaturan Jarak & Margin -->
-        <div class="space-y-3.5">
-          <h3 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Spasi & Sudut</h3>
-
-          <!-- Gap Slider -->
-          <div class="space-y-1.5">
-            <div class="flex justify-between text-xs">
-              <span class="text-zinc-400">Jarak Antar Foto / Tebal Garis Grid</span>
-              <span id="gapValLabel" class="mono text-zinc-300 text-[11px]">8px</span>
-            </div>
-            <input type="range" id="gapSlider" min="0" max="48" step="1" value="8" class="w-full">
-          </div>
-
-          <!-- Outer Margin / Padding Slider -->
-          <div class="space-y-1.5">
-            <div class="flex justify-between text-xs">
-              <span class="text-zinc-400">Margin Tepi Luar Kanvas</span>
-              <span id="marginValLabel" class="mono text-zinc-300 text-[11px]">0px</span>
-            </div>
-            <input type="range" id="marginSlider" min="0" max="80" step="2" value="0" class="w-full">
-          </div>
-
-          <!-- Border Radius Slider -->
-          <div class="space-y-1.5">
-            <div class="flex justify-between text-xs">
-              <span class="text-zinc-400">Lengkungan Sudut Bingkai</span>
-              <span id="radiusValLabel" class="mono text-zinc-300 text-[11px]">6px</span>
-            </div>
-            <input type="range" id="radiusSlider" min="0" max="40" step="1" value="6" class="w-full">
-          </div>
-        </div>
-
-        <!-- Shuffle Toggle -->
-        <label class="flex items-center justify-between gap-3 pt-2 cursor-pointer select-none group">
-          <span class="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors">Acak urutan foto saat klik "Layout Lain"</span>
-          <div class="relative inline-flex items-center">
-            <input type="checkbox" id="shuffleCheck" class="sr-only peer">
-            <div class="w-8 h-4.5 bg-zinc-800 border border-zinc-700 rounded-full peer peer-checked:bg-emerald-500/20 peer-checked:border-emerald-500/50 transition-all h-[18px]"></div>
-            <div class="w-3 h-3 bg-zinc-400 rounded-full absolute left-1 top-[3px] peer-checked:translate-x-3.5 peer-checked:bg-emerald-400 transition-all"></div>
-          </div>
-        </label>
-      </div>
-
-      <!-- ================= TAB 3: GAYA, WARNA & FILTER ================= -->
-      <div id="tab-style" class="tab-pane hidden space-y-4">
-        <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Warna Latar & Garis</h2>
-
-        <!-- Background Color Swatches -->
-        <div class="grid grid-cols-3 items-center gap-2">
-          <label class="text-xs text-zinc-400">Background</label>
-          <div class="col-span-2 flex items-center gap-2 flex-wrap">
-            <button type="button" data-bg="#0b0e17" title="Navy Poster (Perfect Blue)" class="bg-swatch w-6 h-6 rounded-full bg-[#0b0e17] border-2 border-emerald-400 scale-105 transition-transform"></button>
-            <button type="button" data-bg="#000000" title="Hitam Pekat" class="bg-swatch w-6 h-6 rounded-full bg-black border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
-            <button type="button" data-bg="#14161a" title="Abu Gelap" class="bg-swatch w-6 h-6 rounded-full bg-[#14161a] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
-            <button type="button" data-bg="#f8fafc" title="Putih Bersih" class="bg-swatch w-6 h-6 rounded-full bg-[#f8fafc] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
-            <button type="button" data-bg="#f5ebe0" title="Krem Editorial" class="bg-swatch w-6 h-6 rounded-full bg-[#f5ebe0] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
-            <button type="button" data-bg="transparent" title="Transparan (PNG)" class="bg-swatch w-6 h-6 rounded-full checkerboard border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
-            <label title="Pilih Warna Kustom" class="relative w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-400 via-sky-400 to-purple-500 border-2 border-zinc-700 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center overflow-hidden">
-              <input type="color" id="customColorInput" value="#0b0e17" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer">
-            </label>
-          </div>
-        </div>
-
-        <!-- Frame / Divider Line Color (For Poster & Borders) -->
-        <div class="grid grid-cols-3 items-center gap-2">
-          <label class="text-xs text-zinc-400">Garis Bingkai</label>
-          <div class="col-span-2 flex items-center gap-2">
-            <input type="color" id="frameColorInput" value="#ffffff" class="w-8 h-7 rounded bg-transparent border border-zinc-700 cursor-pointer">
-            <input type="range" id="frameOpacitySlider" min="0" max="100" value="82" class="flex-1" title="Transparansi Garis Bingkai">
-            <span id="frameOpacityLabel" class="mono text-[11px] text-zinc-400 w-9 text-right">82%</span>
-          </div>
-        </div>
-
-        <hr class="border-[#22262f]">
-
-        <!-- Image Filter Presets -->
-        <div class="space-y-2.5">
-          <div class="flex items-center justify-between">
-            <h3 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Filter Mood Sinematik</h3>
-            <span id="activeFilterBadge" class="text-[10px] text-emerald-400 mono">Normal</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2" id="filterPresetGrid">
-            <button type="button" data-filter="none" class="filter-btn py-2 px-2.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-medium transition-all text-center">Normal</button>
-            <button type="button" data-filter="vivid" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Vivid Pop</button>
-            <button type="button" data-filter="cinema" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Cool Blue</button>
-            <button type="button" data-filter="warm" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Warm Gold</button>
-            <button type="button" data-filter="noir" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Noir B&amp;W</button>
-            <button type="button" data-filter="vintage" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Soft Fade</button>
-          </div>
-        </div>
-
-        <hr class="border-[#22262f]">
-
-        <!-- Export Settings -->
-        <div class="space-y-3">
-          <h3 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Pengaturan Ekspor</h3>
-
-          <div class="grid grid-cols-3 items-center gap-2">
-            <label class="text-xs text-zinc-400">Resolusi</label>
-            <select id="resSelect" class="ui-select col-span-2">
-              <option value="1600">Cepat — Sosmed (1600px)</option>
-              <option value="2400">Standar — Jernih (2400px)</option>
-              <option value="3200" selected>Tinggi — HD Studio (3200px)</option>
-              <option value="4500">Ultra — Cetak Poster (4500px)</option>
-            </select>
-          </div>
-
-          <div class="grid grid-cols-3 items-center gap-2">
-            <label class="text-xs text-zinc-400">Format File</label>
-            <select id="formatSelect" class="ui-select col-span-2">
-              <option value="image/png" selected>PNG — Kualitas Tanpa Kompresi</option>
-              <option value="image/jpeg">JPG — Ukuran File Ringan</option>
-              <option value="image/webp">WebP — Modern &amp; Tajam</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- ================= TAB 4: TEKS POSTER SINEMATIK ================= -->
-      <div id="tab-poster" class="tab-pane hidden space-y-4">
-        <div class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-between gap-2">
-          <div class="text-xs text-blue-200 leading-snug">
-            <span class="font-semibold block">Mode Poster Sinematik</span>
-            <span class="text-[11px] text-blue-300/80">Foto #1 otomatis menjadi Hero dengan gradasi halus di atas grid.</span>
-          </div>
-          <button type="button" id="activatePosterModeBtn" class="px-2.5 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-400 text-zinc-950 font-semibold text-[11px] flex-shrink-0 transition-colors">
-            Aktifkan
-          </button>
-        </div>
-
-        <!-- Title, Font & Accent Color -->
-        <div class="space-y-2">
-          <label class="text-[11px] font-medium text-zinc-300 block">Judul Utama &amp; Warna Aksen</label>
-          <div class="flex gap-2">
-            <input type="text" id="posterTitle" value="PERFECT BLUE" placeholder="Judul Film / Karya..." class="ui-input flex-1 font-semibold tracking-wide">
-            <label title="Warna Garis Aksen" class="w-9 h-[35px] rounded-lg border border-[#2b303c] flex items-center justify-center cursor-pointer overflow-hidden flex-shrink-0" style="background-color: #3b82f6;" id="posterAccentPreview">
-              <input type="color" id="posterAccent" value="#3b82f6" class="opacity-0 w-full h-full cursor-pointer">
-            </label>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <div>
-              <label class="text-[10px] text-zinc-500 block mb-1">Gaya Font Judul</label>
-              <select id="posterFontSelect" class="ui-select w-full !py-1.5 !text-xs">
-                <option value="Inter" selected>Sans Modern (Inter)</option>
-                <option value="Bebas Neue">Display Tinggi (Bebas)</option>
-                <option value="Cinzel">Serif Sinematik (Cinzel)</option>
-                <option value="JetBrains Mono">Minimalis (Mono)</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-[10px] text-zinc-500 block mb-1">Rating Bintang (Opsional)</label>
-              <select id="posterRatingSelect" class="ui-select w-full !py-1.5 !text-xs">
-                <option value="" selected>Tanpa Bintang</option>
-                <option value="★★★★★">★★★★★ (5/5)</option>
-                <option value="★★★★½">★★★★½ (4.5/5)</option>
-                <option value="★★★★☆">★★★★☆ (4/5)</option>
-                <option value="★★★½☆">★★★½☆ (3.5/5)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4 Left Metadata Columns -->
-        <div class="space-y-1.5">
-          <label class="text-[11px] font-medium text-zinc-300 block">4 Kolom Metadata Kiri (Label &amp; Isi)</label>
-          <div class="grid grid-cols-2 gap-1.5">
-            <div class="flex gap-1">
-              <input type="text" id="metaL1Label" value="YEAR" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 1">
-              <input type="text" id="metaL1Val" value="1998" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 1">
-            </div>
-            <div class="flex gap-1">
-              <input type="text" id="metaL2Label" value="STUDIO" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 2">
-              <input type="text" id="metaL2Val" value="MADHOUSE" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 2">
-            </div>
-            <div class="flex gap-1">
-              <input type="text" id="metaL3Label" value="RUNTIME" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 3">
-              <input type="text" id="metaL3Val" value="1H 21M" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 3">
-            </div>
-            <div class="flex gap-1">
-              <input type="text" id="metaL4Label" value="GENRE" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 4">
-              <input type="text" id="metaL4Val" value="PSYCHOLOGICAL" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 4">
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Metadata (Directed By) -->
-        <div class="space-y-1.5">
-          <label class="text-[11px] font-medium text-zinc-300 block">Metadata Kanan (Sutradara / Kreator)</label>
-          <div class="grid grid-cols-2 gap-1.5">
-            <input type="text" id="metaRLabel" value="DIRECTED BY" class="ui-input !px-2.5 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label Kanan">
-            <input type="text" id="metaRVal" value="SATOSHI KON" class="ui-input !px-2.5 !py-1.5 !text-[11px] font-semibold" placeholder="Isi Kanan">
-          </div>
-        </div>
-
-        <!-- Footer Left & Right -->
-        <div class="space-y-1.5">
-          <label class="text-[11px] font-medium text-zinc-300 block">Teks Catatan Kaki (Footer Bawah)</label>
-          <div class="grid grid-cols-3 gap-1.5">
-            <input type="text" id="footerLeft" value="GOOD ANIME MOVIES WITH NO SEQUEL - VOL. 1" class="ui-input col-span-2 !px-2.5 !py-1.5 !text-[11px]" placeholder="Footer Kiri">
-            <input type="text" id="footerRight" value="ANIME GATE" class="ui-input col-span-1 !px-2.5 !py-1.5 !text-[11px]" placeholder="Footer Kanan">
-          </div>
+          <p class="text-[10.5px] text-zinc-500 leading-snug">Jumlah kolom &amp; rasio kanvas tetap dapat diatur di tab <strong>2. Layout</strong>.</p>
         </div>
       </div>
 
@@ -818,16 +821,22 @@ definitely flicker.</textarea>
     </footer>
   </aside>
 
-  <!-- RIGHT MAIN WORKSPACE: PREVIEW, UNDO/REDO & FLOATING TILE INSPECTOR -->
-  <main class="flex-1 dot-grid flex flex-col min-h-[78vh] lg:h-screen lg:overflow-hidden relative">
+  <!-- RIGHT MAIN WORKSPACE: PREVIEW (STICKY TOP DI HP), UNDO/REDO & FLOATING TILE INSPECTOR -->
+  <main id="mainWorkspace" class="flex-1 dot-grid flex flex-col min-h-[78vh] lg:h-screen lg:overflow-hidden relative">
     
-    <!-- Top Bar: Candidate Layout Chips, Undo/Redo & Efficiency Status -->
-    <div id="workspaceHeader" class="w-full px-5 py-3 border-b border-[#1c2028] bg-[#090a0c]/85 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 z-20">
+    <!-- Top Bar: Candidate Layout Chips, Touch Swap Lock, Undo/Redo & Mobile Collapse -->
+    <div id="workspaceHeader" class="w-full px-5 py-3 border-b border-[#1c2028] bg-[#090a0c]/90 backdrop-blur-md flex flex-wrap items-center justify-between gap-2 z-20">
       <div id="chips" class="flex items-center gap-1.5 flex-wrap">
-        <span class="text-xs text-zinc-500">Pilih atau muat foto contoh untuk melihat rekomendasi tata letak...</span>
+        <span class="text-xs text-zinc-500">Pilih atau muat foto contoh untuk melihat preview...</span>
       </div>
 
-      <div class="flex items-center gap-2 ml-auto">
+      <div class="flex items-center gap-1.5 ml-auto">
+        <!-- Toggle Kunci Urutan Foto (Mencegah foto teracak saat scroll layar sentuh) -->
+        <button type="button" id="toggleSwapLockBtn" title="Kunci urutan agar foto tidak tergeser saat scroll layar" class="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#14171d] text-zinc-300 border border-[#22262f] hover:border-zinc-600 transition-all flex items-center gap-1">
+          <span id="swapLockIcon">🔒</span>
+          <span id="swapLockText">Urutan Terkunci</span>
+        </button>
+
         <!-- Undo / Redo Buttons -->
         <div class="flex items-center bg-[#14171d] border border-[#22262f] rounded-lg p-0.5">
           <button type="button" id="undoBtn" disabled title="Batalkan (Ctrl+Z)" class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 disabled:opacity-30 disabled:pointer-events-none transition-colors">
@@ -842,16 +851,24 @@ definitely flicker.</textarea>
           </button>
         </div>
 
+        <!-- Tombol Lipat / Perbesar Preview khusus Smartphone -->
+        <button type="button" id="mobilePreviewToggleBtn" class="lg:hidden text-[11px] font-medium px-2 py-1 rounded-lg bg-[#14171d] text-zinc-300 border border-[#22262f]">
+          ↕ Lipat
+        </button>
+
         <div id="layoutInfo" class="mono text-[11px] text-zinc-400 bg-[#14171d] px-2.5 py-1.5 rounded-lg border border-[#22262f] hidden"></div>
       </div>
     </div>
 
-    <!-- Floating Contextual Tile Inspector (Muncul Saat Foto di Kanvas Diklik) -->
-    <div id="tileInspector" class="hidden absolute top-16 left-1/2 -translate-x-1/2 z-40 bg-[#13161c]/95 backdrop-blur-md border border-emerald-500/40 rounded-2xl shadow-2xl px-4 py-2.5 flex flex-wrap items-center gap-3 max-w-[95vw]">
-      <div class="flex items-center gap-2 pr-2 border-r border-[#262b36]">
+    <!-- Floating Contextual Tile Inspector (Bottom-Sheet di HP, Floating Top di Desktop) -->
+    <div id="tileInspector" class="hidden absolute top-16 left-1/2 -translate-x-1/2 z-40 bg-[#13161c]/95 backdrop-blur-md border border-emerald-500/40 rounded-2xl shadow-2xl px-4 py-2.5 flex flex-wrap items-center gap-2.5 max-w-[95vw]">
+      <div class="flex items-center gap-1.5 pr-2 border-r border-[#262b36]">
         <span id="inspectorTitle" class="mono text-[11px] font-semibold text-emerald-400">Foto #1</span>
         <button type="button" id="makeHeroBtn" title="Jadikan Foto Utama (Hero Paling Atas)" class="text-[11px] px-2 py-1 rounded-md bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 transition-colors">
-          ★ Jadikan Hero
+          ★ Hero
+        </button>
+        <button type="button" id="tileTapSwapBtn" title="Ketuk foto lain untuk menukar posisi tanpa drag" class="text-[11px] px-2 py-1 rounded-md bg-[#1b1f28] hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition-colors">
+          ⇄ Tukar
         </button>
       </div>
 
@@ -864,7 +881,7 @@ definitely flicker.</textarea>
 
       <!-- Pan X & Y Sliders -->
       <div class="flex items-center gap-2">
-        <span class="text-[11px] text-zinc-400" title="Geser Fokus Horizontal & Vertikal">Geser Fokus</span>
+        <span class="text-[11px] text-zinc-400" title="Geser Fokus Horizontal & Vertikal">Fokus</span>
         <input type="range" id="tilePanXSlider" min="-100" max="100" step="2" value="0" class="w-16" title="Geser Kiri / Kanan">
         <input type="range" id="tilePanYSlider" min="-100" max="100" step="2" value="0" class="w-16" title="Geser Atas / Bawah">
       </div>
@@ -909,32 +926,29 @@ definitely flicker.</textarea>
     <div id="workspaceCanvasArea" class="flex-1 flex flex-col items-center justify-center p-5 sm:p-8 overflow-auto relative">
       
       <!-- Empty State Placeholder -->
-      <div id="emptyState" class="max-w-md text-center space-y-4 py-10 px-4">
-        <div class="w-14 h-14 rounded-2xl bg-[#14171d] border border-[#22262f] flex items-center justify-center mx-auto text-emerald-400 shadow-inner">
-          <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <div id="emptyState" class="max-w-md text-center space-y-3 py-4 px-3">
+        <div class="w-11 h-11 rounded-2xl bg-[#14171d] border border-[#22262f] flex items-center justify-center mx-auto text-emerald-400 shadow-inner">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
             <circle cx="8.5" cy="8.5" r="1.5"/>
             <polyline points="21 15 16 10 5 21"/>
           </svg>
         </div>
-        <div class="space-y-1.5">
-          <h3 class="text-base font-semibold text-zinc-100">Mulai Buat Kolase atau Poster Film</h3>
-          <p class="text-xs text-zinc-400 leading-relaxed">
-            Unggah foto dari perangkat Anda, tempel langsung dengan <kbd class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Ctrl+V</kbd>, atau coba langsung menggunakan 7 foto contoh bergaya poster sinematik <strong class="text-zinc-200">Perfect Blue</strong>.
+        <div class="space-y-1">
+          <h3 class="text-sm font-semibold text-zinc-100">Mulai Buat Kolase atau Template Poster</h3>
+          <p class="text-[11px] text-zinc-400 leading-relaxed">
+            Pilih foto dari perangkat atau muat 7 foto contoh sinematik <strong class="text-zinc-200">Perfect Blue</strong>.
           </p>
         </div>
-        <div class="flex flex-wrap items-center justify-center gap-2.5 pt-2">
-          <button type="button" id="emptyUploadBtn" class="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-zinc-950 transition-all shadow-lg shadow-emerald-500/10">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Pilih Foto dari Perangkat
+        <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+          <button type="button" id="emptyUploadBtn" class="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-zinc-950 transition-all shadow-lg shadow-emerald-500/10">
+            ＋ Pilih Foto
           </button>
-          <button type="button" id="emptyTextBtn" class="inline-flex items-center gap-2 text-xs font-medium px-4 py-2.5 rounded-xl bg-[#171a20] hover:bg-[#1f242d] text-emerald-300 border border-emerald-500/30 transition-all">
-            <span>Ｔ Mulai dengan Blank Canvas Teks</span>
+          <button type="button" id="emptyTextBtn" class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-[#171a20] hover:bg-[#1f242d] text-emerald-300 border border-emerald-500/30 transition-all">
+            <span>Ｔ Blank Teks</span>
           </button>
-          <button type="button" id="emptyDemoBtn" class="inline-flex items-center gap-2 text-xs font-medium px-4 py-2.5 rounded-xl bg-[#171a20] hover:bg-[#1f242d] text-blue-300 border border-blue-500/30 transition-all">
-            <span>✨ Coba 7 Foto Contoh (Demo Poster)</span>
+          <button type="button" id="emptyDemoBtn" class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-[#171a20] hover:bg-[#1f242d] text-blue-300 border border-blue-500/30 transition-all">
+            <span>✨ Demo Poster</span>
           </button>
         </div>
       </div>
@@ -942,17 +956,8 @@ definitely flicker.</textarea>
       <!-- Interactive Stage -->
       <div id="stageWrapper" class="hidden flex-col items-center">
         <div id="stage"></div>
-        <div id="stageHint" class="text-[11px] text-zinc-400 mt-3.5 text-center flex flex-wrap items-center justify-center gap-x-4 gap-y-1 bg-[#12141a]/90 px-3.5 py-1.5 rounded-full border border-[#22262f]">
-          <span class="flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>
-            </svg>
-            <b>Tarik foto</b> untuk menukar posisi
-          </span>
-          <span class="text-zinc-600">•</span>
-          <span class="flex items-center gap-1">
-            <b>Klik foto</b> untuk Zoom, Geser Fokus, Putar &amp; Crop (klik 2× = Crop)
-          </span>
+        <div id="stageHint" class="text-[10.5px] text-zinc-400 mt-2.5 text-center flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-[#12141a]/90 px-3 py-1 rounded-full border border-[#22262f]">
+          <span id="stageHintText"><b>Ketuk foto</b> untuk Edit/Zoom • <b>Tekan &amp; tahan</b> (atau buka 🔒) untuk geser urutan</span>
         </div>
       </div>
 
@@ -1069,11 +1074,101 @@ function updateFrameLabels() {
   $('framePadVal').textContent = frameEls.framePad.value;
 }
 
-function updateFramePanelVisibility() {
-  framePanel.classList.toggle('hidden', modeSelect.value !== 'frame');
-}
+let activeTemplate = 'none'; // 'none' | 'poster' | 'frame'
+let savedLayoutSettingsBeforeTemplate = null;
+let swapUnlocked = false;    // false = aman di-scroll tanpa mengacak foto
+let pendingSwapSourceId = null;
 
 const isFixedType = t => t === 'poster' || t === 'frame';
+const getEffectiveMode = () => activeTemplate !== 'none' ? activeTemplate : modeSelect.value;
+
+function updateTemplateUI() {
+  const isTpl = activeTemplate !== 'none';
+  posterActiveDot.classList.toggle('hidden', !isTpl);
+
+  document.querySelectorAll('.template-card').forEach(card => {
+    const active = card.dataset.template === activeTemplate;
+    card.classList.toggle('active', active);
+    const badge = card.querySelector('.tpl-status-badge');
+    if (badge) {
+      badge.textContent = active ? 'Aktif' : 'Pilih';
+      badge.className = active
+        ? 'tpl-status-badge text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+        : 'tpl-status-badge text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400';
+    }
+  });
+
+  const nonePanel = $('templateNonePanel');
+  const posterPanel = $('posterConfigPanel');
+  if (nonePanel) nonePanel.classList.toggle('hidden', activeTemplate !== 'none');
+  if (posterPanel) posterPanel.classList.toggle('hidden', activeTemplate !== 'poster');
+  if (framePanel) framePanel.classList.toggle('hidden', activeTemplate !== 'frame');
+
+  const notice = $('templateOverrideNotice');
+  const algBox = $('layoutAlgorithmBox');
+  if (notice && algBox) {
+    notice.classList.toggle('hidden', !isTpl);
+    algBox.classList.toggle('opacity-50', isTpl);
+    algBox.classList.toggle('pointer-events-none', isTpl);
+    if (isTpl) {
+      $('activeTemplateNoticeTitle').textContent =
+        activeTemplate === 'poster' ? '🎬 Template Poster Sinematik Aktif' : '🖼️ Template Bingkai Caption Aktif';
+    }
+  }
+}
+
+function updateFramePanelVisibility() {
+  updateTemplateUI();
+}
+
+function setTemplate(tpl, skipHistory = false) {
+  if (!['none', 'poster', 'frame'].includes(tpl) || tpl === activeTemplate) return;
+
+  if (activeTemplate === 'none' && tpl !== 'none') {
+    savedLayoutSettingsBeforeTemplate = {
+      ratio: ratioSelect.value,
+      fitMode,
+      gap: gapSlider.value,
+      radius: radiusSlider.value,
+      margin: marginSlider.value
+    };
+  }
+
+  activeTemplate = tpl;
+
+  if (tpl === 'poster') {
+    applyPosterPresetDefaults();
+    showToast('Template Poster Sinematik dipilih', '🎬');
+  } else if (tpl === 'frame') {
+    applyFramePresetDefaults();
+    showToast('Template Bingkai Caption dipilih', '🖼️');
+  } else if (tpl === 'none' && savedLayoutSettingsBeforeTemplate) {
+    const s = savedLayoutSettingsBeforeTemplate;
+    ratioSelect.value = s.ratio;
+    setFitModeUI(s.fitMode);
+    gapSlider.value = s.gap;
+    gapValLabel.textContent = `${s.gap}px`;
+    radiusSlider.value = s.radius;
+    radiusValLabel.textContent = `${s.radius}px`;
+    marginSlider.value = s.margin;
+    marginValLabel.textContent = `${s.margin}px`;
+    showToast('Kembali ke Gaya Tata Letak Kolase', '🧩');
+  }
+
+  updateTemplateUI();
+  renderPhotoList();
+  if (!skipHistory) saveHistory();
+  computeLayoutAndRender();
+}
+
+document.querySelectorAll('.template-card').forEach(card => {
+  card.addEventListener('click', () => setTemplate(card.dataset.template));
+});
+
+const disableTplBtn = $('disableTemplateFromLayoutBtn');
+if (disableTplBtn) {
+  disableTplBtn.addEventListener('click', () => setTemplate('none'));
+}
 
 // Application State
 let photos = [];        // { id, img, aspect, origAspect, caption, zoom:1, panX:0, panY:0, rotation:0, flipH:false }
@@ -1124,18 +1219,13 @@ document.querySelectorAll('.sidebar-tab').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
 
-activatePosterModeBtn.addEventListener('click', () => {
-  modeSelect.value = 'poster';
-  applyPosterPresetDefaults();
-  saveHistory();
-  computeLayoutAndRender();
-  showToast('Mode Poster Sinematik diaktifkan!', '🎬');
-});
+activatePosterModeBtn.addEventListener('click', () => setTemplate('poster'));
 
 /* ---------- UNDO / REDO SYSTEM ---------- */
 function captureStateSnapshot() {
   return {
     photos: photos.map(p => ({ ...p })),
+    activeTemplate,
     mode: modeSelect.value,
     param: paramSelect.value,
     ratio: ratioSelect.value,
@@ -1165,7 +1255,9 @@ function restoreStateSnapshot(snap) {
   if (!snap) return;
   isRestoringHistory = true;
   photos = snap.photos.map(p => ({ ...p }));
-  modeSelect.value = snap.mode;
+  activeTemplate = snap.activeTemplate || 'none';
+  modeSelect.value = snap.mode || 'auto';
+  updateTemplateUI();
   paramSelect.value = snap.param;
   ratioSelect.value = snap.ratio;
   setFitModeUI(snap.fitMode);
@@ -1367,8 +1459,7 @@ async function loadDemoPhotos() {
     flipH: false
   }));
 
-  modeSelect.value = 'poster';
-  applyPosterPresetDefaults();
+  setTemplate('poster', true);
   renderPhotoList();
   saveHistory();
   computeLayoutAndRender();
@@ -1506,12 +1597,7 @@ function applyFramePresetDefaults() {
 }
 
 modeSelect.addEventListener('change', () => {
-  const isPoster = modeSelect.value === 'poster';
-  if (isPoster) {
-    applyPosterPresetDefaults();
-  } else if (modeSelect.value === 'frame') {
-    applyFramePresetDefaults();
-  }
+  if (activeTemplate !== 'none') setTemplate('none', true);
   saveHistory();
   computeLayoutAndRender();
 });
@@ -3305,9 +3391,6 @@ function buildCandidates(seq, spec, mode, param) {
       const gl = g * spec.Lw / NW;
       [true, false].forEach(right => raw.push(stripsLayout(seq, spec.Lw, spec.Lh, gl, right)));
     }
-    if (mode === 'auto' && n >= 2) {
-      raw.push(posterLayout(seq, spec, 2, 2));
-    }
   }
 
   const done = raw.map(c => finalize(c, spec)).sort((a, b) => b.score - a.score);
@@ -3331,7 +3414,7 @@ function computeLayoutAndRender(keepIdx = false) {
     renderStage();
     return;
   }
-  candidates = buildCandidates(photos.slice(), getSpec(), modeSelect.value, Number(paramSelect.value));
+  candidates = buildCandidates(photos.slice(), getSpec(), getEffectiveMode(), Number(paramSelect.value));
   selectCandidate(keepIdx ? Math.min(candIdx, candidates.length - 1) : 0);
 }
 
@@ -3385,8 +3468,10 @@ function renderStage() {
 
   const { Lw, Lh } = current.canvas;
   const spec = getSpec();
-  const availW = Math.min(window.innerWidth * (window.innerWidth >= 1024 ? 0.54 : 0.9), 600);
-  const availH = window.innerHeight * 0.75;
+  const isMobile = window.innerWidth < 1024;
+  const isExpanded = $('mainWorkspace').classList.contains('preview-expanded');
+  const availW = Math.min(window.innerWidth * (isMobile ? 0.92 : 0.54), 600);
+  const availH = window.innerHeight * (isMobile ? (isExpanded ? 0.62 : 0.34) : 0.75);
 
   let previewW, previewH;
   if (spec.auto && !isFixedType(current.type)) {
@@ -3776,26 +3861,92 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// Toggle kunci urutan, lipat preview, dan mode Tap-to-Swap untuk perangkat sentuh.
+const toggleSwapLockBtn = $('toggleSwapLockBtn');
+if (toggleSwapLockBtn) {
+  toggleSwapLockBtn.addEventListener('click', () => {
+    swapUnlocked = !swapUnlocked;
+    stage.classList.toggle('swap-unlocked', swapUnlocked);
+    $('swapLockIcon').textContent = swapUnlocked ? '🔓' : '🔒';
+    $('swapLockText').textContent = swapUnlocked ? 'Geser Aktif' : 'Urutan Terkunci';
+    toggleSwapLockBtn.className = swapUnlocked
+      ? 'text-[11px] font-medium px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 transition-all flex items-center gap-1'
+      : 'text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#14171d] text-zinc-300 border border-[#22262f] hover:border-zinc-600 transition-all flex items-center gap-1';
+    showToast(swapUnlocked ? 'Mode Geser Aktif: Tarik foto untuk menukar posisi' : 'Urutan Terkunci: Aman untuk scroll layar', swapUnlocked ? '🔓' : '🔒');
+  });
+}
+
+const mobilePreviewToggleBtn = $('mobilePreviewToggleBtn');
+if (mobilePreviewToggleBtn) {
+  mobilePreviewToggleBtn.addEventListener('click', () => {
+    const ws = $('mainWorkspace');
+    if (!ws) return;
+    if (ws.classList.contains('preview-collapsed')) {
+      ws.classList.remove('preview-collapsed');
+      ws.classList.add('preview-expanded');
+      mobilePreviewToggleBtn.textContent = '↕ Normal';
+    } else if (ws.classList.contains('preview-expanded')) {
+      ws.classList.remove('preview-expanded');
+      mobilePreviewToggleBtn.textContent = '↕ Lipat';
+    } else {
+      ws.classList.add('preview-collapsed');
+      mobilePreviewToggleBtn.textContent = '👁 Buka Preview';
+    }
+    if (current) renderStage();
+  });
+}
+
+const tileTapSwapBtn = $('tileTapSwapBtn');
+if (tileTapSwapBtn) {
+  tileTapSwapBtn.addEventListener('click', () => {
+    if (!selectedPhotoId) return;
+    pendingSwapSourceId = selectedPhotoId;
+    stage.querySelectorAll('.tile').forEach(t => {
+      t.classList.toggle('swap-source-tile', Number(t.dataset.photoId) === Number(pendingSwapSourceId));
+    });
+    showToast('Ketuk foto tujuan di kanvas untuk menukar posisi', '⇄');
+  });
+}
+
 function makeDraggableAndClickable(tile, ownIdx, photoId, scale) {
-  let startX, startY, origLeft, origTop;
-  let moved = false;
   tile.addEventListener('dblclick', () => openEditorForPhoto(photoId));
 
   tile.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    tile.setPointerCapture(e.pointerId);
-    const P = current.placements;
-    startX = e.clientX;
-    startY = e.clientY;
-    origLeft = P[ownIdx].x * scale;
-    origTop = P[ownIdx].y * scale;
-    moved = false;
+    // Tap-to-Swap: pilih foto tujuan tanpa memulai drag.
+    if (pendingSwapSourceId != null && Number(pendingSwapSourceId) !== Number(photoId)) {
+      e.preventDefault();
+      e.stopPropagation();
+      const ia = photos.findIndex(p => Number(p.id) === Number(pendingSwapSourceId));
+      const ib = photos.findIndex(p => Number(p.id) === Number(photoId));
+      pendingSwapSourceId = null;
+      stage.querySelectorAll('.tile').forEach(t => t.classList.remove('swap-source-tile'));
+      if (ia !== -1 && ib !== -1) {
+        [photos[ia], photos[ib]] = [photos[ib], photos[ia]];
+        renderPhotoList();
+        saveHistory();
+        computeLayoutAndRender(true);
+        openTileInspector(photoId);
+        showToast('Posisi foto berhasil ditukar!', '🔄');
+      }
+      return;
+    }
 
+    if (!current || !current.placements || !current.placements[ownIdx]) return;
+    const isTouch = e.pointerType === 'touch';
+    let startX = e.clientX, startY = e.clientY;
+    let origLeft = current.placements[ownIdx].x * scale;
+    let origTop = current.placements[ownIdx].y * scale;
+    let moved = false;
+    let canDrag = !isTouch || swapUnlocked;
+    let longPressTimer = null;
+    let finished = false;
+    const pointerId = e.pointerId;
+    const P = current.placements;
     const allTiles = Array.from(stage.querySelectorAll('.tile'));
 
     function findOverlapTarget(curX, curY) {
       const own = P[ownIdx];
+      if (!own) return -1;
       const cur = { x: curX / scale, y: curY / scale, w: own.w, h: own.h };
       let bestIdx = -1, bestArea = 0;
       P.forEach((pl, i) => {
@@ -3803,7 +3954,7 @@ function makeDraggableAndClickable(tile, ownIdx, photoId, scale) {
         const ix = Math.max(0, Math.min(cur.x + cur.w, pl.x + pl.w) - Math.max(cur.x, pl.x));
         const iy = Math.max(0, Math.min(cur.y + cur.h, pl.y + pl.h) - Math.max(cur.y, pl.y));
         const area = ix * iy;
-        const minTargetArea = Math.min(own.w * own.h, pl.w * pl.h) * 0.22;
+        const minTargetArea = Math.min(own.w * own.h, pl.w * pl.h) * 0.25;
         if (area > bestArea && area > minTargetArea) {
           bestArea = area;
           bestIdx = i;
@@ -3812,47 +3963,60 @@ function makeDraggableAndClickable(tile, ownIdx, photoId, scale) {
       return bestIdx;
     }
 
+    function cleanup() {
+      if (finished) return;
+      finished = true;
+      if (longPressTimer !== null) clearTimeout(longPressTimer);
+      try { if (tile.hasPointerCapture(pointerId)) tile.releasePointerCapture(pointerId); } catch (_) {}
+      tile.classList.remove('dragging');
+      allTiles.forEach(t => t.classList.remove('drop-target'));
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', cleanup);
+      window.removeEventListener('blur', cleanup);
+    }
+
     function onMove(ev) {
+      if (ev.pointerId !== pointerId) return;
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
-      if (Math.hypot(dx, dy) > 5) {
+      const distance = Math.hypot(dx, dy);
+
+      // Saat terkunci, gerakan awal berarti scroll: batalkan long-press dan jangan seret foto.
+      if (!canDrag) {
+        if (distance > 8) cleanup();
+        return;
+      }
+      if (distance > 6) {
         moved = true;
         tile.classList.add('dragging');
       }
       if (!moved) return;
-
+      if (ev.cancelable) ev.preventDefault();
       const nx = origLeft + dx;
       const ny = origTop + dy;
       tile.style.left = nx + 'px';
       tile.style.top = ny + 'px';
-
       const targetIdx = findOverlapTarget(nx, ny);
-      allTiles.forEach((t, i) => {
-        if (i === targetIdx) t.classList.add('drop-target');
-        else t.classList.remove('drop-target');
-      });
+      allTiles.forEach((t, i) => t.classList.toggle('drop-target', i === targetIdx));
     }
 
     function onUp(ev) {
-      tile.releasePointerCapture(ev.pointerId);
-      tile.classList.remove('dragging');
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-
-      if (!moved) {
-        // Simple Click -> Open Per-Tile Inspector
-        openTileInspector(photoId);
-        return;
-      }
-
+      if (ev.pointerId !== pointerId) return;
+      const dist = Math.hypot(ev.clientX - startX, ev.clientY - startY);
+      const wasDragging = canDrag && moved;
       const nx = parseFloat(tile.style.left);
       const ny = parseFloat(tile.style.top);
-      const bestIdx = findOverlapTarget(nx, ny);
+      cleanup();
 
-      if (bestIdx !== -1) {
-        const a = P[ownIdx].id, b = P[bestIdx].id;
-        const ia = photos.findIndex(p => p.id === a);
-        const ib = photos.findIndex(p => p.id === b);
+      if (!wasDragging) {
+        if (dist < 10) openTileInspector(photoId);
+        return;
+      }
+      const bestIdx = Number.isFinite(nx) && Number.isFinite(ny) ? findOverlapTarget(nx, ny) : -1;
+      if (bestIdx !== -1 && P[ownIdx] && P[bestIdx]) {
+        const ia = photos.findIndex(p => Number(p.id) === Number(P[ownIdx].id));
+        const ib = photos.findIndex(p => Number(p.id) === Number(P[bestIdx].id));
         if (ia !== -1 && ib !== -1) {
           [photos[ia], photos[ib]] = [photos[ib], photos[ia]];
           renderPhotoList();
@@ -3865,8 +4029,26 @@ function makeDraggableAndClickable(tile, ownIdx, photoId, scale) {
       renderStage();
     }
 
-    window.addEventListener('pointermove', onMove);
+    if (isTouch && !swapUnlocked) {
+      // Biarkan browser menangani scroll; drag hanya aktif setelah long-press 320 ms.
+      longPressTimer = setTimeout(() => {
+        if (finished) return;
+        canDrag = true;
+        moved = true;
+        tile.classList.add('dragging');
+        if (navigator.vibrate) navigator.vibrate(25);
+        try { tile.setPointerCapture(pointerId); } catch (_) {}
+      }, 320);
+    } else {
+      if (e.cancelable) e.preventDefault();
+      e.stopPropagation();
+      try { tile.setPointerCapture(pointerId); } catch (_) {}
+    }
+
+    window.addEventListener('pointermove', onMove, { passive: false });
     window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', cleanup);
+    window.addEventListener('blur', cleanup);
   });
 }
 

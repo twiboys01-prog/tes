@@ -18,3 +18,10 @@ Tombol Unduh menyimpan langsung ke Galeri (album **Collage Studio**). Kalau gaga
 
 ## Build lokal (opsional, perlu Android Studio + JDK 17)
 npm install && npx cap add android && npx capacitor-assets generate --android && npx cap sync android && cd android && ./gradlew assembleDebug
+
+
+## Tampilan HP & Template
+- Di HP: preview kolase selalu di atas (tidak ikut scroll), panel kontrol di bawah dan scroll sendiri. Tombol ⤢ di pojok kanan atas preview memperbesar/memperkecil preview.
+- Ketuk foto = buka panel edit (bottom sheet). **Tahan lalu geser** = tukar posisi foto (geser biasa tidak menukar apa-apa).
+- Tab **Template** berisi Poster Sinematik dan Bingkai Caption. Pengaturan teksnya hanya muncul saat template dipilih. Saat template aktif, Gaya Tata Letak di tab Layout dikunci supaya tidak bentrok.
+- Kalau menambah class Tailwind baru di `www/index.html`, tidak perlu apa-apa: workflow menjalankan `npm run build:css` otomatis. Untuk tes lokal: `npm install && npm run build:css`.

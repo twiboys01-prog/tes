@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "sync": "cap sync android"
+    "sync": "cap sync android",
+    "build:css": "tailwindcss -c tailwind.config.js -i src/tailwind-input.css -o www/tailwind.css --minify"
   },
   "keywords": [],
   "author": "",

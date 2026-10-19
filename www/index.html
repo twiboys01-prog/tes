@@ -1,0 +1,4334 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#090a0c">
+<title>Collage Studio — Smart Layout & Poster Engine</title>
+<link rel="stylesheet" href="tailwind.css">
+<link rel="stylesheet" href="fonts.css">
+<style>
+  :root {
+    --bg-main: #090a0c;
+    --bg-panel: #111317;
+    --bg-elevated: #171a20;
+    --border-subtle: #22262f;
+    --border-hover: #323846;
+    --text-main: #f1f3f5;
+    --text-muted: #868e96;
+    --accent: #34d399;
+    --accent-dim: rgba(52, 211, 153, 0.12);
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+  }
+
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #262a34;
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #363c4a;
+  }
+
+  /* Workspace Dot Grid Background */
+  .dot-grid {
+    background-color: #090a0c;
+    background-image: radial-gradient(#1f232b 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Checkerboard pattern for transparent canvas preview */
+  .checkerboard {
+    background-image: 
+      linear-gradient(45deg, #181a20 25%, transparent 25%), 
+      linear-gradient(-45deg, #181a20 25%, transparent 25%), 
+      linear-gradient(45deg, transparent 75%, #181a20 75%), 
+      linear-gradient(-45deg, transparent 75%, #181a20 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    background-color: #101216;
+  }
+
+  /* Minimalist Range Slider */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    height: 20px;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    background: #22262f;
+    height: 4px;
+    border-radius: 999px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -5px;
+    background-color: #f1f3f5;
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    border: 2px solid #090a0c;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+  }
+  input[type="range"]:hover::-webkit-slider-thumb {
+    background-color: var(--accent);
+    transform: scale(1.14);
+  }
+
+  /* Select & Input Styling */
+  .ui-select, .ui-input {
+    background-color: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-main);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 12.5px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .ui-select:hover, .ui-input:hover {
+    border-color: var(--border-hover);
+  }
+  .ui-select:focus, .ui-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+  }
+
+  /* Stage & Tiles */
+  #stage {
+    position: relative;
+    border-radius: 8px;
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.78), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    touch-action: none;
+    transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), height 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .tile {
+    position: absolute;
+    cursor: grab;
+    user-select: none;
+    overflow: hidden;
+    transition: box-shadow 0.15s ease;
+  }
+  .tile:hover {
+    box-shadow: inset 0 0 0 1.5px rgba(52, 211, 153, 0.75);
+    z-index: 25;
+  }
+  .tile.selected-tile {
+    box-shadow: inset 0 0 0 2.5px #34d399, 0 0 18px rgba(52, 211, 153, 0.25) !important;
+    z-index: 28 !important;
+  }
+  .tile.dragging {
+    cursor: grabbing;
+    z-index: 60 !important;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.65), 0 0 0 2px var(--accent);
+    opacity: 0.92;
+  }
+  .tile.drop-target {
+    box-shadow: inset 0 0 0 3px var(--accent) !important;
+    filter: brightness(1.18);
+    z-index: 30;
+  }
+  .tile-inner {
+    position: absolute;
+    overflow: hidden;
+  }
+  .tile-inner img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    transform-origin: center center;
+  }
+  .tile .cap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.82));
+    color: #fff;
+    font-weight: 500;
+    line-height: 1.1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    pointer-events: none;
+  }
+
+  /* Tile Quick Badge on Hover */
+  .tile-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    background: rgba(9, 10, 12, 0.75);
+    backdrop-filter: blur(4px);
+    color: #e4e4e7;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 6px;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.12);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+    z-index: 12;
+  }
+  .tile:hover .tile-badge,
+  .tile.selected-tile .tile-badge {
+    opacity: 1;
+  }
+
+  /* Dropzone highlight */
+  .dropzone-active {
+    border-color: var(--accent) !important;
+    background-color: var(--accent-dim) !important;
+  }
+
+  /* Tab navigation active state */
+  .sidebar-tab {
+    position: relative;
+    transition: all 0.15s ease;
+  }
+  .sidebar-tab.active {
+    color: #34d399;
+    background-color: rgba(52, 211, 153, 0.08);
+    border-color: rgba(52, 211, 153, 0.3);
+  }
+
+  /* Toast animation */
+  @keyframes toastIn {
+    from { opacity: 0; transform: translate(-50%, 12px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+  .toast-enter {
+    animation: toastIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* ===== Crop Editor ===== */
+  #cropModal { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; background: rgba(5,6,8,0.88); backdrop-filter: blur(6px); padding: 16px; }
+  #cropModal.open { display: flex; }
+  .crop-card { background: #111317; border: 1px solid #2b303c; border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,.7); max-width: 96vw; max-height: 96vh; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; overflow: auto; }
+  .crop-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .crop-title { font-size: 13px; font-weight: 600; color: #f1f3f5; }
+  .crop-info { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #34d399; }
+  .crop-presets { display: flex; flex-wrap: wrap; gap: 6px; }
+  .crop-chip { font-size: 11.5px; padding: 5px 10px; border-radius: 999px; border: 1px solid #22262f; background: #171a20; color: #a1a8b3; cursor: pointer; transition: all .15s ease; }
+  .crop-chip:hover { color: #f1f3f5; border-color: #323846; }
+  .crop-chip.active { background: rgba(52,211,153,.14); border-color: rgba(52,211,153,.5); color: #6ee7b7; }
+  .crop-chip.auto { border-color: rgba(96,165,250,.4); color: #93c5fd; background: rgba(96,165,250,.08); }
+  .crop-stage-wrap { display: flex; justify-content: center; }
+  .crop-stage { position: relative; overflow: hidden; touch-action: none; user-select: none; background: repeating-conic-gradient(#1a1d24 0% 25%, #12141a 0% 50%) 0 0 / 16px 16px; border-radius: 6px; }
+  .crop-stage canvas { display: block; width: 100%; height: 100%; pointer-events: none; }
+  .crop-box { position: absolute; box-shadow: 0 0 0 9999px rgba(0,0,0,.62); outline: 2px solid #34d399; cursor: move;
+    background-image: linear-gradient(to right, transparent 33.2%, rgba(255,255,255,.28) 33.3%, transparent 33.5%, transparent 66.5%, rgba(255,255,255,.28) 66.6%, transparent 66.8%),
+                      linear-gradient(to bottom, transparent 33.2%, rgba(255,255,255,.28) 33.3%, transparent 33.5%, transparent 66.5%, rgba(255,255,255,.28) 66.6%, transparent 66.8%); }
+  .crop-handle { position: absolute; width: 16px; height: 16px; background: #34d399; border: 2px solid #0b0e17; border-radius: 4px; transform: translate(-50%, -50%); }
+  .crop-handle[data-h="nw"] { left: 0; top: 0; cursor: nwse-resize; }
+  .crop-handle[data-h="n"]  { left: 50%; top: 0; cursor: ns-resize; }
+  .crop-handle[data-h="ne"] { left: 100%; top: 0; cursor: nesw-resize; }
+  .crop-handle[data-h="e"]  { left: 100%; top: 50%; cursor: ew-resize; }
+  .crop-handle[data-h="se"] { left: 100%; top: 100%; cursor: nwse-resize; }
+  .crop-handle[data-h="s"]  { left: 50%; top: 100%; cursor: ns-resize; }
+  .crop-handle[data-h="sw"] { left: 0; top: 100%; cursor: nesw-resize; }
+  .crop-handle[data-h="w"]  { left: 0; top: 50%; cursor: ew-resize; }
+  .crop-box.locked .crop-handle[data-h="n"], .crop-box.locked .crop-handle[data-h="e"],
+  .crop-box.locked .crop-handle[data-h="s"], .crop-box.locked .crop-handle[data-h="w"] { display: none; }
+  .crop-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+  .crop-btn { font-size: 12px; padding: 8px 14px; border-radius: 10px; border: 1px solid #282d38; background: #171a20; color: #e4e4e7; cursor: pointer; font-weight: 500; }
+  .crop-btn:hover { background: #1e222a; }
+  .crop-btn.primary { background: #34d399; border-color: #34d399; color: #04130c; font-weight: 700; }
+  .crop-btn.primary:hover { background: #6ee7b7; }
+  .crop-hint { font-size: 10.5px; color: #868e96; }
+
+  /* ===== Text Block (Blank Canvas Teks) ===== */
+  #tbModal { position: fixed; inset: 0; z-index: 210; display: none; align-items: center; justify-content: center; background: rgba(5,6,8,0.88); backdrop-filter: blur(6px); padding: 16px; }
+  #tbModal.open { display: flex; }
+  .tb-card { width: min(1040px, 96vw); }
+  .tb-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
+  @media (max-width: 820px) { .tb-grid { grid-template-columns: minmax(0, 1fr); } }
+  .tb-preview { display: flex; align-items: center; justify-content: center; min-height: 220px; padding: 14px; border-radius: 10px; border: 1px solid #22262f; background: #0b0d11; }
+  .tb-preview.checker { background: repeating-conic-gradient(#1a1d24 0% 25%, #12141a 0% 50%) 0 0 / 16px 16px; }
+  .tb-preview canvas { display: block; max-width: 100%; max-height: 56vh; width: auto; height: auto; box-shadow: 0 10px 30px rgba(0,0,0,.55); border-radius: 2px; }
+  .tb-controls { display: flex; flex-direction: column; gap: 12px; max-height: 66vh; overflow-y: auto; padding-right: 4px; }
+  .tb-label { font-size: 11px; font-weight: 600; color: #c9ced6; margin-bottom: 5px; display: block; }
+  .tb-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .tb-slider { display: flex; flex-direction: column; gap: 3px; }
+  .tb-slider > div { display: flex; justify-content: space-between; font-size: 11.5px; color: #868e96; }
+  .tb-slider > div span:last-child { font-family: 'JetBrains Mono', monospace; color: #c9ced6; font-size: 11px; }
+  .tb-check { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: #a1a8b3; cursor: pointer; }
+  .tb-color { width: 38px; height: 30px; padding: 0; border: 1px solid #2b303c; border-radius: 8px; background: transparent; cursor: pointer; }
+  .tb-num { width: 78px; }
+  .tb-chip-sq { min-width: 34px; text-align: center; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col lg:flex-row selection:bg-emerald-500/20 selection:text-emerald-300">
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2"></div>
+
+  <!-- HIDDEN SINGLE PHOTO REPLACE INPUT -->
+  <input type="file" id="replaceFileInput" accept="image/*" class="hidden">
+
+  <!-- LEFT SIDEBAR: TABBED CONTROLS & PHOTO LIST -->
+  <aside class="w-full lg:w-[400px] xl:w-[430px] flex-shrink-0 bg-[#111317] border-b lg:border-b-0 lg:border-r border-[#22262f] flex flex-col lg:h-screen lg:sticky lg:top-0 z-30">
+    
+    <!-- Brand Header + Quick Actions -->
+    <header class="px-5 py-3.5 border-b border-[#22262f] flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="5" rx="1.5"/>
+            <rect x="14" y="12" width="7" height="9" rx="1.5"/>
+            <rect x="3" y="16" width="7" height="5" rx="1.5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm font-bold tracking-tight text-zinc-100 leading-none">Collage Studio</h1>
+            <span class="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Pro</span>
+          </div>
+          <p class="text-[11px] text-zinc-500 mt-1">Auto-Layout & Cinematic Poster Engine</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button type="button" id="demoHeaderBtn" title="Muat 7 Foto Contoh Sinematik" class="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/25 transition-colors flex items-center gap-1">
+          <span>✨ Demo</span>
+        </button>
+        <span id="badgeCount" class="mono text-[11px] px-2 py-1 rounded-lg bg-zinc-800/90 text-zinc-300 border border-zinc-700/60">0 foto</span>
+      </div>
+    </header>
+
+    <!-- Step-by-Step Navigation Tabs -->
+    <nav class="px-4 pt-3 pb-2 border-b border-[#22262f] bg-[#0e1014] grid grid-cols-4 gap-1.5" aria-label="Menu Pengaturan">
+      <button type="button" data-tab="tab-photos" class="sidebar-tab active py-2 px-2 rounded-lg border border-transparent text-[11.5px] font-medium text-zinc-400 hover:text-zinc-200 flex flex-col items-center gap-1">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <span>1. Foto</span>
+      </button>
+      <button type="button" data-tab="tab-layout" class="sidebar-tab py-2 px-2 rounded-lg border border-transparent text-[11.5px] font-medium text-zinc-400 hover:text-zinc-200 flex flex-col items-center gap-1">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+        </svg>
+        <span>2. Layout</span>
+      </button>
+      <button type="button" data-tab="tab-style" class="sidebar-tab py-2 px-2 rounded-lg border border-transparent text-[11.5px] font-medium text-zinc-400 hover:text-zinc-200 flex flex-col items-center gap-1">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 1 0 10 10"/>
+        </svg>
+        <span>3. Gaya</span>
+      </button>
+      <button type="button" data-tab="tab-poster" id="posterTabBtn" class="sidebar-tab py-2 px-2 rounded-lg border border-transparent text-[11.5px] font-medium text-zinc-400 hover:text-zinc-200 flex flex-col items-center gap-1 relative">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/>
+        </svg>
+        <span>4. Poster</span>
+        <span id="posterActiveDot" class="hidden w-2 h-2 rounded-full bg-blue-400 absolute top-1.5 right-2 animate-pulse"></span>
+      </button>
+    </nav>
+
+    <!-- Scrollable Controls Container -->
+    <div class="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+
+      <!-- ================= TAB 1: FOTO & DAFTAR URUTAN ================= -->
+      <div id="tab-photos" class="tab-pane space-y-4">
+        <!-- Upload Dropzone -->
+        <section>
+          <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
+          <div id="dropzone" class="border border-dashed border-[#2b303c] hover:border-emerald-500/50 rounded-xl p-4 text-center cursor-pointer transition-all bg-[#14171d]/70 hover:bg-[#171b22] group">
+            <div class="w-9 h-9 rounded-full bg-zinc-800/80 border border-zinc-700/50 mx-auto flex items-center justify-center text-zinc-400 group-hover:text-emerald-400 group-hover:border-emerald-500/30 transition-colors">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <p class="text-xs font-medium text-zinc-200 mt-2">Klik, tarik foto, atau tekan <kbd class="px-1.5 py-0.5 text-[10px] rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Ctrl+V</kbd></p>
+            <p class="text-[11px] text-zinc-500 mt-0.5">Tips Poster Perfect Blue: Unggah 7 foto (1 Hero + 6 Grid)</p>
+          </div>
+        </section>
+
+        <button type="button" id="addTextBlockBtn" class="w-full text-xs font-semibold py-2.5 rounded-xl border border-emerald-500/35 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 transition-colors flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+          ＋ Blank Canvas Teks (ketik / tempel tulisan)
+        </button>
+
+        <!-- Quick Actions Row for Photos -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5">
+            <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Daftar & Urutan Foto</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" id="reverseOrderBtn" class="hidden text-[11px] text-zinc-400 hover:text-zinc-200 transition-colors">
+              Balik Urutan
+            </button>
+            <button type="button" id="clearAllBtn" class="hidden text-[11px] text-rose-400 hover:text-rose-300 transition-colors font-medium">
+              Hapus Semua
+            </button>
+          </div>
+        </div>
+
+        <!-- Photo List -->
+        <div id="photoList" class="space-y-2">
+          <div class="text-xs text-zinc-500 py-6 px-4 text-center border border-dashed border-[#22262f] rounded-xl space-y-2">
+            <p>Belum ada foto yang dipilih.</p>
+            <button type="button" id="sideDemoBtn" class="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 transition-colors">
+              ✨ Muat 7 Foto Contoh (Poster Perfect Blue)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 2: TATA LETAK & KANVAS ================= -->
+      <div id="tab-layout" class="tab-pane hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Algoritma & Dimensi Kanvas</h2>
+        </div>
+
+        <!-- Mode Layout -->
+        <div class="space-y-1.5">
+          <label class="text-xs text-zinc-300 font-medium block">Gaya Tata Letak (Algoritma)</label>
+          <select id="modeSelect" class="ui-select w-full">
+            <option value="auto" selected>✨ Otomatis (Rekomendasi Terbaik)</option>
+            <option value="poster">🎬 Poster Sinematik (Gaya Perfect Blue)</option>
+            <option value="frame">🖼️ Bingkai Caption (Teks Atas + Kotak Grid + Teks Bawah)</option>
+            <option value="grid">Grid Rapi (Ukuran Seragam)</option>
+            <option value="justified">Baris Rata (Justified / Tanpa Celah)</option>
+            <option value="masonry">Masonry (Kolom Pinterest)</option>
+            <option value="hero">Hero Besar di Atas + Grid Bawah</option>
+            <option value="strips">Strip Komik / Manga + Masonry</option>
+          </select>
+        </div>
+
+        <!-- Kolom / Baris -->
+        <div class="grid grid-cols-3 items-center gap-2">
+          <label class="text-xs text-zinc-400">Jumlah Kolom</label>
+          <select id="paramSelect" class="ui-select col-span-2">
+            <option value="0" selected>Auto (Optimal / 2 Kolom Poster)</option>
+            <option value="1">1 Kolom</option>
+            <option value="2">2 Kolom</option>
+            <option value="3">3 Kolom</option>
+            <option value="4">4 Kolom</option>
+            <option value="5">5 Kolom</option>
+            <option value="6">6 Kolom</option>
+            <option value="7">7 Kolom</option>
+            <option value="8">8 Kolom</option>
+          </select>
+        </div>
+
+        <!-- Rasio Kanvas -->
+        <div class="grid grid-cols-3 items-center gap-2">
+          <label class="text-xs text-zinc-400">Rasio Kanvas</label>
+          <select id="ratioSelect" class="ui-select col-span-2">
+            <option value="9:16" selected>9:16 — Story / Reels / TikTok</option>
+            <option value="3:4">3:4 — Poster Sinematik / Portrait</option>
+            <option value="4:5">4:5 — IG Feed Portrait</option>
+            <option value="auto">Auto — Ikuti Isi (Tanpa Ruang Sisa)</option>
+            <option value="2:3">2:3 — Poster Film Klasik</option>
+            <option value="1:1">1:1 — Persegi (Square)</option>
+            <option value="16:9">16:9 — Landscape / Youtube</option>
+          </select>
+        </div>
+
+        <!-- Fit Foto (Contain vs Cover) -->
+        <div class="grid grid-cols-3 items-center gap-2">
+          <label class="text-xs text-zinc-400">Pemotongan</label>
+          <div class="col-span-2 grid grid-cols-2 p-0.5 bg-[#171a20] border border-[#22262f] rounded-lg">
+            <button type="button" id="fitContainBtn" class="text-xs py-1.5 rounded-md font-medium transition-all bg-zinc-800 text-emerald-400 shadow-sm">
+              Utuh (Contain)
+            </button>
+            <button type="button" id="fitCoverBtn" class="text-xs py-1.5 rounded-md font-medium transition-all text-zinc-400 hover:text-zinc-200">
+              Penuh (Cover)
+            </button>
+          </div>
+        </div>
+
+        <hr class="border-[#22262f]">
+
+
+        <!-- ============ PANEL BINGKAI CAPTION (muncul saat mode Bingkai Caption aktif) ============ -->
+        <div id="framePanel" class="hidden space-y-3.5 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20">
+          <div class="text-xs text-emerald-200 leading-snug">
+            <span class="font-semibold block">🖼️ Bingkai Caption</span>
+            <span class="text-[11px] text-emerald-300/70">Teks di atas, garis tebal, kotak berisi grid foto di tengah, garis tebal, lalu teks di bawah. Ukuran kanvas mengikuti <em>Rasio Kanvas</em> di atas.</span>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-[11px] font-medium text-zinc-300">Teks Atas</label>
+              <select id="frameTopAlign" class="ui-select !py-1 !px-2 !text-[11px]">
+                <option value="left" selected>Rata Kiri</option>
+                <option value="center">Tengah</option>
+                <option value="right">Rata Kanan</option>
+              </select>
+            </div>
+            <textarea id="frameTopText" rows="3" class="ui-input w-full resize-y leading-snug" placeholder="Teks di atas kotak (Enter = baris baru)">If someone shows me this photo
+in 70 years,
+I won't remember anything,</textarea>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-[11px] font-medium text-zinc-300">Teks Bawah</label>
+              <select id="frameBottomAlign" class="ui-select !py-1 !px-2 !text-[11px]">
+                <option value="left" selected>Rata Kiri</option>
+                <option value="center">Tengah</option>
+                <option value="right">Rata Kanan</option>
+              </select>
+            </div>
+            <textarea id="frameBottomText" rows="2" class="ui-input w-full resize-y leading-snug" placeholder="Teks di bawah kotak (kosongkan jika tidak perlu)">but in my head something will
+definitely flicker.</textarea>
+          </div>
+
+          <div class="grid grid-cols-3 items-center gap-2">
+            <label class="text-xs text-zinc-400">Font Teks</label>
+            <select id="frameFont" class="ui-select col-span-2 !py-1.5 !text-xs">
+              <option value="Arial" selected>Klasik (Arial)</option>
+              <option value="Inter">Sans Modern (Inter)</option>
+              <option value="Bebas Neue">Display Tinggi (Bebas)</option>
+              <option value="Cinzel">Serif (Cinzel)</option>
+              <option value="JetBrains Mono">Mono</option>
+            </select>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Ukuran Teks</span>
+              <span id="frameTextSizeVal" class="mono text-zinc-300 text-[11px]">47</span>
+            </div>
+            <input type="range" id="frameTextSize" min="20" max="90" step="1" value="47" class="w-full">
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Geser Teks Atas ke Kanan</span>
+              <span id="frameTopIndentVal" class="mono text-zinc-300 text-[11px]">0</span>
+            </div>
+            <input type="range" id="frameTopIndent" min="0" max="60" step="1" value="0" class="w-full">
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Geser Teks Bawah ke Kanan (menjorok)</span>
+              <span id="frameBottomIndentVal" class="mono text-zinc-300 text-[11px]">0</span>
+            </div>
+            <input type="range" id="frameBottomIndent" min="0" max="60" step="1" value="0" class="w-full">
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Ketebalan Garis Pemisah</span>
+              <span id="frameLineWVal" class="mono text-zinc-300 text-[11px]">7</span>
+            </div>
+            <input type="range" id="frameLineW" min="0" max="24" step="1" value="7" class="w-full">
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Ruang Kosong di Dalam Kotak</span>
+              <span id="framePadVal" class="mono text-zinc-300 text-[11px]">30</span>
+            </div>
+            <input type="range" id="framePad" min="0" max="150" step="1" value="30" class="w-full">
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <label class="flex flex-col items-center gap-1 text-[10px] text-zinc-400 cursor-pointer">
+              <input type="color" id="framePaper" value="#ffffff" class="w-full h-8 rounded-md border border-[#2b303c] bg-transparent cursor-pointer p-0">
+              <span>Kertas</span>
+            </label>
+            <label class="flex flex-col items-center gap-1 text-[10px] text-zinc-400 cursor-pointer">
+              <input type="color" id="frameTextColor" value="#111111" class="w-full h-8 rounded-md border border-[#2b303c] bg-transparent cursor-pointer p-0">
+              <span>Teks</span>
+            </label>
+            <label class="flex flex-col items-center gap-1 text-[10px] text-zinc-400 cursor-pointer">
+              <input type="color" id="frameLineColor" value="#000000" class="w-full h-8 rounded-md border border-[#2b303c] bg-transparent cursor-pointer p-0">
+              <span>Garis</span>
+            </label>
+          </div>
+          <p class="text-[10.5px] text-zinc-500 leading-snug">Jumlah kolom grid diatur di “Jumlah Kolom”, jarak antar foto di “Spasi &amp; Sudut”. Pilih <em>Auto — Ikuti Isi</em> pada Rasio Kanvas agar tinggi kanvas menyesuaikan isi.</p>
+        </div>
+
+        <!-- Pengaturan Jarak & Margin -->
+        <div class="space-y-3.5">
+          <h3 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Spasi & Sudut</h3>
+
+          <!-- Gap Slider -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Jarak Antar Foto / Tebal Garis Grid</span>
+              <span id="gapValLabel" class="mono text-zinc-300 text-[11px]">8px</span>
+            </div>
+            <input type="range" id="gapSlider" min="0" max="48" step="1" value="8" class="w-full">
+          </div>
+
+          <!-- Outer Margin / Padding Slider -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Margin Tepi Luar Kanvas</span>
+              <span id="marginValLabel" class="mono text-zinc-300 text-[11px]">0px</span>
+            </div>
+            <input type="range" id="marginSlider" min="0" max="80" step="2" value="0" class="w-full">
+          </div>
+
+          <!-- Border Radius Slider -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Lengkungan Sudut Bingkai</span>
+              <span id="radiusValLabel" class="mono text-zinc-300 text-[11px]">6px</span>
+            </div>
+            <input type="range" id="radiusSlider" min="0" max="40" step="1" value="6" class="w-full">
+          </div>
+        </div>
+
+        <!-- Shuffle Toggle -->
+        <label class="flex items-center justify-between gap-3 pt-2 cursor-pointer select-none group">
+          <span class="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors">Acak urutan foto saat klik "Layout Lain"</span>
+          <div class="relative inline-flex items-center">
+            <input type="checkbox" id="shuffleCheck" class="sr-only peer">
+            <div class="w-8 h-4.5 bg-zinc-800 border border-zinc-700 rounded-full peer peer-checked:bg-emerald-500/20 peer-checked:border-emerald-500/50 transition-all h-[18px]"></div>
+            <div class="w-3 h-3 bg-zinc-400 rounded-full absolute left-1 top-[3px] peer-checked:translate-x-3.5 peer-checked:bg-emerald-400 transition-all"></div>
+          </div>
+        </label>
+      </div>
+
+      <!-- ================= TAB 3: GAYA, WARNA & FILTER ================= -->
+      <div id="tab-style" class="tab-pane hidden space-y-4">
+        <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Warna Latar & Garis</h2>
+
+        <!-- Background Color Swatches -->
+        <div class="grid grid-cols-3 items-center gap-2">
+          <label class="text-xs text-zinc-400">Background</label>
+          <div class="col-span-2 flex items-center gap-2 flex-wrap">
+            <button type="button" data-bg="#0b0e17" title="Navy Poster (Perfect Blue)" class="bg-swatch w-6 h-6 rounded-full bg-[#0b0e17] border-2 border-emerald-400 scale-105 transition-transform"></button>
+            <button type="button" data-bg="#000000" title="Hitam Pekat" class="bg-swatch w-6 h-6 rounded-full bg-black border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
+            <button type="button" data-bg="#14161a" title="Abu Gelap" class="bg-swatch w-6 h-6 rounded-full bg-[#14161a] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
+            <button type="button" data-bg="#f8fafc" title="Putih Bersih" class="bg-swatch w-6 h-6 rounded-full bg-[#f8fafc] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
+            <button type="button" data-bg="#f5ebe0" title="Krem Editorial" class="bg-swatch w-6 h-6 rounded-full bg-[#f5ebe0] border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
+            <button type="button" data-bg="transparent" title="Transparan (PNG)" class="bg-swatch w-6 h-6 rounded-full checkerboard border-2 border-zinc-700 hover:scale-105 transition-transform"></button>
+            <label title="Pilih Warna Kustom" class="relative w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-400 via-sky-400 to-purple-500 border-2 border-zinc-700 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center overflow-hidden">
+              <input type="color" id="customColorInput" value="#0b0e17" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer">
+            </label>
+          </div>
+        </div>
+
+        <!-- Frame / Divider Line Color (For Poster & Borders) -->
+        <div class="grid grid-cols-3 items-center gap-2">
+          <label class="text-xs text-zinc-400">Garis Bingkai</label>
+          <div class="col-span-2 flex items-center gap-2">
+            <input type="color" id="frameColorInput" value="#ffffff" class="w-8 h-7 rounded bg-transparent border border-zinc-700 cursor-pointer">
+            <input type="range" id="frameOpacitySlider" min="0" max="100" value="82" class="flex-1" title="Transparansi Garis Bingkai">
+            <span id="frameOpacityLabel" class="mono text-[11px] text-zinc-400 w-9 text-right">82%</span>
+          </div>
+        </div>
+
+        <hr class="border-[#22262f]">
+
+        <!-- Image Filter Presets -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Filter Mood Sinematik</h3>
+            <span id="activeFilterBadge" class="text-[10px] text-emerald-400 mono">Normal</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2" id="filterPresetGrid">
+            <button type="button" data-filter="none" class="filter-btn py-2 px-2.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-medium transition-all text-center">Normal</button>
+            <button type="button" data-filter="vivid" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Vivid Pop</button>
+            <button type="button" data-filter="cinema" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Cool Blue</button>
+            <button type="button" data-filter="warm" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Warm Gold</button>
+            <button type="button" data-filter="noir" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Noir B&amp;W</button>
+            <button type="button" data-filter="vintage" class="filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center">Soft Fade</button>
+          </div>
+        </div>
+
+        <hr class="border-[#22262f]">
+
+        <!-- Export Settings -->
+        <div class="space-y-3">
+          <h3 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Pengaturan Ekspor</h3>
+
+          <div class="grid grid-cols-3 items-center gap-2">
+            <label class="text-xs text-zinc-400">Resolusi</label>
+            <select id="resSelect" class="ui-select col-span-2">
+              <option value="1600">Cepat — Sosmed (1600px)</option>
+              <option value="2400">Standar — Jernih (2400px)</option>
+              <option value="3200" selected>Tinggi — HD Studio (3200px)</option>
+              <option value="4500">Ultra — Cetak Poster (4500px)</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-3 items-center gap-2">
+            <label class="text-xs text-zinc-400">Format File</label>
+            <select id="formatSelect" class="ui-select col-span-2">
+              <option value="image/png" selected>PNG — Kualitas Tanpa Kompresi</option>
+              <option value="image/jpeg">JPG — Ukuran File Ringan</option>
+              <option value="image/webp">WebP — Modern &amp; Tajam</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 4: TEKS POSTER SINEMATIK ================= -->
+      <div id="tab-poster" class="tab-pane hidden space-y-4">
+        <div class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-between gap-2">
+          <div class="text-xs text-blue-200 leading-snug">
+            <span class="font-semibold block">Mode Poster Sinematik</span>
+            <span class="text-[11px] text-blue-300/80">Foto #1 otomatis menjadi Hero dengan gradasi halus di atas grid.</span>
+          </div>
+          <button type="button" id="activatePosterModeBtn" class="px-2.5 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-400 text-zinc-950 font-semibold text-[11px] flex-shrink-0 transition-colors">
+            Aktifkan
+          </button>
+        </div>
+
+        <!-- Title, Font & Accent Color -->
+        <div class="space-y-2">
+          <label class="text-[11px] font-medium text-zinc-300 block">Judul Utama &amp; Warna Aksen</label>
+          <div class="flex gap-2">
+            <input type="text" id="posterTitle" value="PERFECT BLUE" placeholder="Judul Film / Karya..." class="ui-input flex-1 font-semibold tracking-wide">
+            <label title="Warna Garis Aksen" class="w-9 h-[35px] rounded-lg border border-[#2b303c] flex items-center justify-center cursor-pointer overflow-hidden flex-shrink-0" style="background-color: #3b82f6;" id="posterAccentPreview">
+              <input type="color" id="posterAccent" value="#3b82f6" class="opacity-0 w-full h-full cursor-pointer">
+            </label>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <div>
+              <label class="text-[10px] text-zinc-500 block mb-1">Gaya Font Judul</label>
+              <select id="posterFontSelect" class="ui-select w-full !py-1.5 !text-xs">
+                <option value="Inter" selected>Sans Modern (Inter)</option>
+                <option value="Bebas Neue">Display Tinggi (Bebas)</option>
+                <option value="Cinzel">Serif Sinematik (Cinzel)</option>
+                <option value="JetBrains Mono">Minimalis (Mono)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] text-zinc-500 block mb-1">Rating Bintang (Opsional)</label>
+              <select id="posterRatingSelect" class="ui-select w-full !py-1.5 !text-xs">
+                <option value="" selected>Tanpa Bintang</option>
+                <option value="★★★★★">★★★★★ (5/5)</option>
+                <option value="★★★★½">★★★★½ (4.5/5)</option>
+                <option value="★★★★☆">★★★★☆ (4/5)</option>
+                <option value="★★★½☆">★★★½☆ (3.5/5)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Left Metadata Columns -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-medium text-zinc-300 block">4 Kolom Metadata Kiri (Label &amp; Isi)</label>
+          <div class="grid grid-cols-2 gap-1.5">
+            <div class="flex gap-1">
+              <input type="text" id="metaL1Label" value="YEAR" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 1">
+              <input type="text" id="metaL1Val" value="1998" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 1">
+            </div>
+            <div class="flex gap-1">
+              <input type="text" id="metaL2Label" value="STUDIO" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 2">
+              <input type="text" id="metaL2Val" value="MADHOUSE" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 2">
+            </div>
+            <div class="flex gap-1">
+              <input type="text" id="metaL3Label" value="RUNTIME" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 3">
+              <input type="text" id="metaL3Val" value="1H 21M" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 3">
+            </div>
+            <div class="flex gap-1">
+              <input type="text" id="metaL4Label" value="GENRE" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label 4">
+              <input type="text" id="metaL4Val" value="PSYCHOLOGICAL" class="ui-input w-1/2 !px-2 !py-1.5 !text-[11px] font-semibold" placeholder="Isi 4">
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Metadata (Directed By) -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-medium text-zinc-300 block">Metadata Kanan (Sutradara / Kreator)</label>
+          <div class="grid grid-cols-2 gap-1.5">
+            <input type="text" id="metaRLabel" value="DIRECTED BY" class="ui-input !px-2.5 !py-1.5 !text-[11px] text-zinc-400" placeholder="Label Kanan">
+            <input type="text" id="metaRVal" value="SATOSHI KON" class="ui-input !px-2.5 !py-1.5 !text-[11px] font-semibold" placeholder="Isi Kanan">
+          </div>
+        </div>
+
+        <!-- Footer Left & Right -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-medium text-zinc-300 block">Teks Catatan Kaki (Footer Bawah)</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <input type="text" id="footerLeft" value="GOOD ANIME MOVIES WITH NO SEQUEL - VOL. 1" class="ui-input col-span-2 !px-2.5 !py-1.5 !text-[11px]" placeholder="Footer Kiri">
+            <input type="text" id="footerRight" value="ANIME GATE" class="ui-input col-span-1 !px-2.5 !py-1.5 !text-[11px]" placeholder="Footer Kanan">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Sticky Action Bar -->
+    <footer class="p-4 border-t border-[#22262f] bg-[#111317]/95 backdrop-blur flex gap-2">
+      <button id="shuffleBtn" disabled title="Coba alternatif tata letak berikutnya" class="px-3 py-2.5 rounded-lg border border-[#282d38] bg-[#171a20] hover:bg-[#1e222a] text-xs font-medium text-zinc-200 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+          <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+          <line x1="4" y1="4" x2="9" y2="9"/>
+        </svg>
+        <span>Layout Lain</span>
+      </button>
+
+      <button id="copyClipboardBtn" disabled title="Salin Gambar Kolase ke Clipboard" class="px-3 py-2.5 rounded-lg border border-[#282d38] bg-[#171a20] hover:bg-[#1e222a] text-xs font-medium text-zinc-200 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center">
+        <svg class="w-4 h-4 text-zinc-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+      </button>
+
+      <button id="downloadBtn" disabled class="flex-1 py-2.5 px-4 rounded-lg bg-emerald-400 hover:bg-emerald-300 active:scale-[0.99] text-zinc-950 font-semibold text-xs disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <span id="downloadBtnText">Download PNG</span>
+      </button>
+    </footer>
+  </aside>
+
+  <!-- RIGHT MAIN WORKSPACE: PREVIEW, UNDO/REDO & FLOATING TILE INSPECTOR -->
+  <main class="flex-1 dot-grid flex flex-col min-h-[78vh] lg:h-screen lg:overflow-hidden relative">
+    
+    <!-- Top Bar: Candidate Layout Chips, Undo/Redo & Efficiency Status -->
+    <div id="workspaceHeader" class="w-full px-5 py-3 border-b border-[#1c2028] bg-[#090a0c]/85 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 z-20">
+      <div id="chips" class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-xs text-zinc-500">Pilih atau muat foto contoh untuk melihat rekomendasi tata letak...</span>
+      </div>
+
+      <div class="flex items-center gap-2 ml-auto">
+        <!-- Undo / Redo Buttons -->
+        <div class="flex items-center bg-[#14171d] border border-[#22262f] rounded-lg p-0.5">
+          <button type="button" id="undoBtn" disabled title="Batalkan (Ctrl+Z)" class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 disabled:opacity-30 disabled:pointer-events-none transition-colors">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+            </svg>
+          </button>
+          <button type="button" id="redoBtn" disabled title="Ulangi (Ctrl+Y)" class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 disabled:opacity-30 disabled:pointer-events-none transition-colors">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/>
+            </svg>
+          </button>
+        </div>
+
+        <div id="layoutInfo" class="mono text-[11px] text-zinc-400 bg-[#14171d] px-2.5 py-1.5 rounded-lg border border-[#22262f] hidden"></div>
+      </div>
+    </div>
+
+    <!-- Floating Contextual Tile Inspector (Muncul Saat Foto di Kanvas Diklik) -->
+    <div id="tileInspector" class="hidden absolute top-16 left-1/2 -translate-x-1/2 z-40 bg-[#13161c]/95 backdrop-blur-md border border-emerald-500/40 rounded-2xl shadow-2xl px-4 py-2.5 flex flex-wrap items-center gap-3 max-w-[95vw]">
+      <div class="flex items-center gap-2 pr-2 border-r border-[#262b36]">
+        <span id="inspectorTitle" class="mono text-[11px] font-semibold text-emerald-400">Foto #1</span>
+        <button type="button" id="makeHeroBtn" title="Jadikan Foto Utama (Hero Paling Atas)" class="text-[11px] px-2 py-1 rounded-md bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 transition-colors">
+          ★ Jadikan Hero
+        </button>
+      </div>
+
+      <!-- Zoom Slider -->
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] text-zinc-400">Zoom</span>
+        <input type="range" id="tileZoomSlider" min="1" max="3" step="0.05" value="1" class="w-20">
+        <span id="tileZoomVal" class="mono text-[10px] text-zinc-300 w-8">1.0×</span>
+      </div>
+
+      <!-- Pan X & Y Sliders -->
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] text-zinc-400" title="Geser Fokus Horizontal & Vertikal">Geser Fokus</span>
+        <input type="range" id="tilePanXSlider" min="-100" max="100" step="2" value="0" class="w-16" title="Geser Kiri / Kanan">
+        <input type="range" id="tilePanYSlider" min="-100" max="100" step="2" value="0" class="w-16" title="Geser Atas / Bawah">
+      </div>
+
+      <!-- Transform Actions: Rotate, Flip, Replace, Reset, Delete -->
+      <div class="flex items-center gap-1 pl-2 border-l border-[#262b36]">
+        <button type="button" id="tileRotateBtn" title="Putar 90°" class="p-1.5 rounded-lg bg-[#1b1f28] hover:bg-zinc-700 text-zinc-200 transition-colors">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><polyline points="21 3 21 8 16 8"/>
+          </svg>
+        </button>
+        <button type="button" id="tileFlipHBtn" title="Balik Horizontal (Cermin)" class="p-1.5 rounded-lg bg-[#1b1f28] hover:bg-zinc-700 text-zinc-200 transition-colors">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m3 7 5 5-5 5V7"/><path d="m21 7-5 5 5 5V7"/><line x1="12" y1="4" x2="12" y2="20"/>
+          </svg>
+        </button>
+        <button type="button" id="tileEditTextBtn" style="display:none" title="Edit tulisan, font & warna blok teks ini" class="px-2 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-[11px] text-emerald-300 border border-emerald-500/30 transition-colors">
+          ✎ Edit Teks
+        </button>
+        <button type="button" id="tileCropBtn" title="Crop Foto (manual / sesuai slot / otomatis)" class="px-2 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-[11px] text-emerald-300 border border-emerald-500/30 transition-colors flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+          Crop
+        </button>
+        <button type="button" id="tileResetCropBtn" title="Reset Zoom, Posisi Fokus & Crop" class="px-2 py-1 rounded-lg bg-[#1b1f28] hover:bg-zinc-700 text-[11px] text-zinc-300 transition-colors">
+          Reset
+        </button>
+        <button type="button" id="tileReplaceBtn" title="Ganti Foto Ini" class="px-2 py-1 rounded-lg bg-[#1b1f28] hover:bg-zinc-700 text-[11px] text-zinc-300 transition-colors">
+          Ganti
+        </button>
+        <button type="button" id="tileDeleteBtn" title="Hapus Foto Ini" class="p-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/30 text-rose-400 transition-colors">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+        <button type="button" id="closeInspectorBtn" title="Tutup Panel Edit Foto (Esc)" class="p-1.5 rounded-lg text-zinc-400 hover:text-white">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Center Canvas Stage Area -->
+    <div id="workspaceCanvasArea" class="flex-1 flex flex-col items-center justify-center p-5 sm:p-8 overflow-auto relative">
+      
+      <!-- Empty State Placeholder -->
+      <div id="emptyState" class="max-w-md text-center space-y-4 py-10 px-4">
+        <div class="w-14 h-14 rounded-2xl bg-[#14171d] border border-[#22262f] flex items-center justify-center mx-auto text-emerald-400 shadow-inner">
+          <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </div>
+        <div class="space-y-1.5">
+          <h3 class="text-base font-semibold text-zinc-100">Mulai Buat Kolase atau Poster Film</h3>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Unggah foto dari perangkat Anda, tempel langsung dengan <kbd class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Ctrl+V</kbd>, atau coba langsung menggunakan 7 foto contoh bergaya poster sinematik <strong class="text-zinc-200">Perfect Blue</strong>.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+          <button type="button" id="emptyUploadBtn" class="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-zinc-950 transition-all shadow-lg shadow-emerald-500/10">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Pilih Foto dari Perangkat
+          </button>
+          <button type="button" id="emptyTextBtn" class="inline-flex items-center gap-2 text-xs font-medium px-4 py-2.5 rounded-xl bg-[#171a20] hover:bg-[#1f242d] text-emerald-300 border border-emerald-500/30 transition-all">
+            <span>Ｔ Mulai dengan Blank Canvas Teks</span>
+          </button>
+          <button type="button" id="emptyDemoBtn" class="inline-flex items-center gap-2 text-xs font-medium px-4 py-2.5 rounded-xl bg-[#171a20] hover:bg-[#1f242d] text-blue-300 border border-blue-500/30 transition-all">
+            <span>✨ Coba 7 Foto Contoh (Demo Poster)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Interactive Stage -->
+      <div id="stageWrapper" class="hidden flex-col items-center">
+        <div id="stage"></div>
+        <div id="stageHint" class="text-[11px] text-zinc-400 mt-3.5 text-center flex flex-wrap items-center justify-center gap-x-4 gap-y-1 bg-[#12141a]/90 px-3.5 py-1.5 rounded-full border border-[#22262f]">
+          <span class="flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>
+            </svg>
+            <b>Tarik foto</b> untuk menukar posisi
+          </span>
+          <span class="text-zinc-600">•</span>
+          <span class="flex items-center gap-1">
+            <b>Klik foto</b> untuk Zoom, Geser Fokus, Putar &amp; Crop (klik 2× = Crop)
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// DOM Elements
+const fileInput = $('fileInput');
+const replaceFileInput = $('replaceFileInput');
+const dropzone = $('dropzone');
+const emptyUploadBtn = $('emptyUploadBtn');
+const emptyDemoBtn = $('emptyDemoBtn');
+const demoHeaderBtn = $('demoHeaderBtn');
+const sideDemoBtn = $('sideDemoBtn');
+const modeSelect = $('modeSelect');
+const paramSelect = $('paramSelect');
+const ratioSelect = $('ratioSelect');
+const gapSlider = $('gapSlider');
+const gapValLabel = $('gapValLabel');
+const marginSlider = $('marginSlider');
+const marginValLabel = $('marginValLabel');
+const radiusSlider = $('radiusSlider');
+const radiusValLabel = $('radiusValLabel');
+const resSelect = $('resSelect');
+const formatSelect = $('formatSelect');
+const shuffleCheck = $('shuffleCheck');
+const shuffleBtn = $('shuffleBtn');
+const copyClipboardBtn = $('copyClipboardBtn');
+const downloadBtn = $('downloadBtn');
+const downloadBtnText = $('downloadBtnText');
+const badgeCount = $('badgeCount');
+const clearAllBtn = $('clearAllBtn');
+const reverseOrderBtn = $('reverseOrderBtn');
+const photoListEl = $('photoList');
+const stage = $('stage');
+const stageWrapper = $('stageWrapper');
+const emptyState = $('emptyState');
+const chipsEl = $('chips');
+const layoutInfo = $('layoutInfo');
+const fitContainBtn = $('fitContainBtn');
+const fitCoverBtn = $('fitCoverBtn');
+const customColorInput = $('customColorInput');
+const frameColorInput = $('frameColorInput');
+const frameOpacitySlider = $('frameOpacitySlider');
+const frameOpacityLabel = $('frameOpacityLabel');
+const undoBtn = $('undoBtn');
+const redoBtn = $('redoBtn');
+const posterTabBtn = $('posterTabBtn');
+const posterActiveDot = $('posterActiveDot');
+const activatePosterModeBtn = $('activatePosterModeBtn');
+
+// Tile Inspector Elements
+const tileInspector = $('tileInspector');
+const inspectorTitle = $('inspectorTitle');
+const makeHeroBtn = $('makeHeroBtn');
+const tileZoomSlider = $('tileZoomSlider');
+const tileZoomVal = $('tileZoomVal');
+const tilePanXSlider = $('tilePanXSlider');
+const tilePanYSlider = $('tilePanYSlider');
+const tileRotateBtn = $('tileRotateBtn');
+const tileFlipHBtn = $('tileFlipHBtn');
+const tileResetCropBtn = $('tileResetCropBtn');
+const tileReplaceBtn = $('tileReplaceBtn');
+const tileDeleteBtn = $('tileDeleteBtn');
+const closeInspectorBtn = $('closeInspectorBtn');
+
+// Poster Specific Inputs
+const posterTitleInput = $('posterTitle');
+const posterAccentInput = $('posterAccent');
+const posterAccentPreview = $('posterAccentPreview');
+const posterFontSelect = $('posterFontSelect');
+const posterRatingSelect = $('posterRatingSelect');
+const metaL1Label = $('metaL1Label'), metaL1Val = $('metaL1Val');
+const metaL2Label = $('metaL2Label'), metaL2Val = $('metaL2Val');
+const metaL3Label = $('metaL3Label'), metaL3Val = $('metaL3Val');
+const metaL4Label = $('metaL4Label'), metaL4Val = $('metaL4Val');
+const metaRLabel = $('metaRLabel'), metaRVal = $('metaRVal');
+const footerLeftInput = $('footerLeft'), footerRightInput = $('footerRight');
+
+// Frame Caption (Bingkai) Inputs
+const FRAME_IDS = ['frameTopText','frameTopAlign','frameBottomText','frameBottomAlign','frameFont','frameTextSize','frameTopIndent','frameBottomIndent','frameLineW','framePad','framePaper','frameTextColor','frameLineColor'];
+const frameEls = {};
+FRAME_IDS.forEach(id => { frameEls[id] = $(id); });
+const framePanel = $('framePanel');
+const RELAYOUT_FREE_FRAME_IDS = ['frameTopAlign','frameBottomAlign','framePaper','frameTextColor','frameLineColor'];
+
+function getFrameConfig() {
+  const e = frameEls;
+  return {
+    topText: e.frameTopText.value,
+    topAlign: e.frameTopAlign.value,
+    bottomText: e.frameBottomText.value,
+    bottomAlign: e.frameBottomAlign.value,
+    font: e.frameFont.value || 'Arial',
+    size: Number(e.frameTextSize.value),
+    topIndent: Number(e.frameTopIndent.value),
+    bottomIndent: Number(e.frameBottomIndent.value),
+    lineW: Number(e.frameLineW.value),
+    pad: Number(e.framePad.value),
+    paper: e.framePaper.value || '#ffffff',
+    textColor: e.frameTextColor.value || '#111111',
+    lineColor: e.frameLineColor.value || '#000000'
+  };
+}
+
+function updateFrameLabels() {
+  $('frameTextSizeVal').textContent = frameEls.frameTextSize.value;
+  $('frameLineWVal').textContent = frameEls.frameLineW.value;
+  $('frameTopIndentVal').textContent = frameEls.frameTopIndent.value;
+  $('frameBottomIndentVal').textContent = frameEls.frameBottomIndent.value;
+  $('framePadVal').textContent = frameEls.framePad.value;
+}
+
+function updateFramePanelVisibility() {
+  framePanel.classList.toggle('hidden', modeSelect.value !== 'frame');
+}
+
+const isFixedType = t => t === 'poster' || t === 'frame';
+
+// Application State
+let photos = [];        // { id, img, aspect, origAspect, caption, zoom:1, panX:0, panY:0, rotation:0, flipH:false }
+let candidates = [];    // [{ label, canvas:{Lw,Lh}, placements, eff, score, type, posterMeta }]
+let candIdx = 0;
+let current = null;
+let nextId = 1;
+let fitMode = 'contain'; // 'contain' | 'cover'
+let bgColor = '#0b0e17';
+let currentFilter = 'none';
+let selectedPhotoId = null;
+
+// History Undo/Redo Stack
+let historyStack = [];
+let historyIndex = -1;
+let isRestoringHistory = false;
+
+const NW = 1000; // Base width unit for layout calculation
+
+/* ---------- TOAST NOTIFICATION ---------- */
+function showToast(message, icon = '✨') {
+  const container = $('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast-enter bg-[#161922]/95 backdrop-blur-md text-zinc-100 border border-emerald-500/30 px-4 py-2 rounded-full shadow-xl text-xs font-medium flex items-center gap-2';
+  toast.setAttribute('role', 'status');
+  const ic = document.createElement('span'); ic.textContent = icon;
+  const tx = document.createElement('span'); tx.textContent = message;
+  toast.append(ic, tx);
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.25s ease';
+    setTimeout(() => toast.remove(), 260);
+  }, 2600);
+}
+
+/* ---------- SIDEBAR TABS ---------- */
+function switchTab(tabId) {
+  document.querySelectorAll('.sidebar-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabId);
+  });
+  document.querySelectorAll('.tab-pane').forEach(pane => {
+    pane.classList.toggle('hidden', pane.id !== tabId);
+  });
+}
+
+document.querySelectorAll('.sidebar-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+activatePosterModeBtn.addEventListener('click', () => {
+  modeSelect.value = 'poster';
+  applyPosterPresetDefaults();
+  saveHistory();
+  computeLayoutAndRender();
+  showToast('Mode Poster Sinematik diaktifkan!', '🎬');
+});
+
+/* ---------- UNDO / REDO SYSTEM ---------- */
+function captureStateSnapshot() {
+  return {
+    photos: photos.map(p => ({ ...p })),
+    mode: modeSelect.value,
+    param: paramSelect.value,
+    ratio: ratioSelect.value,
+    fitMode,
+    bgColor,
+    currentFilter,
+    gap: gapSlider.value,
+    margin: marginSlider.value,
+    radius: radiusSlider.value,
+    frameColor: frameColorInput.value,
+    frameOpacity: frameOpacitySlider.value,
+    frameCaption: Object.fromEntries(FRAME_IDS.map(id => [id, frameEls[id].value]))
+  };
+}
+
+function saveHistory() {
+  if (isRestoringHistory) return;
+  const snap = captureStateSnapshot();
+  historyStack = historyStack.slice(0, historyIndex + 1);
+  historyStack.push(snap);
+  if (historyStack.length > 30) historyStack.shift();
+  historyIndex = historyStack.length - 1;
+  updateUndoRedoButtons();
+}
+
+function restoreStateSnapshot(snap) {
+  if (!snap) return;
+  isRestoringHistory = true;
+  photos = snap.photos.map(p => ({ ...p }));
+  modeSelect.value = snap.mode;
+  paramSelect.value = snap.param;
+  ratioSelect.value = snap.ratio;
+  setFitModeUI(snap.fitMode);
+  setBgColorUI(snap.bgColor);
+  setFilterUI(snap.currentFilter);
+  gapSlider.value = snap.gap;
+  gapValLabel.textContent = `${snap.gap}px`;
+  marginSlider.value = snap.margin;
+  marginValLabel.textContent = `${snap.margin}px`;
+  radiusSlider.value = snap.radius;
+  radiusValLabel.textContent = `${snap.radius}px`;
+  frameColorInput.value = snap.frameColor;
+  frameOpacitySlider.value = snap.frameOpacity;
+  frameOpacityLabel.textContent = `${snap.frameOpacity}%`;
+  if (snap.frameCaption) {
+    FRAME_IDS.forEach(id => { if (snap.frameCaption[id] !== undefined) frameEls[id].value = snap.frameCaption[id]; });
+    updateFrameLabels();
+  }
+
+  renderPhotoList();
+  computeLayoutAndRender(true);
+  updateUndoRedoButtons();
+  isRestoringHistory = false;
+}
+
+function updateUndoRedoButtons() {
+  undoBtn.disabled = historyIndex <= 0;
+  redoBtn.disabled = historyIndex >= historyStack.length - 1;
+}
+
+undoBtn.addEventListener('click', () => {
+  if (historyIndex > 0) {
+    historyIndex--;
+    restoreStateSnapshot(historyStack[historyIndex]);
+    showToast('Perubahan dibatalkan (Undo)', '↩️');
+  }
+});
+
+redoBtn.addEventListener('click', () => {
+  if (historyIndex < historyStack.length - 1) {
+    historyIndex++;
+    restoreStateSnapshot(historyStack[historyIndex]);
+    showToast('Perubahan diulangi (Redo)', '↪️');
+  }
+});
+
+window.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+    e.preventDefault();
+    undoBtn.click();
+  } else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+    e.preventDefault();
+    redoBtn.click();
+  } else if (e.key === 'Escape') {
+    closeTileInspector();
+  }
+});
+
+/* ---------- FILTER PRESETS ---------- */
+const FILTER_MAP = {
+  none: '',
+  vivid: 'contrast(1.12) saturate(1.32)',
+  cinema: 'contrast(1.15) saturate(0.88) hue-rotate(-8deg) brightness(0.97)',
+  warm: 'sepia(0.22) contrast(1.06) saturate(1.2) brightness(1.02)',
+  noir: 'grayscale(1) contrast(1.22) brightness(0.98)',
+  vintage: 'sepia(0.18) contrast(0.92) brightness(1.05) saturate(0.85)'
+};
+
+function setFilterUI(filterKey) {
+  currentFilter = filterKey;
+  const labelMap = {
+    none: 'Normal',
+    vivid: 'Vivid Pop',
+    cinema: 'Cool Blue',
+    warm: 'Warm Gold',
+    noir: 'Noir B&W',
+    vintage: 'Soft Fade'
+  };
+  $('activeFilterBadge').textContent = labelMap[filterKey] || 'Normal';
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    const active = btn.dataset.filter === filterKey;
+    btn.className = active
+      ? 'filter-btn py-2 px-2.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-medium transition-all text-center'
+      : 'filter-btn py-2 px-2.5 rounded-lg border border-[#22262f] bg-[#171a20] text-zinc-300 hover:border-zinc-600 text-xs font-medium transition-all text-center';
+  });
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setFilterUI(btn.dataset.filter);
+    saveHistory();
+    renderStage();
+  });
+});
+
+/* ---------- DEMO SAMPLE GENERATOR (7 CINEMATIC SCENES) ---------- */
+async function loadDemoPhotos() {
+  const scenes = [
+    { title: 'Hero — Stage Spotlight', c1: '#0f172a', c2: '#1e3a8a', accent: '#60a5fa', type: 'hero' },
+    { title: 'Scene 01 — Subway Reflection', c1: '#090d16', c2: '#1e293b', accent: '#38bdf8', type: 'city' },
+    { title: 'Scene 02 — Dressing Room Mirror', c1: '#1e1b4b', c2: '#31102f', accent: '#f43f5e', type: 'mirror' },
+    { title: 'Scene 03 — Neon Crosswalk', c1: '#042f2e', c2: '#0f172a', accent: '#2dd4bf', type: 'street' },
+    { title: 'Scene 04 — Crimson Hallway', c1: '#2a0a18', c2: '#111827', accent: '#fb7185', type: 'hall' },
+    { title: 'Scene 05 — Studio Mic', c1: '#0c192c', c2: '#1e293b', accent: '#93c5fd', type: 'mic' },
+    { title: 'Scene 06 — Rain Window', c1: '#091526', c2: '#172554', accent: '#60a5fa', type: 'rain' }
+  ];
+
+  const generated = await Promise.all(scenes.map((sc, idx) => {
+    return new Promise(resolve => {
+      const cw = idx === 0 ? 1200 : 900;
+      const ch = idx === 0 ? 800 : 600;
+      const c = document.createElement('canvas');
+      c.width = cw;
+      c.height = ch;
+      const ctx = c.getContext('2d');
+
+      // Deep atmospheric gradient
+      const g = ctx.createLinearGradient(0, 0, cw, ch);
+      g.addColorStop(0, sc.c1);
+      g.addColorStop(1, sc.c2);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, cw, ch);
+
+      // Ambient glow
+      const rad = ctx.createRadialGradient(cw * 0.5, ch * 0.42, cw * 0.04, cw * 0.5, ch * 0.45, cw * 0.55);
+      rad.addColorStop(0, hexToRgba(sc.accent, 0.42));
+      rad.addColorStop(0.5, hexToRgba(sc.accent, 0.12));
+      rad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = rad;
+      ctx.fillRect(0, 0, cw, ch);
+
+      // Cinematic procedural silhouette / art elements
+      ctx.save();
+      if (idx === 0) {
+        // Stage rays & idol silhouette
+        ctx.strokeStyle = hexToRgba(sc.accent, 0.22);
+        ctx.lineWidth = 40;
+        for (let i = -2; i <= 2; i++) {
+          ctx.beginPath();
+          ctx.moveTo(cw * 0.5, -40);
+          ctx.lineTo(cw * (0.5 + i * 0.18), ch);
+          ctx.stroke();
+        }
+        // Silhouette figure
+        ctx.fillStyle = '#070a12';
+        ctx.beginPath();
+        ctx.arc(cw * 0.5, ch * 0.43, 54, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(cw * 0.41, ch * 0.85);
+        ctx.quadraticCurveTo(cw * 0.5, ch * 0.46, cw * 0.59, ch * 0.85);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // Architectural / anime background bars & bokeh
+        ctx.fillStyle = 'rgba(255,255,255,0.05)';
+        for (let i = 0; i < 7; i++) {
+          ctx.fillRect(i * (cw / 7) + 12, ch * 0.15, cw / 14, ch * 0.7);
+        }
+        // Glowing bokeh circles
+        for (let i = 0; i < 9; i++) {
+          ctx.fillStyle = hexToRgba(sc.accent, 0.15 + (i % 3) * 0.08);
+          ctx.beginPath();
+          ctx.arc((cw * ((i * 37) % 100)) / 100, (ch * ((i * 53 + 20) % 100)) / 100, 18 + (i % 4) * 14, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Center subject silhouette
+        ctx.fillStyle = '#06080f';
+        ctx.beginPath();
+        ctx.arc(cw * 0.5, ch * 0.46, 42, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(cw * 0.43, ch * 0.54, cw * 0.14, ch * 0.36);
+      }
+
+      // Subtle film letterbox & frame tag
+      ctx.fillStyle = 'rgba(255,255,255,0.22)';
+      ctx.font = '600 18px "JetBrains Mono", monospace';
+      ctx.fillText(`FRAME 0${idx + 1}`, 28, 38);
+      ctx.restore();
+
+      const img = new Image();
+      img.onload = () => resolve({ img, aspect: cw / ch });
+      img.src = c.toDataURL('image/jpeg', 0.92);
+    });
+  }));
+
+  photos = generated.map(p => ({
+    id: nextId++,
+    img: p.img,
+    aspect: p.aspect,
+    origAspect: p.aspect,
+    caption: '',
+    zoom: 1,
+    panX: 0,
+    panY: 0,
+    rotation: 0,
+    flipH: false
+  }));
+
+  modeSelect.value = 'poster';
+  applyPosterPresetDefaults();
+  renderPhotoList();
+  saveHistory();
+  computeLayoutAndRender();
+  showToast('7 Foto Contoh Poster Perfect Blue dimuat!', '🎬');
+}
+
+[emptyDemoBtn, demoHeaderBtn, sideDemoBtn].forEach(btn => {
+  if (btn) btn.addEventListener('click', loadDemoPhotos);
+});
+
+/* ---------- UPLOAD, DRAG-DROP & PASTE EVENTS ---------- */
+dropzone.addEventListener('click', () => fileInput.click());
+emptyUploadBtn.addEventListener('click', () => fileInput.click());
+
+const hasFiles = e => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+['dragenter', 'dragover'].forEach(evt => {
+  window.addEventListener(evt, (e) => {
+    if (!hasFiles(e)) return; // jangan ganggu drag elemen internal
+    e.preventDefault();
+    dropzone.classList.add('dropzone-active');
+  });
+});
+window.addEventListener('dragleave', (e) => {
+  if (e.relatedTarget === null) dropzone.classList.remove('dropzone-active');
+});
+window.addEventListener('drop', (e) => {
+  if (hasFiles(e)) e.preventDefault();
+  dropzone.classList.remove('dropzone-active');
+});
+
+window.addEventListener('drop', async (e) => {
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    await handleFiles(Array.from(e.dataTransfer.files));
+  }
+});
+
+// Paste image directly from clipboard (Ctrl+V)
+window.addEventListener('paste', async (e) => {
+  if (!e.clipboardData || !e.clipboardData.items) return;
+  const files = [];
+  for (const item of e.clipboardData.items) {
+    if (item.type.startsWith('image/')) {
+      const f = item.getAsFile();
+      if (f) files.push(f);
+    }
+  }
+  if (files.length > 0) {
+    await handleFiles(files);
+    showToast(`${files.length} foto berhasil ditempel dari Clipboard!`, '📋');
+  }
+});
+
+fileInput.addEventListener('change', async (e) => {
+  const files = Array.from(e.target.files);
+  if (files.length === 0) return;
+  await handleFiles(files);
+  fileInput.value = '';
+});
+
+async function handleFiles(files) {
+  const imageFiles = files.filter(f => f.type.startsWith('image/'));
+  if (imageFiles.length === 0) return;
+  badgeCount.textContent = `Memuat ${imageFiles.length}...`;
+  const loaded = await Promise.all(imageFiles.map(loadImage));
+  loaded.forEach(p => {
+    if (p) {
+      photos.push({
+        id: nextId++,
+        img: p.img,
+        aspect: p.aspect,
+        origAspect: p.aspect,
+        caption: '',
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        rotation: 0,
+        flipH: false
+      });
+    }
+  });
+  renderPhotoList();
+  saveHistory();
+  computeLayoutAndRender();
+  showToast(`${imageFiles.length} foto ditambahkan ke kanvas`, '🖼️');
+}
+
+function loadImage(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    const MAX_SIDE = 5000; // cegah crash memori di HP/tab
+    img.onload = async () => {
+      URL.revokeObjectURL(url);
+      const w = img.naturalWidth, h = img.naturalHeight;
+      if (Math.max(w, h) > MAX_SIDE) {
+        const k = MAX_SIDE / Math.max(w, h);
+        const cv = document.createElement('canvas');
+        cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+        const cx = cv.getContext('2d');
+        cx.imageSmoothingQuality = 'high';
+        cx.drawImage(img, 0, 0, cv.width, cv.height);
+        const small = await canvasToImage(cv);
+        return resolve({ img: small, aspect: cv.width / cv.height });
+      }
+      resolve({ img, aspect: w / h });
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+
+/* ---------- CONTROLS EVENTS ---------- */
+function applyPosterPresetDefaults() {
+  ratioSelect.value = '3:4';
+  setFitModeUI('cover');
+  if (bgColor === 'transparent' || bgColor === '#f8fafc') {
+    setBgColorUI('#0b0e17');
+  }
+  gapSlider.value = 2;
+  gapValLabel.textContent = '2px';
+  radiusSlider.value = 6;
+  radiusValLabel.textContent = '6px';
+}
+
+function applyFramePresetDefaults() {
+  ratioSelect.value = '1:1';
+  setFitModeUI('cover');
+  gapSlider.value = 6;
+  gapValLabel.textContent = '6px';
+  radiusSlider.value = 0;
+  radiusValLabel.textContent = '0px';
+  marginSlider.value = 0;
+  marginValLabel.textContent = '0px';
+}
+
+modeSelect.addEventListener('change', () => {
+  const isPoster = modeSelect.value === 'poster';
+  if (isPoster) {
+    applyPosterPresetDefaults();
+  } else if (modeSelect.value === 'frame') {
+    applyFramePresetDefaults();
+  }
+  saveHistory();
+  computeLayoutAndRender();
+});
+
+[paramSelect, ratioSelect, resSelect].forEach(el =>
+  el.addEventListener('change', () => {
+    saveHistory();
+    computeLayoutAndRender();
+  })
+);
+
+formatSelect.addEventListener('change', () => {
+  const ext = formatSelect.value === 'image/jpeg' ? 'JPG' : formatSelect.value === 'image/webp' ? 'WebP' : 'PNG';
+  downloadBtnText.textContent = `Download ${ext}`;
+});
+
+// Live update when editing poster text fields
+[
+  posterTitleInput, posterFontSelect, posterRatingSelect,
+  metaL1Label, metaL1Val, metaL2Label, metaL2Val,
+  metaL3Label, metaL3Val, metaL4Label, metaL4Val, metaRLabel, metaRVal,
+  footerLeftInput, footerRightInput
+].forEach(el => {
+  el.addEventListener('input', () => renderStage());
+});
+
+// Live update for Frame Caption controls
+FRAME_IDS.forEach(id => {
+  const el = frameEls[id];
+  const needsRelayout = !RELAYOUT_FREE_FRAME_IDS.includes(id);
+  el.addEventListener('input', () => {
+    updateFrameLabels();
+    if (needsRelayout) computeLayoutAndRender(true);
+    else renderStage();
+  });
+  el.addEventListener('change', saveHistory);
+});
+
+posterAccentInput.addEventListener('input', () => {
+  posterAccentPreview.style.backgroundColor = posterAccentInput.value;
+  renderStage();
+});
+
+gapSlider.addEventListener('input', () => {
+  gapValLabel.textContent = `${gapSlider.value}px`;
+  computeLayoutAndRender(true);
+});
+gapSlider.addEventListener('change', saveHistory);
+
+marginSlider.addEventListener('input', () => {
+  marginValLabel.textContent = `${marginSlider.value}px`;
+  computeLayoutAndRender(true);
+});
+marginSlider.addEventListener('change', saveHistory);
+
+radiusSlider.addEventListener('input', () => {
+  radiusValLabel.textContent = `${radiusSlider.value}px`;
+  renderStage();
+});
+radiusSlider.addEventListener('change', saveHistory);
+
+frameColorInput.addEventListener('input', () => renderStage());
+frameOpacitySlider.addEventListener('input', () => {
+  frameOpacityLabel.textContent = `${frameOpacitySlider.value}%`;
+  renderStage();
+});
+
+function setFitModeUI(mode) {
+  fitMode = mode;
+  if (mode === 'contain') {
+    fitContainBtn.className = 'text-xs py-1.5 rounded-md font-medium transition-all bg-zinc-800 text-emerald-400 shadow-sm';
+    fitCoverBtn.className = 'text-xs py-1.5 rounded-md font-medium transition-all text-zinc-400 hover:text-zinc-200';
+  } else {
+    fitCoverBtn.className = 'text-xs py-1.5 rounded-md font-medium transition-all bg-zinc-800 text-emerald-400 shadow-sm';
+    fitContainBtn.className = 'text-xs py-1.5 rounded-md font-medium transition-all text-zinc-400 hover:text-zinc-200';
+  }
+}
+
+fitContainBtn.addEventListener('click', () => {
+  setFitModeUI('contain');
+  saveHistory();
+  computeLayoutAndRender(true);
+});
+
+fitCoverBtn.addEventListener('click', () => {
+  setFitModeUI('cover');
+  saveHistory();
+  computeLayoutAndRender(true);
+});
+
+function setBgColorUI(color) {
+  bgColor = color;
+  document.querySelectorAll('.bg-swatch').forEach(b => {
+    if (b.dataset.bg === color) {
+      b.classList.remove('border-zinc-700');
+      b.classList.add('border-emerald-400', 'scale-105');
+    } else {
+      b.classList.remove('border-emerald-400', 'scale-105');
+      b.classList.add('border-zinc-700');
+    }
+  });
+}
+
+document.querySelectorAll('.bg-swatch').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setBgColorUI(btn.dataset.bg);
+    saveHistory();
+    renderStage();
+  });
+});
+
+customColorInput.addEventListener('input', (e) => {
+  bgColor = e.target.value;
+  document.querySelectorAll('.bg-swatch').forEach(b => {
+    b.classList.remove('border-emerald-400', 'scale-105');
+    b.classList.add('border-zinc-700');
+  });
+  renderStage();
+});
+
+reverseOrderBtn.addEventListener('click', () => {
+  photos.reverse();
+  renderPhotoList();
+  saveHistory();
+  computeLayoutAndRender(true);
+  showToast('Urutan foto dibalik', '🔄');
+});
+
+clearAllBtn.addEventListener('click', () => {
+  closeTileInspector();
+  photos = [];
+  renderPhotoList();
+  saveHistory();
+  computeLayoutAndRender();
+  showToast('Semua foto dihapus dari kanvas', '🗑️');
+});
+
+shuffleBtn.addEventListener('click', () => {
+  if (shuffleCheck.checked) {
+    photos = shuffle(photos);
+    renderPhotoList();
+    saveHistory();
+    computeLayoutAndRender();
+    return;
+  }
+  if (candidates.length > 1) {
+    selectCandidate((candIdx + 1) % candidates.length);
+  }
+});
+
+downloadBtn.addEventListener('click', () => exportImage(false));
+copyClipboardBtn.addEventListener('click', () => exportImage(true));
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ---------- CONTEXTUAL TILE INSPECTOR (ZOOM / PAN / ROTATE / FLIP) ---------- */
+function openTileInspector(photoId) {
+  const idx = photos.findIndex(p => p.id === photoId);
+  if (idx === -1) return;
+  selectedPhotoId = photoId;
+  const p = photos[idx];
+
+  inspectorTitle.textContent = idx === 0 && current && current.type === 'poster' ? 'Foto #1 (Hero)' : `Foto #${idx + 1}`;
+  makeHeroBtn.classList.toggle('hidden', idx === 0);
+  const isTxtBlock = !!p.textBlock;
+  $('tileEditTextBtn').style.display = isTxtBlock ? '' : 'none';
+  $('tileCropBtn').style.display = isTxtBlock ? 'none' : '';
+  tileReplaceBtn.style.display = isTxtBlock ? 'none' : '';
+
+  tileZoomSlider.value = p.zoom || 1;
+  tileZoomVal.textContent = `${Number(p.zoom || 1).toFixed(1)}×`;
+  tilePanXSlider.value = p.panX || 0;
+  tilePanYSlider.value = p.panY || 0;
+
+  tileInspector.classList.remove('hidden');
+  highlightSelectedTileDOM();
+}
+
+function closeTileInspector() {
+  selectedPhotoId = null;
+  tileInspector.classList.add('hidden');
+  highlightSelectedTileDOM();
+}
+
+function highlightSelectedTileDOM() {
+  stage.querySelectorAll('.tile').forEach(t => {
+    const pid = Number(t.dataset.photoId);
+    t.classList.toggle('selected-tile', pid === selectedPhotoId);
+  });
+}
+
+closeInspectorBtn.addEventListener('click', closeTileInspector);
+
+tileZoomSlider.addEventListener('input', () => {
+  const p = photos.find(x => x.id === selectedPhotoId);
+  if (!p) return;
+  p.zoom = Number(tileZoomSlider.value);
+  tileZoomVal.textContent = `${p.zoom.toFixed(1)}×`;
+  renderStage();
+});
+tileZoomSlider.addEventListener('change', saveHistory);
+
+tilePanXSlider.addEventListener('input', () => {
+  const p = photos.find(x => x.id === selectedPhotoId);
+  if (!p) return;
+  p.panX = Number(tilePanXSlider.value);
+  renderStage();
+});
+tilePanXSlider.addEventListener('change', saveHistory);
+
+tilePanYSlider.addEventListener('input', () => {
+  const p = photos.find(x => x.id === selectedPhotoId);
+  if (!p) return;
+  p.panY = Number(tilePanYSlider.value);
+  renderStage();
+});
+tilePanYSlider.addEventListener('change', saveHistory);
+
+tileRotateBtn.addEventListener('click', () => {
+  const p = photos.find(x => x.id === selectedPhotoId);
+  if (!p) return;
+  p.rotation = ((p.rotation || 0) + 90) % 360;
+  p.aspect = (p.rotation % 180 !== 0) ? (1 / p.origAspect) : p.origAspect;
+  saveHistory();
+  computeLayoutAndRender(true);
+});
+
+tileFlipHBtn.addEventListener('click', () => {
+  const p = photos.find(x => x.id === selectedPhotoId);
+  if (!p) return;
+  p.flipH = !p.flipH;
+  saveHistory();
+  renderStage();
+});
+
+tileResetCropBtn.addEventListener('click', () => {
+  const p = photos.find(x => x.id === selectedPhotoId);
+  if (!p) return;
+  p.zoom = 1;
+  p.panX = 0;
+  p.panY = 0;
+  p.rotation = 0;
+  p.flipH = false;
+  restoreOriginalCrop(p);
+  p.aspect = p.origAspect;
+  openTileInspector(p.id);
+  saveHistory();
+  computeLayoutAndRender(true);
+  showToast('Fokus & Zoom direset', '✨');
+});
+
+makeHeroBtn.addEventListener('click', () => {
+  const idx = photos.findIndex(x => x.id === selectedPhotoId);
+  if (idx > 0) {
+    const [item] = photos.splice(idx, 1);
+    photos.unshift(item);
+    renderPhotoList();
+    saveHistory();
+    computeLayoutAndRender(true);
+    openTileInspector(item.id);
+    showToast('Foto dijadikan Hero Utama (#1)', '⭐');
+  }
+});
+
+tileReplaceBtn.addEventListener('click', () => {
+  if (!selectedPhotoId) return;
+  replaceFileInput.click();
+});
+
+replaceFileInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file || !selectedPhotoId) return;
+  const loaded = await loadImage(file);
+  if (loaded) {
+    const p = photos.find(x => x.id === selectedPhotoId);
+    if (p) {
+      p.img = loaded.img;
+      p.srcImg = null;
+      p.crop = null;
+      p.textBlock = null;
+      p.aspect = loaded.aspect;
+      p.origAspect = loaded.aspect;
+      p.zoom = 1;
+      p.panX = 0;
+      p.panY = 0;
+      p.rotation = 0;
+      p.flipH = false;
+      renderPhotoList();
+      saveHistory();
+      computeLayoutAndRender(true);
+      showToast('Foto berhasil diganti', '🔄');
+    }
+  }
+  replaceFileInput.value = '';
+});
+
+tileDeleteBtn.addEventListener('click', () => {
+  const idx = photos.findIndex(x => x.id === selectedPhotoId);
+  if (idx !== -1) {
+    photos.splice(idx, 1);
+    closeTileInspector();
+    renderPhotoList();
+    saveHistory();
+    computeLayoutAndRender();
+    showToast('Foto dihapus', '🗑️');
+  }
+});
+
+// Close inspector when clicking empty workspace background
+$('workspaceCanvasArea').addEventListener('pointerdown', (e) => {
+  if (e.target === $('workspaceCanvasArea') || e.target === stageWrapper) {
+    closeTileInspector();
+  }
+});
+
+
+/* ============================================================
+   CROP EDITOR (non-destruktif: foto asli disimpan, bisa di-crop ulang / direset)
+   ============================================================ */
+const CROP_PRESETS = [
+  { k: 'free', label: 'Bebas', a: null },
+  { k: 'slot', label: 'Sesuai Slot', a: 'slot' },
+  { k: '1:1',  label: '1:1',  a: 1 },
+  { k: '4:3',  label: '4:3',  a: 4 / 3 },
+  { k: '3:4',  label: '3:4',  a: 3 / 4 },
+  { k: '16:9', label: '16:9', a: 16 / 9 },
+  { k: '9:16', label: '9:16', a: 9 / 16 },
+  { k: '4:5',  label: '4:5',  a: 4 / 5 }
+];
+let cropState = null;
+
+(function buildCropModal() {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div id="cropModal" role="dialog" aria-modal="true" aria-label="Crop Foto">
+      <div class="crop-card">
+        <div class="crop-head">
+          <div class="crop-title" id="cropTitle">Crop Foto</div>
+          <div class="crop-info" id="cropInfo"></div>
+        </div>
+        <div class="crop-presets" id="cropPresets"></div>
+        <div class="crop-stage-wrap"><div class="crop-stage" id="cropStage"></div></div>
+        <div class="crop-hint" id="cropHint">Tarik kotak untuk menggeser, tarik titik hijau untuk mengubah ukuran. Enter = Terapkan, Esc = Batal.</div>
+        <div class="crop-actions">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="crop-btn" id="cropFullBtn">Pilih Semua</button>
+            <button type="button" class="crop-btn" id="cropRestoreBtn">Kembalikan Foto Asli</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button type="button" class="crop-btn" id="cropCancelBtn">Batal</button>
+            <button type="button" class="crop-btn primary" id="cropApplyBtn">Terapkan Crop</button>
+          </div>
+        </div>
+      </div>
+    </div>`);
+})();
+const cropModal = $('cropModal'), cropStageEl = $('cropStage'), cropInfoEl = $('cropInfo');
+
+function srcDims(src) { return { w: src.naturalWidth || src.width, h: src.naturalHeight || src.height }; }
+
+// Same transform as the on-canvas photo: rotate (clockwise) first, then mirror horizontally
+function orientImage(src, rot, flip) {
+  const { w, h } = srcDims(src);
+  const r = ((rot % 360) + 360) % 360;
+  const swap = r % 180 !== 0;
+  const c = document.createElement('canvas');
+  c.width = swap ? h : w;
+  c.height = swap ? w : h;
+  const ctx = c.getContext('2d');
+  ctx.translate(c.width / 2, c.height / 2);
+  ctx.scale(flip ? -1 : 1, 1);
+  ctx.rotate(r * Math.PI / 180);
+  ctx.drawImage(src, -w / 2, -h / 2);
+  return c;
+}
+
+function transformRect(rc, rot, flip) {
+  let { x, y, w, h } = rc;
+  const steps = (((rot % 360) + 360) % 360) / 90;
+  for (let i = 0; i < steps; i++) { [x, y, w, h] = [1 - y - h, x, h, w]; }
+  if (flip) x = 1 - x - w;
+  return { x, y, w, h };
+}
+
+function canvasToImage(cv) {
+  return new Promise(res => {
+    const im = new Image();
+    cv.toBlob(b => {
+      const u = URL.createObjectURL(b);
+      im.onload = () => { URL.revokeObjectURL(u); res(im); };
+      im.onerror = () => { URL.revokeObjectURL(u); res(im); };
+      im.src = u;
+    }, 'image/png');
+  });
+}
+
+function restoreOriginalCrop(p) {
+  if (!p.srcImg) return;
+  const d = srcDims(p.srcImg);
+  p.img = p.srcImg;
+  p.origAspect = d.w / d.h;
+  p.srcImg = null;
+  p.crop = null;
+}
+
+function cropSlotAspect(p) {
+  if (!current) return null;
+  const pl = current.placements.find(x => x.id === p.id);
+  return pl && pl.h > 0 ? pl.w / pl.h : null;
+}
+
+function openCropEditor(photoId) {
+  const p = photos.find(x => x.id === photoId);
+  if (!p) return;
+  const idx = photos.indexOf(p);
+  const rot = p.rotation || 0, flip = !!p.flipH;
+  let base = p.srcImg || p.img;
+  let rect = p.crop ? { ...p.crop } : { x: 0, y: 0, w: 1, h: 1 };
+  const oriented = (((rot % 360) + 360) % 360) !== 0 || flip;
+  if (oriented) {
+    base = orientImage(base, rot, flip);
+    rect = transformRect(rect, rot, flip);
+  }
+  const d = srcDims(base);
+
+  // Display canvas (downscaled for speed)
+  const maxSide = 1600;
+  const ds = Math.min(1, maxSide / Math.max(d.w, d.h));
+  const disp = document.createElement('canvas');
+  disp.width = Math.max(1, Math.round(d.w * ds));
+  disp.height = Math.max(1, Math.round(d.h * ds));
+  disp.getContext('2d').drawImage(base, 0, 0, disp.width, disp.height);
+
+  cropState = { pid: photoId, base, oriented, nw: d.w, nh: d.h, rect, lock: null, preset: 'free', disp, dw: 0, dh: 0 };
+  $('cropTitle').textContent = `Crop Foto #${idx + 1}`;
+  $('cropRestoreBtn').style.display = (p.srcImg || p.crop) ? '' : 'none';
+
+  // Preset chips
+  const wrap = $('cropPresets');
+  wrap.innerHTML = '';
+  CROP_PRESETS.forEach(pr => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'crop-chip'; b.dataset.k = pr.k;
+    b.textContent = pr.k === 'slot' ? 'Sesuai Slot' : pr.label;
+    b.onclick = () => setCropPreset(pr.k);
+    wrap.appendChild(b);
+  });
+  const auto = document.createElement('button');
+  auto.type = 'button'; auto.className = 'crop-chip auto'; auto.dataset.k = 'auto';
+  auto.title = 'Pangkas otomatis area kosong di tepi sehingga tersisa bagian yang berisi tulisan / gambar';
+  auto.textContent = '✨ Auto (Pangkas Tepi Kosong)';
+  auto.onclick = autoTrimCrop;
+  wrap.appendChild(auto);
+
+  // Stage sizing
+  const maxW = Math.min(window.innerWidth * 0.88, 920);
+  const maxH = Math.max(200, window.innerHeight * 0.58);
+  const sc = Math.min(maxW / d.w, maxH / d.h);
+  cropState.dw = Math.max(40, d.w * sc);
+  cropState.dh = Math.max(40, d.h * sc);
+  cropStageEl.style.width = cropState.dw + 'px';
+  cropStageEl.style.height = cropState.dh + 'px';
+  cropStageEl.innerHTML = '';
+  cropStageEl.appendChild(disp);
+  const box = document.createElement('div');
+  box.className = 'crop-box'; box.id = 'cropBox'; box.dataset.h = 'move';
+  ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'].forEach(h => {
+    const hd = document.createElement('div');
+    hd.className = 'crop-handle'; hd.dataset.h = h;
+    box.appendChild(hd);
+  });
+  cropStageEl.appendChild(box);
+  box.addEventListener('pointerdown', onCropPointerDown);
+
+  setCropPresetChips();
+  updateCropBox();
+  cropModal.classList.add('open');
+}
+
+function closeCropEditor() {
+  cropModal.classList.remove('open');
+  cropState = null;
+}
+
+function setCropPresetChips() {
+  $('cropPresets').querySelectorAll('.crop-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.k === cropState.preset);
+  });
+}
+
+function updateCropBox() {
+  const s = cropState, r = s.rect;
+  const box = $('cropBox');
+  box.style.left = (r.x * 100) + '%';
+  box.style.top = (r.y * 100) + '%';
+  box.style.width = (r.w * 100) + '%';
+  box.style.height = (r.h * 100) + '%';
+  box.classList.toggle('locked', s.lock !== null);
+  const pw = Math.round(r.w * s.nw), ph = Math.round(r.h * s.nh);
+  cropInfoEl.textContent = `${pw} × ${ph} px · ${(pw / Math.max(1, ph)).toFixed(2)}:1`;
+}
+
+function setCropPreset(k) {
+  const s = cropState;
+  const pr = CROP_PRESETS.find(x => x.k === k);
+  const p = photos.find(x => x.id === s.pid);
+  s.preset = k;
+  let pxAspect = null;
+  if (pr.a === 'slot') {
+    pxAspect = cropSlotAspect(p);
+    if (!pxAspect) { s.preset = 'free'; setCropPresetChips(); showToast('Slot belum tersedia', '⚠️'); return; }
+  } else if (pr.a) pxAspect = pr.a;
+
+  if (!pxAspect) { s.lock = null; setCropPresetChips(); updateCropBox(); return; }
+
+  const a = pxAspect * s.nh / s.nw;        // aspect in normalized units (w/h)
+  s.lock = a;
+  const cx = s.rect.x + s.rect.w / 2, cy = s.rect.y + s.rect.h / 2;
+  let w, h;
+  if (a >= 1) { w = 1; h = 1 / a; } else { h = 1; w = a; }
+  w *= 0.94; h *= 0.94;
+  // keep current size if it already fits in this aspect (feels more natural)
+  const cur = s.rect;
+  if (cur.w < w && cur.h < h) {
+    if (cur.w / cur.h > a) { w = cur.w; h = w / a; } else { h = cur.h; w = h * a; }
+    if (w > 1 || h > 1) { w = Math.min(w, 1); h = w / a; }
+  }
+  s.rect = {
+    w, h,
+    x: Math.min(1 - w, Math.max(0, cx - w / 2)),
+    y: Math.min(1 - h, Math.max(0, cy - h / 2))
+  };
+  setCropPresetChips();
+  updateCropBox();
+}
+
+function onCropPointerDown(e) {
+  const s = cropState;
+  if (!s) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const mode = e.target.dataset.h || 'move';
+  const startX = e.clientX, startY = e.clientY;
+  const sr = { ...s.rect };
+  const box = $('cropBox');
+  box.setPointerCapture(e.pointerId);
+  const MIN = 0.04;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+  function onMove(ev) {
+    const dx = (ev.clientX - startX) / s.dw;
+    const dy = (ev.clientY - startY) / s.dh;
+    let { x, y, w, h } = sr;
+
+    if (mode === 'move') {
+      x = clamp(sr.x + dx, 0, 1 - sr.w);
+      y = clamp(sr.y + dy, 0, 1 - sr.h);
+    } else if (s.lock !== null) {
+      const a = s.lock;
+      let ax, ay, nwid;
+      if (mode === 'se') {
+        ax = sr.x; ay = sr.y;
+        nwid = clamp(sr.w + dx, MIN, Math.min(1 - ax, (1 - ay) * a));
+        w = nwid; h = w / a; x = ax; y = ay;
+      } else if (mode === 'nw') {
+        ax = sr.x + sr.w; ay = sr.y + sr.h;
+        nwid = clamp(sr.w - dx, MIN, Math.min(ax, ay * a));
+        w = nwid; h = w / a; x = ax - w; y = ay - h;
+      } else if (mode === 'ne') {
+        ax = sr.x; ay = sr.y + sr.h;
+        nwid = clamp(sr.w + dx, MIN, Math.min(1 - ax, ay * a));
+        w = nwid; h = w / a; x = ax; y = ay - h;
+      } else if (mode === 'sw') {
+        ax = sr.x + sr.w; ay = sr.y;
+        nwid = clamp(sr.w - dx, MIN, Math.min(ax, (1 - ay) * a));
+        w = nwid; h = w / a; x = ax - w; y = ay;
+      }
+    } else {
+      if (mode.includes('w')) { const nx = clamp(sr.x + dx, 0, sr.x + sr.w - MIN); w = sr.x + sr.w - nx; x = nx; }
+      if (mode.includes('e')) { w = clamp(sr.w + dx, MIN, 1 - sr.x); }
+      if (mode.includes('n')) { const ny = clamp(sr.y + dy, 0, sr.y + sr.h - MIN); h = sr.y + sr.h - ny; y = ny; }
+      if (mode.includes('s')) { h = clamp(sr.h + dy, MIN, 1 - sr.y); }
+    }
+    s.rect = { x, y, w, h };
+    updateCropBox();
+  }
+  function onUp(ev) {
+    try { box.releasePointerCapture(ev.pointerId); } catch (_) {}
+    box.removeEventListener('pointermove', onMove);
+    box.removeEventListener('pointerup', onUp);
+    box.removeEventListener('pointercancel', onUp);
+  }
+  box.addEventListener('pointermove', onMove);
+  box.addEventListener('pointerup', onUp);
+  box.addEventListener('pointercancel', onUp);
+}
+
+// Auto: trim empty (uniform-colour) margins so the crop hugs the writing / content
+function autoTrimCrop() {
+  const s = cropState;
+  if (!s) return;
+  const maxSide = 700;
+  const k = Math.min(1, maxSide / Math.max(s.nw, s.nh));
+  const w = Math.max(2, Math.round(s.nw * k)), h = Math.max(2, Math.round(s.nh * k));
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(s.base, 0, 0, w, h);
+  const data = ctx.getImageData(0, 0, w, h).data;
+
+  // Background colour = most common corner colour (quantised)
+  const px = (x, y) => { const i = (y * w + x) * 4; return [data[i], data[i + 1], data[i + 2]]; };
+  const corners = [px(0, 0), px(w - 1, 0), px(0, h - 1), px(w - 1, h - 1)];
+  let bg = corners[0], bestVotes = 0;
+  corners.forEach(c => {
+    const votes = corners.filter(o => Math.abs(o[0] - c[0]) + Math.abs(o[1] - c[1]) + Math.abs(o[2] - c[2]) < 45).length;
+    if (votes > bestVotes) { bestVotes = votes; bg = c; }
+  });
+
+  const TH = 60;              // colour distance (sum of channels) counted as "content"
+  const rowCount = new Uint16Array(h), colCount = new Uint16Array(w);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      const dist = Math.abs(data[i] - bg[0]) + Math.abs(data[i + 1] - bg[1]) + Math.abs(data[i + 2] - bg[2]);
+      if (dist > TH) { rowCount[y]++; colCount[x]++; }
+    }
+  }
+  const need = 2;             // ignore isolated noise pixels
+  let y0 = 0, y1 = h - 1, x0 = 0, x1 = w - 1;
+  while (y0 < h && rowCount[y0] < need) y0++;
+  while (y1 > y0 && rowCount[y1] < need) y1--;
+  while (x0 < w && colCount[x0] < need) x0++;
+  while (x1 > x0 && colCount[x1] < need) x1--;
+
+  if (y0 >= y1 || x0 >= x1) { showToast('Tidak menemukan isi yang jelas untuk di-crop', '⚠️'); return; }
+
+  const padX = Math.round(w * 0.015), padY = Math.round(h * 0.015);
+  x0 = Math.max(0, x0 - padX); y0 = Math.max(0, y0 - padY);
+  x1 = Math.min(w - 1, x1 + padX); y1 = Math.min(h - 1, y1 + padY);
+  const rect = { x: x0 / w, y: y0 / h, w: (x1 - x0 + 1) / w, h: (y1 - y0 + 1) / h };
+  if (rect.w > 0.98 && rect.h > 0.98) { showToast('Tidak ada tepi kosong yang bisa dipangkas', 'ℹ️'); return; }
+
+  s.rect = rect;
+  s.lock = null;
+  s.preset = 'auto';
+  setCropPresetChips();
+  updateCropBox();
+  showToast('Crop disesuaikan ke area isi — geser titik hijau untuk menyempurnakan', '✨');
+}
+
+async function applyCrop() {
+  const s = cropState;
+  if (!s) return;
+  const p = photos.find(x => x.id === s.pid);
+  if (!p) { closeCropEditor(); return; }
+  const r = s.rect;
+  const isFull = r.w > 0.999 && r.h > 0.999;
+
+  if (isFull && !p.srcImg && !s.oriented) { closeCropEditor(); return; }
+
+  const sx = Math.round(r.x * s.nw), sy = Math.round(r.y * s.nh);
+  const sw = Math.max(1, Math.min(s.nw - sx, Math.round(r.w * s.nw)));
+  const sh = Math.max(1, Math.min(s.nh - sy, Math.round(r.h * s.nh)));
+  const cv = document.createElement('canvas');
+  cv.width = sw; cv.height = sh;
+  const ctx = cv.getContext('2d');
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(s.base, sx, sy, sw, sh, 0, 0, sw, sh);
+  const mime = sw * sh <= 6e6 ? 'image/png' : 'image/jpeg';
+  const url = cv.toDataURL(mime, 0.95);
+  const img = await new Promise(res => { const im = new Image(); im.onload = () => res(im); im.src = url; });
+
+  // Keep the uncropped source so the crop can be re-edited or reset later
+  if (s.oriented) p.srcImg = await canvasToImage(s.base);
+  else if (!p.srcImg) p.srcImg = p.img;
+
+  p.img = img;
+  p.crop = isFull ? null : { ...r };
+  p.origAspect = sw / sh;
+  p.aspect = sw / sh;
+  p.rotation = 0;
+  p.flipH = false;
+  p.zoom = 1; p.panX = 0; p.panY = 0;
+  if (isFull) { p.srcImg = null; }
+
+  const pid = p.id;
+  closeCropEditor();
+  renderPhotoList();
+  saveHistory();
+  computeLayoutAndRender(true);
+  if (selectedPhotoId === pid) openTileInspector(pid);
+  showToast(`Crop diterapkan (${sw}×${sh}px)`, '✂️');
+}
+
+$('tileCropBtn').addEventListener('click', () => { if (selectedPhotoId) openCropEditor(selectedPhotoId); });
+$('cropApplyBtn').addEventListener('click', applyCrop);
+$('cropCancelBtn').addEventListener('click', closeCropEditor);
+$('cropFullBtn').addEventListener('click', () => {
+  if (!cropState) return;
+  cropState.rect = { x: 0, y: 0, w: 1, h: 1 };
+  cropState.lock = null; cropState.preset = 'free';
+  setCropPresetChips(); updateCropBox();
+});
+$('cropRestoreBtn').addEventListener('click', () => {
+  if (!cropState) return;
+  const p = photos.find(x => x.id === cropState.pid);
+  if (!p) return;
+  restoreOriginalCrop(p);
+  p.rotation = 0; p.flipH = false; p.aspect = p.origAspect;
+  p.zoom = 1; p.panX = 0; p.panY = 0;
+  const pid = p.id;
+  closeCropEditor();
+  renderPhotoList(); saveHistory(); computeLayoutAndRender(true);
+  if (selectedPhotoId === pid) openTileInspector(pid);
+  showToast('Foto dikembalikan ke aslinya', '↩️');
+});
+cropModal.addEventListener('pointerdown', (e) => { if (e.target === cropModal) closeCropEditor(); });
+window.addEventListener('keydown', (e) => {
+  if (!cropState) return;
+  if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); closeCropEditor(); }
+  else if (e.key === 'Enter') { e.preventDefault(); e.stopImmediatePropagation(); applyCrop(); }
+}, true);
+
+
+/* ============================================================
+   BLANK CANVAS TEKS v2 — beberapa kotak teks yang bebas diposisikan
+   (tiap kalimat punya font, ukuran, warna, lebar & putaran sendiri)
+   ============================================================ */
+const TB_FONTS = [
+  { name: 'Playfair Display',   fb: 'serif',      label: 'Playfair — Serif Elegan' },
+  { name: 'Cormorant Garamond', fb: 'serif',      label: 'Cormorant — Serif Klasik' },
+  { name: 'Lora',               fb: 'serif',      label: 'Lora — Serif Novel' },
+  { name: 'Poppins',            fb: 'sans-serif', label: 'Poppins — Sans Modern' },
+  { name: 'Dancing Script',     fb: 'cursive',    label: 'Dancing Script — Tulisan Sambung' },
+  { name: 'Caveat',             fb: 'cursive',    label: 'Caveat — Coretan Tangan' },
+  { name: 'Special Elite',      fb: 'monospace',  label: 'Special Elite — Mesin Ketik' },
+  { name: 'Bebas Neue',         fb: 'sans-serif', label: 'Bebas Neue — Judul Tegas' }
+];
+const TB_RATIOS = [
+  { k: '1:1', a: 1 }, { k: '4:3', a: 4 / 3 }, { k: '3:4', a: 3 / 4 },
+  { k: '16:9', a: 16 / 9 }, { k: '9:16', a: 9 / 16 }, { k: '3:1', a: 3 }, { k: 'slot', a: 'slot' }
+];
+// x,y = pojok kiri-atas kotak teks (% kanvas) · size & boxW = % lebar kanvas · rot = derajat
+const TB_ITEM_DEFAULT = {
+  text: '', font: 'Playfair Display', size: 8, lh: 1.35, boxW: 84, x: 8, y: 40, rot: 0,
+  bold: false, italic: false, align: 'left', color: '#2b2b2b'
+};
+const TB_CANVAS_DEFAULT = { w: 1200, h: 1200, ratio: '1:1', bg: '#fbf6ee', transparent: false };
+let tbState = null;
+let tbToken = 0;
+
+function tbNormalize(tb) {
+  const base = { ...TB_CANVAS_DEFAULT };
+  if (!tb) return { ...base, items: [{ ...TB_ITEM_DEFAULT }] };
+  const t = { ...base, w: tb.w, h: tb.h, ratio: tb.ratio, bg: tb.bg, transparent: !!tb.transparent };
+  if (Array.isArray(tb.items) && tb.items.length) {
+    t.items = tb.items.map(i => ({ ...TB_ITEM_DEFAULT, ...i }));
+  } else {
+    // legacy single-text block
+    t.items = [{ ...TB_ITEM_DEFAULT, text: tb.text || '', font: tb.font || TB_ITEM_DEFAULT.font, size: tb.size || 8,
+      lh: tb.lh || 1.35, bold: !!tb.bold, italic: !!tb.italic, align: tb.align || 'left', color: tb.color || '#2b2b2b',
+      x: tb.pad || 8, y: tb.pad || 8, boxW: 100 - 2 * (tb.pad || 8) }];
+  }
+  return t;
+}
+
+function tbWrap(ctx, text, maxW) {
+  const out = [];
+  String(text || '').replace(/\r/g, '').split('\n').forEach(par => {
+    if (par.trim() === '') { out.push(''); return; }
+    let cur = '';
+    par.trim().split(/\s+/).forEach(word => {
+      const test = cur ? cur + ' ' + word : word;
+      if (!cur || ctx.measureText(test).width <= maxW) cur = test;
+      else { out.push(cur); cur = word; }
+    });
+    out.push(cur);
+  });
+  while (out.length && out[out.length - 1] === '') out.pop();
+  return out;
+}
+
+const tbFontStyle = it => (it.italic ? 'italic ' : '') + (it.bold ? '700' : '400');
+const tbFontFallback = name => (TB_FONTS.find(f => f.name === name) || {}).fb || 'sans-serif';
+
+// returns { cv, bounds } — bounds in canvas px (centre, size, rotation) for hit-testing / outlines
+async function renderTextBlock(t, maxSide) {
+  const k = Math.min(1, maxSide / Math.max(t.w, t.h));
+  const cw = Math.max(2, Math.round(t.w * k)), ch = Math.max(2, Math.round(t.h * k));
+  const wanted = new Set(t.items.map(it => `${tbFontStyle(it)} 40px "${it.font}"`));
+  try { await Promise.all([...wanted].map(f => document.fonts.load(f))); } catch (_) {}
+
+  const cv = document.createElement('canvas');
+  cv.width = cw; cv.height = ch;
+  const ctx = cv.getContext('2d');
+  if (!t.transparent) { ctx.fillStyle = t.bg; ctx.fillRect(0, 0, cw, ch); }
+
+  const bounds = [];
+  t.items.forEach(it => {
+    const fp = Math.max(2, cw * it.size / 100);
+    ctx.font = `${tbFontStyle(it)} ${fp}px "${it.font}", ${tbFontFallback(it.font)}`;
+    const boxW = Math.max(fp, cw * it.boxW / 100);
+    const lines = tbWrap(ctx, it.text, boxW);
+    const lineH = fp * it.lh;
+    const total = Math.max(1, lines.length) * lineH;
+    const cx = cw * it.x / 100 + boxW / 2;
+    const cy = ch * it.y / 100 + total / 2;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate((it.rot || 0) * Math.PI / 180);
+    ctx.fillStyle = it.color;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = it.align;
+    const tx = it.align === 'left' ? -boxW / 2 : it.align === 'right' ? boxW / 2 : 0;
+    lines.forEach((ln, i) => ctx.fillText(ln, tx, -total / 2 + i * lineH + lineH / 2));
+    ctx.restore();
+
+    bounds.push({ cx, cy, w: boxW, h: total, rot: it.rot || 0, empty: lines.length === 0 });
+  });
+  return { cv, bounds };
+}
+
+function tbSlotAspect(pid) {
+  if (!current || !current.placements.length) return null;
+  let a = null;
+  if (pid) { const pl = current.placements.find(x => x.id === pid); if (pl && pl.h > 0) a = pl.w / pl.h; }
+  if (a === null) {
+    const arr = current.placements.map(p => p.w / p.h).sort((x, y) => x - y);
+    a = arr[Math.floor(arr.length / 2)];
+  }
+  return Math.min(4, Math.max(0.25, a));
+}
+
+function tbSetRatio(k) {
+  const t = tbState.t;
+  const pr = TB_RATIOS.find(r => r.k === k);
+  let a = pr.a;
+  if (a === 'slot') {
+    a = tbSlotAspect(tbState.pid);
+    if (!a) { showToast('Belum ada layout untuk diikuti', '⚠️'); return; }
+  }
+  const L = 1200;
+  if (a >= 1) { t.w = L; t.h = Math.round(L / a); } else { t.h = L; t.w = Math.round(L * a); }
+  t.ratio = k;
+  tbWriteUI();
+  tbRenderPreview();
+}
+
+(function buildTextModal() {
+  const fontOpts = TB_FONTS.map(f => `<option value="${f.name}">${f.label}</option>`).join('');
+  document.body.insertAdjacentHTML('beforeend', `
+  <div id="tbModal" role="dialog" aria-modal="true" aria-label="Blank Canvas Teks">
+    <div class="crop-card tb-card">
+      <div class="crop-head">
+        <div class="crop-title" id="tbTitle">Blank Canvas Teks</div>
+        <div class="crop-info" id="tbInfo"></div>
+      </div>
+      <div class="tb-grid">
+        <div>
+          <div class="tb-preview" id="tbPreviewWrap"><canvas id="tbPreview" style="touch-action:none;cursor:grab"></canvas></div>
+          <div class="crop-hint" style="margin-top:8px"><b>Seret tulisan langsung di preview</b> untuk memindahkannya. Pakai <b>＋ Teks</b> untuk kalimat lain di posisi berbeda. Di mode Penuh (Cover), pilih rasio <b>Sesuai Slot</b> agar tidak terpotong.</div>
+        </div>
+        <div class="tb-controls">
+          <div>
+            <label class="tb-label">Kotak Teks</label>
+            <div class="tb-row" id="tbItems"></div>
+          </div>
+          <div>
+            <label class="tb-label" for="tbText">Tulisan (ketik atau tempel / Ctrl+V)</label>
+            <textarea id="tbText" rows="4" class="ui-input w-full" style="width:100%;resize:vertical;line-height:1.4" placeholder="Tulis atau tempel tulisanmu di sini…"></textarea>
+          </div>
+          <div>
+            <label class="tb-label" for="tbFont">Font</label>
+            <select id="tbFont" class="ui-select" style="width:100%">${fontOpts}</select>
+          </div>
+          <div class="tb-row">
+            <button type="button" class="crop-chip tb-chip-sq" id="tbBold" title="Tebal"><b>B</b></button>
+            <button type="button" class="crop-chip tb-chip-sq" id="tbItalic" title="Miring"><i>I</i></button>
+            <span style="width:6px"></span>
+            <button type="button" class="crop-chip" data-al="left">Kiri</button>
+            <button type="button" class="crop-chip" data-al="center">Tengah</button>
+            <button type="button" class="crop-chip" data-al="right">Kanan</button>
+          </div>
+          <div class="tb-slider"><div><span>Ukuran Teks</span><span id="tbSizeV"></span></div><input type="range" id="tbSize" min="1" max="40" step="0.5"></div>
+          <div class="tb-slider"><div><span>Lebar Kotak Teks</span><span id="tbBoxWV"></span></div><input type="range" id="tbBoxW" min="8" max="100" step="1"></div>
+          <div class="tb-slider"><div><span>Jarak Antar Baris</span><span id="tbLhV"></span></div><input type="range" id="tbLh" min="0.8" max="2.6" step="0.05"></div>
+          <div class="tb-slider"><div><span>Miring / Putar</span><span id="tbRotV"></span></div><input type="range" id="tbRot" min="-45" max="45" step="1"></div>
+          <div class="tb-row">
+            <span style="font-size:11px;color:#868e96">Warna Teks</span><input type="color" id="tbColor" class="tb-color">
+            <button type="button" class="crop-chip" id="tbCenterX" title="Pusatkan kotak ini secara horizontal">⇔ Tengah</button>
+            <button type="button" class="crop-chip" id="tbCenterY" title="Pusatkan kotak ini secara vertikal">⇕ Tengah</button>
+          </div>
+          <hr style="border:0;border-top:1px solid #22262f;margin:2px 0">
+          <div class="tb-row">
+            <span style="font-size:11px;color:#868e96">Warna Latar</span><input type="color" id="tbBg" class="tb-color">
+            <label class="tb-check" style="margin-left:6px"><input type="checkbox" id="tbTransparent"> Transparan</label>
+          </div>
+          <div>
+            <label class="tb-label">Ukuran Kanvas</label>
+            <div class="tb-row" id="tbRatios" style="margin-bottom:8px"></div>
+            <div class="tb-row">
+              <input type="number" id="tbW" class="ui-input tb-num" min="200" max="3000" step="10"> <span style="color:#868e96">×</span>
+              <input type="number" id="tbH" class="ui-input tb-num" min="200" max="3000" step="10"> <span style="font-size:11px;color:#868e96">px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="crop-actions">
+        <span class="crop-hint">Ctrl+Enter = Terapkan · Esc = Batal</span>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="crop-btn" id="tbCancelBtn">Batal</button>
+          <button type="button" class="crop-btn primary" id="tbApplyBtn">Tambahkan ke Kolase</button>
+        </div>
+      </div>
+    </div>
+  </div>`);
+  const wrap = document.getElementById('tbRatios');
+  TB_RATIOS.forEach(r => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'crop-chip'; b.dataset.k = r.k;
+    b.textContent = r.k === 'slot' ? 'Sesuai Slot' : r.k;
+    b.onclick = () => tbSetRatio(r.k);
+    wrap.appendChild(b);
+  });
+})();
+const tbModal = $('tbModal');
+const tbSel = () => tbState.t.items[tbState.sel];
+
+function tbWriteItemChips() {
+  const wrap = $('tbItems');
+  const items = tbState.t.items;
+  const sig = items.length + ':' + tbState.sel;
+  if (wrap.dataset.sig === sig) {
+    items.forEach((it, i) => {
+      const b = wrap.children[i];
+      if (b) b.textContent = `${i + 1}. ${(it.text || '').replace(/\s+/g, ' ').trim().slice(0, 9) || 'kosong'}`;
+    });
+    return;
+  }
+  wrap.dataset.sig = sig;
+  wrap.innerHTML = '';
+  tbState.t.items.forEach((it, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'crop-chip' + (i === tbState.sel ? ' active' : '');
+    const label = (it.text || '').replace(/\s+/g, ' ').trim().slice(0, 9);
+    b.textContent = `${i + 1}. ${label || 'kosong'}`;
+    b.onclick = () => { tbState.sel = i; tbWriteUI(); tbRenderPreview(); };
+    wrap.appendChild(b);
+  });
+  const add = document.createElement('button');
+  add.type = 'button'; add.className = 'crop-chip auto'; add.textContent = '＋ Teks';
+  add.title = 'Tambah kotak teks baru (posisi, font & ukuran sendiri)';
+  add.onclick = tbAddItem;
+  wrap.appendChild(add);
+  if (tbState.t.items.length > 1) {
+    const del = document.createElement('button');
+    del.type = 'button'; del.className = 'crop-chip'; del.textContent = '🗑 Hapus';
+    del.title = 'Hapus kotak teks yang dipilih';
+    del.onclick = tbDeleteItem;
+    wrap.appendChild(del);
+  }
+}
+
+function tbWriteUI() {
+  const t = tbState.t, it = tbSel();
+  tbWriteItemChips();
+  if (document.activeElement !== $('tbText')) $('tbText').value = it.text;
+  $('tbFont').value = it.font;
+  $('tbSize').value = it.size;  $('tbSizeV').textContent = it.size + '%';
+  $('tbBoxW').value = it.boxW;  $('tbBoxWV').textContent = it.boxW + '%';
+  $('tbLh').value = it.lh;      $('tbLhV').textContent = Number(it.lh).toFixed(2);
+  $('tbRot').value = it.rot;    $('tbRotV').textContent = it.rot + '°';
+  $('tbColor').value = it.color;
+  $('tbBold').classList.toggle('active', it.bold);
+  $('tbItalic').classList.toggle('active', it.italic);
+  tbModal.querySelectorAll('[data-al]').forEach(b => b.classList.toggle('active', b.dataset.al === it.align));
+  $('tbBg').value = t.bg;
+  $('tbTransparent').checked = t.transparent;
+  $('tbW').value = t.w; $('tbH').value = t.h;
+  $('tbRatios').querySelectorAll('.crop-chip').forEach(b => b.classList.toggle('active', b.dataset.k === t.ratio));
+  $('tbPreviewWrap').classList.toggle('checker', t.transparent);
+}
+
+async function tbRenderPreview() {
+  if (!tbState) return;
+  const my = ++tbToken;
+  const { cv, bounds } = await renderTextBlock(tbState.t, 1000);
+  if (my !== tbToken || !tbState) return;
+  tbState.bounds = bounds;
+  const pv = $('tbPreview');
+  pv.width = cv.width; pv.height = cv.height;
+  const ctx = pv.getContext('2d');
+  ctx.drawImage(cv, 0, 0);
+
+  // selection outline (preview only — never exported)
+  const b = bounds[tbState.sel];
+  if (b) {
+    ctx.save();
+    ctx.translate(b.cx, b.cy);
+    ctx.rotate(b.rot * Math.PI / 180);
+    ctx.strokeStyle = '#34d399';
+    ctx.lineWidth = Math.max(1.5, pv.width / 500);
+    ctx.setLineDash([pv.width / 100, pv.width / 160]);
+    ctx.strokeRect(-b.w / 2 - 6, -b.h / 2 - 4, b.w + 12, b.h + 8);
+    if (b.empty) {
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(120,120,120,.7)';
+      ctx.font = `${Math.max(12, pv.width * 0.03)}px sans-serif`;
+      ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+      ctx.fillText('Ketik di sini…', 0, 0);
+    }
+    ctx.restore();
+  }
+  $('tbInfo').textContent = `${tbState.t.w} × ${tbState.t.h} px`;
+}
+
+function tbAddItem() {
+  const cur = tbSel();
+  const it = { ...TB_ITEM_DEFAULT, font: cur.font, color: cur.color, bold: cur.bold, italic: cur.italic,
+    align: cur.align, boxW: cur.boxW, size: Math.max(2, +(cur.size * 0.85).toFixed(1)),
+    x: Math.min(70, cur.x + 6), y: Math.min(80, cur.y + 18) };
+  tbState.t.items.push(it);
+  tbState.sel = tbState.t.items.length - 1;
+  tbWriteUI(); tbRenderPreview();
+  setTimeout(() => $('tbText').focus(), 30);
+}
+function tbDeleteItem() {
+  if (tbState.t.items.length <= 1) return;
+  tbState.t.items.splice(tbState.sel, 1);
+  tbState.sel = Math.max(0, tbState.sel - 1);
+  tbWriteUI(); tbRenderPreview();
+}
+
+function openTextEditor(photoId) {
+  const p = photoId ? photos.find(x => x.id === photoId) : null;
+  tbState = { pid: photoId || null, t: tbNormalize(p ? p.textBlock : null), sel: 0, bounds: [] };
+  $('tbTitle').textContent = p ? `Edit Blok Teks #${photos.indexOf(p) + 1}` : 'Blank Canvas Teks Baru';
+  $('tbApplyBtn').textContent = p ? 'Terapkan' : 'Tambahkan ke Kolase';
+  if (!p) {
+    const a = tbSlotAspect(null);
+    if (a) {
+      const L = 1200;
+      if (a >= 1) { tbState.t.w = L; tbState.t.h = Math.round(L / a); } else { tbState.t.h = L; tbState.t.w = Math.round(L * a); }
+      tbState.t.ratio = 'slot';
+    }
+  }
+  tbWriteUI();
+  tbModal.classList.add('open');
+  tbRenderPreview();
+  setTimeout(() => $('tbText').focus(), 50);
+}
+
+function closeTextEditor() {
+  tbModal.classList.remove('open');
+  tbState = null;
+  tbToken++;
+}
+
+function openEditorForPhoto(photoId) {
+  const p = photos.find(x => x.id === photoId);
+  if (!p) return;
+  if (p.textBlock) openTextEditor(photoId); else openCropEditor(photoId);
+}
+
+async function applyTextBlock() {
+  const s = tbState;
+  if (!s) return;
+  const t = { ...s.t, items: s.t.items.map(i => ({ ...i })) };
+  const { cv } = await renderTextBlock(t, 2400);
+  const img = await canvasToImage(cv);
+  const asp = cv.width / cv.height;
+  let pid;
+  if (s.pid) {
+    const p = photos.find(x => x.id === s.pid);
+    if (!p) { closeTextEditor(); return; }
+    p.img = img; p.textBlock = t; p.srcImg = null; p.crop = null;
+    p.origAspect = asp;
+    p.aspect = ((p.rotation || 0) % 180 !== 0) ? 1 / asp : asp;
+    pid = p.id;
+  } else {
+    pid = nextId++;
+    photos.push({ id: pid, img, aspect: asp, origAspect: asp, caption: '', zoom: 1, panX: 0, panY: 0, rotation: 0, flipH: false, textBlock: t });
+  }
+  const isNew = !s.pid;
+  closeTextEditor();
+  renderPhotoList();
+  saveHistory();
+  computeLayoutAndRender(!isNew);
+  if (selectedPhotoId === pid) openTileInspector(pid);
+  showToast(isNew ? 'Blok teks ditambahkan' : 'Blok teks diperbarui', '✍️');
+}
+
+// ---- wiring ----
+function tbRead() {
+  const t = tbState.t, it = tbSel();
+  it.text = $('tbText').value;
+  it.font = $('tbFont').value;
+  it.size = Number($('tbSize').value);
+  it.boxW = Number($('tbBoxW').value);
+  it.lh = Number($('tbLh').value);
+  it.rot = Number($('tbRot').value);
+  it.color = $('tbColor').value;
+  t.bg = $('tbBg').value;
+  t.transparent = $('tbTransparent').checked;
+  tbWriteUI();
+  tbRenderPreview();
+}
+['tbText', 'tbFont', 'tbSize', 'tbBoxW', 'tbLh', 'tbRot', 'tbColor', 'tbBg', 'tbTransparent'].forEach(id => {
+  $(id).addEventListener('input', () => { if (tbState) tbRead(); });
+});
+$('tbBold').addEventListener('click', () => { tbSel().bold = !tbSel().bold; tbWriteUI(); tbRenderPreview(); });
+$('tbItalic').addEventListener('click', () => { tbSel().italic = !tbSel().italic; tbWriteUI(); tbRenderPreview(); });
+tbModal.querySelectorAll('[data-al]').forEach(b => b.addEventListener('click', () => { tbSel().align = b.dataset.al; tbWriteUI(); tbRenderPreview(); }));
+$('tbCenterX').addEventListener('click', () => { const it = tbSel(); it.x = +((100 - it.boxW) / 2).toFixed(2); tbWriteUI(); tbRenderPreview(); });
+$('tbCenterY').addEventListener('click', () => {
+  const b = tbState.bounds[tbState.sel];
+  if (!b) return;
+  const hPct = b.h / $('tbPreview').height * 100;
+  tbSel().y = +(50 - hPct / 2).toFixed(2);
+  tbWriteUI(); tbRenderPreview();
+});
+['tbW', 'tbH'].forEach(id => {
+  $(id).addEventListener('input', () => {
+    if (!tbState) return;
+    const clampv = v => Math.min(3000, Math.max(200, Math.round(Number(v) || 1200)));
+    tbState.t.w = clampv($('tbW').value);
+    tbState.t.h = clampv($('tbH').value);
+    tbState.t.ratio = 'custom';
+    $('tbRatios').querySelectorAll('.crop-chip').forEach(b => b.classList.remove('active'));
+    tbRenderPreview();
+  });
+});
+
+// Drag text boxes directly on the preview
+(function tbDragSetup() {
+  const pv = $('tbPreview');
+  pv.addEventListener('pointerdown', (e) => {
+    if (!tbState || !tbState.bounds.length) return;
+    const r = pv.getBoundingClientRect();
+    const sx = pv.width / r.width, sy = pv.height / r.height;
+    const px = (e.clientX - r.left) * sx, py = (e.clientY - r.top) * sy;
+    let hit = -1;
+    for (let i = tbState.bounds.length - 1; i >= 0; i--) {
+      const b = tbState.bounds[i];
+      const a = -b.rot * Math.PI / 180;
+      const dx = px - b.cx, dy = py - b.cy;
+      const lx = dx * Math.cos(a) - dy * Math.sin(a);
+      const ly = dx * Math.sin(a) + dy * Math.cos(a);
+      const padHit = Math.max(10, pv.width * 0.01);
+      if (Math.abs(lx) <= b.w / 2 + padHit && Math.abs(ly) <= b.h / 2 + padHit) { hit = i; break; }
+    }
+    if (hit < 0) return;
+    e.preventDefault();
+    tbState.sel = hit;
+    tbWriteUI();
+    const it = tbSel();
+    const startX = it.x, startY = it.y, startPX = px, startPY = py;
+    pv.style.cursor = 'grabbing';
+    pv.setPointerCapture(e.pointerId);
+    let raf = 0;
+    const onMove = (ev) => {
+      if (!tbState) return;
+      const mx = (ev.clientX - r.left) * sx, my = (ev.clientY - r.top) * sy;
+      it.x = Math.min(120, Math.max(-40, +(startX + (mx - startPX) / pv.width * 100).toFixed(2)));
+      it.y = Math.min(120, Math.max(-40, +(startY + (my - startPY) / pv.height * 100).toFixed(2)));
+      if (!raf) raf = requestAnimationFrame(() => { raf = 0; tbRenderPreview(); });
+    };
+    const onUp = (ev) => {
+      pv.style.cursor = 'grab';
+      try { pv.releasePointerCapture(ev.pointerId); } catch (_) {}
+      pv.removeEventListener('pointermove', onMove);
+      pv.removeEventListener('pointerup', onUp);
+      pv.removeEventListener('pointercancel', onUp);
+      if (tbState) tbRenderPreview();
+    };
+    pv.addEventListener('pointermove', onMove);
+    pv.addEventListener('pointerup', onUp);
+    pv.addEventListener('pointercancel', onUp);
+  });
+})();
+
+$('tbApplyBtn').addEventListener('click', applyTextBlock);
+$('tbCancelBtn').addEventListener('click', closeTextEditor);
+tbModal.addEventListener('pointerdown', (e) => { if (e.target === tbModal) closeTextEditor(); });
+$('addTextBlockBtn').addEventListener('click', () => openTextEditor(null));
+$('emptyTextBtn').addEventListener('click', () => openTextEditor(null));
+$('tileEditTextBtn').addEventListener('click', () => { if (selectedPhotoId) openTextEditor(selectedPhotoId); });
+window.addEventListener('keydown', (e) => {
+  if (!tbState) return;
+  if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); closeTextEditor(); }
+  else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); e.stopImmediatePropagation(); applyTextBlock(); }
+}, true);
+
+/* ---------- PHOTO LIST PANEL ---------- */
+function renderPhotoList() {
+  photoListEl.innerHTML = '';
+  badgeCount.textContent = `${photos.length} foto`;
+
+  if (photos.length === 0) {
+    photoListEl.innerHTML = `
+      <div class="text-xs text-zinc-500 py-6 px-4 text-center border border-dashed border-[#22262f] rounded-xl space-y-2">
+        <p>Belum ada foto yang dipilih.</p>
+        <button type="button" id="sideDemoBtnDynamic" class="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 transition-colors">
+          ✨ Muat 7 Foto Contoh (Poster Perfect Blue)
+        </button>
+      </div>`;
+    const dynBtn = $('sideDemoBtnDynamic');
+    if (dynBtn) dynBtn.addEventListener('click', loadDemoPhotos);
+
+    shuffleBtn.disabled = true;
+    downloadBtn.disabled = true;
+    copyClipboardBtn.disabled = true;
+    clearAllBtn.classList.add('hidden');
+    reverseOrderBtn.classList.add('hidden');
+    return;
+  }
+
+  shuffleBtn.disabled = false;
+  downloadBtn.disabled = false;
+  copyClipboardBtn.disabled = false;
+  clearAllBtn.classList.remove('hidden');
+  reverseOrderBtn.classList.toggle('hidden', photos.length < 2);
+
+  photos.forEach((p, i) => {
+    const isHeroSlot = i === 0 && (modeSelect.value === 'poster' || modeSelect.value === 'hero');
+    const row = document.createElement('div');
+    row.className = `flex items-center gap-2 bg-[#171a20] border ${isHeroSlot ? 'border-blue-500/40' : 'border-[#22262f]'} hover:border-[#323846] rounded-lg p-1.5 transition-colors`;
+
+    const idxBadge = document.createElement('span');
+    idxBadge.className = `mono text-[10px] ${isHeroSlot ? 'text-blue-400 font-bold' : 'text-zinc-500'} w-5 text-center select-none`;
+    idxBadge.textContent = isHeroSlot ? '★1' : i + 1;
+    row.appendChild(idxBadge);
+
+    const thumb = document.createElement('img');
+    thumb.src = p.img.src;
+    thumb.className = 'w-9 h-9 object-cover rounded-md flex-shrink-0 bg-zinc-900 border border-zinc-800 cursor-pointer hover:opacity-80';
+    thumb.title = 'Klik untuk atur Zoom & Fokus foto ini';
+    thumb.onclick = () => openTileInspector(p.id);
+    row.appendChild(thumb);
+
+    const capInput = document.createElement('input');
+    capInput.type = 'text';
+    capInput.placeholder = isHeroSlot ? 'Foto Hero Utama (Atas)' : 'Teks / caption (opsional)';
+    capInput.value = p.caption;
+    capInput.className = 'ui-input flex-1 min-w-0 !py-1 !px-2 !text-xs !bg-[#111317]';
+    capInput.addEventListener('input', () => {
+      p.caption = capInput.value;
+      renderStage();
+    });
+    row.appendChild(capInput);
+
+    const btnGroup = document.createElement('div');
+    btnGroup.className = 'flex items-center gap-0.5';
+
+    const mkBtn = (svgHtml, title, dis, extraCls, fn) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.title = title;
+      b.disabled = dis;
+      b.className = `w-6 h-6 rounded flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 disabled:opacity-25 disabled:pointer-events-none transition-colors ${extraCls}`;
+      b.innerHTML = svgHtml;
+      b.onclick = fn;
+      btnGroup.appendChild(b);
+    };
+
+    mkBtn(
+      '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>',
+      'Geser Naik',
+      i === 0,
+      '',
+      () => {
+        [photos[i - 1], photos[i]] = [photos[i], photos[i - 1]];
+        renderPhotoList();
+        saveHistory();
+        computeLayoutAndRender(true);
+      }
+    );
+
+    mkBtn(
+      '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>',
+      'Geser Turun',
+      i === photos.length - 1,
+      '',
+      () => {
+        [photos[i + 1], photos[i]] = [photos[i], photos[i + 1]];
+        renderPhotoList();
+        saveHistory();
+        computeLayoutAndRender(true);
+      }
+    );
+
+    mkBtn(
+      '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+      'Hapus Foto',
+      false,
+      'hover:!bg-rose-500/20 hover:!text-rose-400',
+      () => {
+        if (selectedPhotoId === p.id) closeTileInspector();
+        photos.splice(i, 1);
+        renderPhotoList();
+        saveHistory();
+        computeLayoutAndRender();
+      }
+    );
+
+    row.appendChild(btnGroup);
+    photoListEl.appendChild(row);
+  });
+}
+
+/* ============================================================
+   LAYOUT ENGINE
+   ============================================================ */
+function captionBandHeight(w, h) {
+  return Math.min(w * 0.08, h * 0.32);
+}
+
+function getPosterConfig() {
+  return {
+    title: posterTitleInput.value || '',
+    accent: posterAccentInput.value || '#3b82f6',
+    fontFamily: posterFontSelect.value || 'Inter',
+    rating: posterRatingSelect.value || '',
+    leftMeta: [
+      { label: metaL1Label.value, val: metaL1Val.value },
+      { label: metaL2Label.value, val: metaL2Val.value },
+      { label: metaL3Label.value, val: metaL3Val.value },
+      { label: metaL4Label.value, val: metaL4Val.value }
+    ].filter(m => m.label.trim() !== '' || m.val.trim() !== ''),
+    rightMeta: {
+      label: metaRLabel.value,
+      val: metaRVal.value
+    },
+    footerLeft: footerLeftInput.value,
+    footerRight: footerRightInput.value
+  };
+}
+
+function getFrameDividerRgba() {
+  const hex = frameColorInput.value || '#ffffff';
+  const alpha = Number(frameOpacitySlider.value) / 100;
+  return hexToRgba(hex, alpha);
+}
+
+function medianAspect(arr) {
+  const a = arr.map(p => p.aspect).sort((x, y) => x - y);
+  return a[Math.floor(a.length / 2)];
+}
+
+// 1) Grid seragam
+function gridLayout(seq, cols, g) {
+  const cellW = (NW - g * (cols + 1)) / cols;
+  const cellH = cellW / medianAspect(seq);
+  const rows = Math.ceil(seq.length / cols);
+  const items = seq.map((p, i) => {
+    const r = Math.floor(i / cols), c = i % cols;
+    const inRow = (r === rows - 1) ? seq.length - r * cols : cols;
+    const rowW = inRow * cellW + (inRow - 1) * g;
+    return {
+      id: p.id,
+      x: (NW - rowW) / 2 + c * (cellW + g),
+      y: g + r * (cellH + g),
+      w: cellW,
+      h: cellH
+    };
+  });
+  return { W: NW, H: rows * cellH + (rows + 1) * g, items, label: `Grid ${cols} Kolom`, type: 'grid' };
+}
+
+// 2) Baris rata (Justified) dengan Dynamic Programming
+function partitionRows(aspects, r) {
+  const n = aspects.length;
+  const pre = [0];
+  aspects.forEach(a => pre.push(pre[pre.length - 1] + a));
+  const target = pre[n] / r, INF = 1e18;
+  const dp = Array.from({ length: r + 1 }, () => new Array(n + 1).fill(INF));
+  const cut = Array.from({ length: r + 1 }, () => new Array(n + 1).fill(0));
+  dp[0][0] = 0;
+  for (let k = 1; k <= r; k++) {
+    for (let i = k; i <= n; i++) {
+      for (let j = k - 1; j < i; j++) {
+        if (dp[k - 1][j] >= INF) continue;
+        const cost = dp[k - 1][j] + (pre[i] - pre[j] - target) ** 2;
+        if (cost < dp[k][i]) {
+          dp[k][i] = cost;
+          cut[k][i] = j;
+        }
+      }
+    }
+  }
+  const rows = [];
+  let i = n;
+  for (let k = r; k >= 1; k--) {
+    const j = cut[k][i];
+    rows.unshift([j, i]);
+    i = j;
+  }
+  return rows;
+}
+
+function justifiedLayout(seq, r, g) {
+  const rows = partitionRows(seq.map(p => p.aspect), r);
+  let y = g;
+  const items = [];
+  rows.forEach(([a, b]) => {
+    const slice = seq.slice(a, b), n = slice.length;
+    const h = (NW - g * (n + 1)) / slice.reduce((s, p) => s + p.aspect, 0);
+    let x = g;
+    slice.forEach(p => {
+      const w = h * p.aspect;
+      items.push({ id: p.id, x, y, w, h });
+      x += w + g;
+    });
+    y += h + g;
+  });
+  return { W: NW, H: y, items, label: `Baris Rata (${r} Baris)`, type: 'justified' };
+}
+
+// 3) Masonry (kolom)
+function masonryLayout(seq, cols, g) {
+  const colW = (NW - g * (cols + 1)) / cols;
+  const hs = new Array(cols).fill(g), items = [];
+  seq.forEach(p => {
+    let idx = 0;
+    for (let i = 1; i < cols; i++) if (hs[i] < hs[idx]) idx = i;
+    const h = colW / p.aspect;
+    items.push({ id: p.id, x: g + idx * (colW + g), y: hs[idx], w: colW, h });
+    hs[idx] += h + g;
+  });
+  return { W: NW, H: Math.max(...hs), items, label: `Masonry ${cols} Kolom`, type: 'masonry' };
+}
+
+// 4) Hero: foto pertama besar di atas, sisanya grid
+function heroLayout(seq, cols, g) {
+  const hero = seq[0], hw = NW - 2 * g, hh = hw / hero.aspect;
+  const grid = gridLayout(seq.slice(1), cols, g);
+  const items = [{ id: hero.id, x: g, y: g, w: hw, h: hh }];
+  grid.items.forEach(it => items.push({ ...it, y: it.y + hh + g }));
+  return { W: NW, H: hh + g + grid.H, items, label: `Hero + Grid ${cols}`, type: 'hero' };
+}
+
+// 5) Strip manga
+function stripsLayout(seq, Lw, Lh, g, right) {
+  const strips = seq.filter(p => (1 / p.aspect) > 1.8);
+  const normals = seq.filter(p => (1 / p.aspect) <= 1.8);
+  const availH = Lh - g * 2;
+  const info = strips.map(p => ({ p, w: availH * p.aspect, h: availH }));
+  const inner = info.length * g + g;
+  let total = info.reduce((a, s) => a + s.w, 0) + inner;
+  const maxTotal = Lw * 0.65;
+  if (total > maxTotal && info.length) {
+    const f = (maxTotal - inner) / (total - inner);
+    info.forEach(s => { s.w *= f; s.h *= f; });
+    total = maxTotal;
+  }
+  const blockW = info.length ? total : 0;
+  const items = [];
+  let cx = right ? (Lw - blockW + g) : g;
+  info.forEach(s => {
+    items.push({ id: s.p.id, x: cx, y: g, w: s.w, h: s.h });
+    cx += s.w + g;
+  });
+
+  const rect = right
+    ? { x: g, y: g, w: Lw - blockW - g, h: Lh - 2 * g }
+    : { x: blockW, y: g, w: Lw - blockW - g, h: Lh - 2 * g };
+
+  if (normals.length) {
+    const colW = 400, maxCols = Math.min(normals.length, 6);
+    let best = null, bestScore = Infinity;
+    for (let n = 1; n <= maxCols; n++) {
+      const cols = Array.from({ length: n }, () => []), hs = new Array(n).fill(0);
+      normals.forEach(p => {
+        let idx = 0;
+        for (let i = 1; i < n; i++) if (hs[i] < hs[idx]) idx = i;
+        const ih = colW / p.aspect;
+        cols[idx].push({ p, ih });
+        hs[idx] += ih + g;
+      });
+      const cW = n * colW + (n + 1) * g;
+      const cH = Math.max(...hs.map(h => h > 0 ? h - g : 0)) + 2 * g;
+      const score = Math.abs(Math.log(cW / cH) - Math.log(rect.w / rect.h));
+      if (score < bestScore) { bestScore = score; best = { cols, cW, cH }; }
+    }
+    const sc = Math.min(rect.w / best.cW, rect.h / best.cH);
+    const ox = rect.x + (rect.w - best.cW * sc) / 2;
+    const oy = rect.y + (rect.h - best.cH * sc) / 2;
+    best.cols.forEach((col, i) => {
+      let cy = g;
+      col.forEach(c => {
+        items.push({
+          id: c.p.id,
+          x: ox + (g + i * (colW + g)) * sc,
+          y: oy + cy * sc,
+          w: colW * sc,
+          h: c.ih * sc
+        });
+        cy += c.ih + g;
+      });
+    });
+  }
+  return { W: Lw, H: Lh, items, label: `Strip Manga (${right ? 'Kanan' : 'Kiri'})`, type: 'strips' };
+}
+
+// 6) Poster Sinematik ("Perfect Blue" Reference Layout)
+function posterLayout(seq, spec, colsParam, gSlider) {
+  const Lw = spec.auto ? 750 : spec.Lw;
+  const Lh = spec.auto ? 1000 : spec.Lh;
+
+  const hero = seq[0];
+  const rest = seq.slice(1);
+
+  const heroH = Lh * 0.465;
+  const items = [
+    { id: hero.id, x: 0, y: 0, w: Lw, h: heroH, isHero: true }
+  ];
+
+  const extraMargin = Number(marginSlider.value) * (Lw / NW) * 0.5;
+  const padX = Lw * 0.046 + extraMargin;
+  const gridX = padX;
+  const gridY = Lh * 0.448;
+  const gridW = Lw - padX * 2;
+  const gridH = Lh * 0.497;
+
+  const cols = colsParam > 0 ? colsParam : 2;
+  const lineGap = Math.max(0, gSlider * (Lw / NW));
+
+  if (rest.length > 0) {
+    const rows = Math.ceil(rest.length / cols);
+    const cellW = (gridW - lineGap * (cols - 1)) / cols;
+    const cellH = (gridH - lineGap * (rows - 1)) / rows;
+
+    rest.forEach((p, idx) => {
+      const r = Math.floor(idx / cols);
+      const c = idx % cols;
+      const inLastRow = (r === rows - 1) ? (rest.length - r * cols) : cols;
+      const actualCellW = inLastRow < cols
+        ? (gridW - lineGap * (inLastRow - 1)) / inLastRow
+        : cellW;
+
+      items.push({
+        id: p.id,
+        x: gridX + c * (actualCellW + lineGap),
+        y: gridY + r * (cellH + lineGap),
+        w: actualCellW,
+        h: cellH,
+        isGrid: true
+      });
+    });
+  }
+
+  return {
+    W: Lw,
+    H: Lh,
+    items,
+    label: `🎬 Poster (${cols} Kolom)`,
+    type: 'poster',
+    posterMeta: {
+      heroH,
+      gridX,
+      gridY,
+      gridW,
+      gridH,
+      padX,
+      lineGap,
+      cols,
+      hasGrid: rest.length > 0
+    }
+  };
+}
+
+
+// 7) Bingkai Caption: teks atas + garis + kotak (grid di tengah) + garis + teks bawah
+function wrapTextLines(text, fontFamily, px, maxW) {
+  const ctx = wrapTextLines._ctx || (wrapTextLines._ctx = document.createElement('canvas').getContext('2d'));
+  ctx.font = `500 ${px}px "${fontFamily}", sans-serif`;
+  const out = [];
+  String(text || '').replace(/\r/g, '').split('\n').forEach(par => {
+    if (par.trim() === '') { out.push(''); return; }
+    let cur = '';
+    par.trim().split(/\s+/).forEach(word => {
+      const test = cur ? cur + ' ' + word : word;
+      if (!cur || ctx.measureText(test).width <= maxW) cur = test;
+      else { out.push(cur); cur = word; }
+    });
+    out.push(cur);
+  });
+  while (out.length && out[out.length - 1] === '') out.pop();
+  while (out.length && out[0] === '') out.shift();
+  return out;
+}
+
+function frameLayout(seq, spec, cols, gSlider) {
+  const cfg = getFrameConfig();
+  const W = spec.auto ? 1000 : spec.Lw;
+  const fixedH = spec.auto ? 0 : spec.Lh;
+  const padX = W * 0.05;
+  const lineT = W * cfg.lineW / 1000;
+  const innerPad = W * cfg.pad / 1000;
+  const gap = Math.max(0, gSlider * (W / NW));
+  const aspect = medianAspect(seq);
+  const n = seq.length;
+  cols = Math.max(1, Math.min(cols, n));
+  const rows = Math.ceil(n / cols);
+
+  const topInd = W * cfg.topIndent / 100, botInd = W * cfg.bottomIndent / 100;
+  let fontPx = W * cfg.size / 1000;
+  let lineH, vPad, topLines, botLines, topH, botH, topLine, botLine;
+  const measure = () => {
+    lineH = fontPx * 1.28;
+    vPad = fontPx * 0.5;
+    topLines = wrapTextLines(cfg.topText, cfg.font, fontPx, Math.max(W * 0.2, W - padX * 2 - topInd));
+    botLines = wrapTextLines(cfg.bottomText, cfg.font, fontPx, Math.max(W * 0.2, W - padX * 2 - botInd));
+    topH = topLines.length ? topLines.length * lineH + vPad * 2 : 0;
+    botH = botLines.length ? botLines.length * lineH + vPad * 2 : 0;
+    topLine = topLines.length ? lineT : 0;
+    botLine = botLines.length ? lineT : 0;
+  };
+  measure();
+
+  // Fixed canvas: shrink text if it would squeeze the photo box too much
+  if (!spec.auto) {
+    let guard = 0;
+    while (guard++ < 40 && fontPx > W * 0.015 &&
+           (fixedH - topH - botH - topLine - botLine) < fixedH * 0.3) {
+      fontPx *= 0.93;
+      measure();
+    }
+  }
+
+  const innerW = Math.max(10, W - innerPad * 2);
+  let H, boxH;
+  if (spec.auto) {
+    const cw0 = Math.max(1, (innerW - gap * (cols - 1)) / cols);
+    boxH = rows * (cw0 / aspect) + gap * (rows - 1) + innerPad * 2;
+    H = topH + topLine + boxH + botLine + botH;
+  } else {
+    H = fixedH;
+    boxH = H - topH - topLine - botLine - botH;
+  }
+  const boxY = topH + topLine;
+  const innerX = innerPad;
+  const innerY = boxY + innerPad;
+  const innerH = Math.max(10, boxH - innerPad * 2);
+
+  // Cell size: biggest cell (median aspect) that lets the whole grid fit the inner box
+  const cw = Math.max(1, Math.min(
+    (innerW - gap * (cols - 1)) / cols,
+    ((innerH - gap * (rows - 1)) / rows) * aspect
+  ));
+  const ch = cw / aspect;
+  const gridH = rows * ch + gap * (rows - 1);
+  const gridY = innerY + (innerH - gridH) / 2;   // vertically centered inside the box
+
+  const items = seq.map((p, i) => {
+    const r = Math.floor(i / cols), c = i % cols;
+    const inRow = (r === rows - 1) ? n - r * cols : cols;
+    const rowW = inRow * cw + (inRow - 1) * gap;
+    return {
+      id: p.id,
+      x: (W - rowW) / 2 + c * (cw + gap),      // horizontally centered (also last row)
+      y: gridY + r * (ch + gap),
+      w: cw,
+      h: ch,
+      isGrid: true
+    };
+  });
+
+  return {
+    W, H, items,
+    label: `🖼️ Bingkai (${cols} Kolom)`,
+    type: 'frame',
+    frameMeta: {
+      W, H, padX, lineT, fontPx, lineH, vPad,
+      topLines, botLines, topH, botH, topLine, botLine, topInd, botInd,
+      boxY, boxH, innerX, innerY, innerW, innerH
+    }
+  };
+}
+
+/* ---------- FIT TO CANVAS & SCORING ---------- */
+function getSpec() {
+  if (ratioSelect.value === 'auto') return { auto: true };
+  const [rw, rh] = ratioSelect.value.split(':').map(Number);
+  return rw <= rh
+    ? { auto: false, Lw: 1000 * rw / rh, Lh: 1000 }
+    : { auto: false, Lw: 1000, Lh: 1000 * rh / rw };
+}
+
+function containFit(aspect, boxW, boxH) {
+  let fw, fh;
+  if (boxW / boxH > aspect) { fh = boxH; fw = boxH * aspect; }
+  else { fw = boxW; fh = boxW / aspect; }
+  return { fw, fh, fx: (boxW - fw) / 2, fy: (boxH - fh) / 2 };
+}
+
+function finalize(c, spec) {
+  let Lw, Lh, scale;
+  const margin = isFixedType(c.type) ? 0 : Number(marginSlider.value);
+
+  if (isFixedType(c.type)) {
+    Lw = c.W; Lh = c.H; scale = 1;
+  } else if (spec.auto) {
+    Lw = c.W + margin * 2;
+    Lh = c.H + margin * 2;
+    scale = 1;
+  } else {
+    Lw = spec.Lw; Lh = spec.Lh;
+    const availW = Math.max(100, Lw - margin * 2);
+    const availH = Math.max(100, Lh - margin * 2);
+    scale = c.type === 'strips' ? (availW / c.W) : Math.min(availW / c.W, availH / c.H);
+  }
+  const ox = (Lw - c.W * scale) / 2;
+  const oy = (Lh - c.H * scale) / 2;
+  const placements = c.items.map(it => ({
+    id: it.id,
+    x: ox + it.x * scale,
+    y: oy + it.y * scale,
+    w: it.w * scale,
+    h: it.h * scale,
+    isHero: it.isHero || false,
+    isGrid: it.isGrid || false
+  }));
+
+  let imgArea = 0;
+  placements.forEach(pl => {
+    const ph = photos.find(p => p.id === pl.id);
+    if (!ph) return;
+    if (fitMode === 'cover' || c.type === 'poster') {
+      imgArea += pl.w * pl.h;
+    } else {
+      const f = containFit(ph.aspect, pl.w, pl.h);
+      imgArea += f.fw * f.fh;
+    }
+  });
+  const eff = Math.min(1, imgArea / (Lw * Lh));
+
+  let score = eff;
+  if (c.type === 'poster') {
+    score = modeSelect.value === 'poster' ? 0.99 : 0.92;
+  } else if (c.type === 'justified') {
+    const hs = c.items.map(i => i.h);
+    score -= 0.08 * Math.min(2, Math.max(...hs) / Math.min(...hs) - 1);
+  }
+  if (spec.auto && !isFixedType(c.type)) score -= 0.12 * Math.abs(Math.log((Lw / Lh) / 0.5625));
+  return {
+    label: c.label,
+    canvas: { Lw, Lh },
+    placements,
+    eff,
+    score,
+    type: c.type,
+    posterMeta: c.posterMeta || null,
+    frameMeta: c.frameMeta || null
+  };
+}
+
+function buildCandidates(seq, spec, mode, param) {
+  const g = Number(gapSlider.value), n = seq.length, raw = [];
+  const range = (a, b) => Array.from({ length: Math.max(0, b - a + 1) }, (_, i) => a + i);
+  const colsList = param > 0 ? [Math.min(param, n)] : range(1, Math.min(6, n));
+  const rowsList = param > 0 ? [Math.min(param, n)] : range(1, Math.min(10, n));
+  const want = m => mode === 'auto' || mode === m;
+
+  if (mode === 'frame') {
+    const frameCols = param > 0 ? [Math.min(param, n)] : range(1, Math.min(4, n));
+    frameCols.forEach(c => raw.push(frameLayout(seq, spec, c, g)));
+  } else if (mode === 'poster') {
+    const posterCols = param > 0 ? [param] : [2, 3, 1];
+    posterCols.forEach(c => raw.push(posterLayout(seq, spec, c, g)));
+  } else {
+    if (want('grid')) colsList.forEach(c => raw.push(gridLayout(seq, c, g)));
+    if (want('justified')) rowsList.forEach(r => raw.push(justifiedLayout(seq, r, g)));
+    if (want('masonry')) colsList.forEach(c => raw.push(masonryLayout(seq, c, g)));
+    if (want('hero') && n >= 3 && (mode === 'hero' || seq[0].aspect >= 1.2)) {
+      (param > 0 ? [param] : range(2, Math.min(4, n - 1)))
+        .filter(c => c >= 1 && c <= n - 1)
+        .forEach(c => raw.push(heroLayout(seq, c, g)));
+    }
+    if (!spec.auto && (mode === 'strips' || (mode === 'auto' && seq.some(p => 1 / p.aspect > 1.8)))) {
+      const gl = g * spec.Lw / NW;
+      [true, false].forEach(right => raw.push(stripsLayout(seq, spec.Lw, spec.Lh, gl, right)));
+    }
+    if (mode === 'auto' && n >= 2) {
+      raw.push(posterLayout(seq, spec, 2, 2));
+    }
+  }
+
+  const done = raw.map(c => finalize(c, spec)).sort((a, b) => b.score - a.score);
+  const seen = new Set(), out = [];
+  done.forEach(c => {
+    const sig = c.type + ':' + c.placements.map(p => [p.x, p.y, p.w, p.h].map(v => Math.round(v)).join(',')).join('|');
+    if (seen.has(sig)) return;
+    seen.add(sig);
+    out.push(c);
+  });
+  const best = out.length ? out[0].score : 0;
+  return out.filter(c => c.score >= best - 0.32).slice(0, 8);
+}
+
+function computeLayoutAndRender(keepIdx = false) {
+  updateFramePanelVisibility();
+  if (photos.length === 0) {
+    candidates = [];
+    current = null;
+    renderChips();
+    renderStage();
+    return;
+  }
+  candidates = buildCandidates(photos.slice(), getSpec(), modeSelect.value, Number(paramSelect.value));
+  selectCandidate(keepIdx ? Math.min(candIdx, candidates.length - 1) : 0);
+}
+
+function selectCandidate(i) {
+  candIdx = i;
+  current = candidates[i];
+  if (current) {
+    posterActiveDot.classList.toggle('hidden', current.type !== 'poster');
+  }
+  renderChips();
+  renderStage();
+}
+
+function renderChips() {
+  chipsEl.innerHTML = '';
+  if (!current || candidates.length === 0) {
+    chipsEl.innerHTML = '<span class="text-xs text-zinc-500">Pilih atau muat foto contoh untuk melihat rekomendasi tata letak...</span>';
+    layoutInfo.classList.add('hidden');
+    return;
+  }
+
+  candidates.forEach((c, i) => {
+    const active = i === candIdx;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = active
+      ? 'px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm'
+      : 'px-2.5 py-1 rounded-full text-xs text-zinc-400 hover:text-zinc-200 bg-[#14171d] hover:bg-[#1b1f27] border border-[#22262f] transition-all flex items-center gap-1.5';
+    b.innerHTML = `<span>${c.label}</span><span class="mono text-[10px] opacity-75">${Math.round(c.eff * 100)}%</span>`;
+    b.onclick = () => selectCandidate(i);
+    chipsEl.appendChild(b);
+  });
+
+  layoutInfo.classList.remove('hidden');
+  layoutInfo.textContent = `${Math.round(current.eff * 100)}% efisiensi · ${Math.round(current.canvas.Lw)}×${Math.round(current.canvas.Lh)}`;
+}
+
+/* ---------- STAGE PREVIEW ---------- */
+function renderStage() {
+  stage.innerHTML = '';
+  if (!current) {
+    emptyState.classList.remove('hidden');
+    stageWrapper.classList.add('hidden');
+    stageWrapper.classList.remove('flex');
+    return;
+  }
+
+  emptyState.classList.add('hidden');
+  stageWrapper.classList.remove('hidden');
+  stageWrapper.classList.add('flex');
+
+  const { Lw, Lh } = current.canvas;
+  const spec = getSpec();
+  const availW = Math.min(window.innerWidth * (window.innerWidth >= 1024 ? 0.54 : 0.9), 600);
+  const availH = window.innerHeight * 0.75;
+
+  let previewW, previewH;
+  if (spec.auto && !isFixedType(current.type)) {
+    previewW = Math.min(availW, 500);
+    previewH = previewW * Lh / Lw;
+    if (previewH > availH) {
+      previewH = availH;
+      previewW = previewH * Lw / Lh;
+    }
+  } else {
+    const scaleFit = Math.min(availW / Lw, availH / Lh);
+    previewW = Lw * scaleFit;
+    previewH = Lh * scaleFit;
+  }
+
+  stage.style.width = previewW + 'px';
+  stage.style.height = previewH + 'px';
+
+  const effectiveBg = bgColor === 'transparent' ? '#0b0e17' : bgColor;
+
+  if (bgColor === 'transparent' && !isFixedType(current.type)) {
+    stage.style.background = '';
+    stage.classList.add('checkerboard');
+  } else {
+    stage.classList.remove('checkerboard');
+    stage.style.background = current.type === 'frame' ? getFrameConfig().paper : effectiveBg;
+  }
+
+  const scale = previewW / Lw;
+  const radiusPx = Number(radiusSlider.value) * scale;
+  const dividerColor = getFrameDividerRgba();
+
+  // If Poster Mode: Render Framed Grid Background Behind Grid Cells
+  if (current.type === 'poster' && current.posterMeta && current.posterMeta.hasGrid) {
+    const pm = current.posterMeta;
+    const gridBg = document.createElement('div');
+    gridBg.style.position = 'absolute';
+    gridBg.style.left = (pm.gridX * scale) + 'px';
+    gridBg.style.top = (pm.gridY * scale) + 'px';
+    gridBg.style.width = (pm.gridW * scale) + 'px';
+    gridBg.style.height = (pm.gridH * scale) + 'px';
+    gridBg.style.borderRadius = radiusPx + 'px';
+    gridBg.style.backgroundColor = dividerColor;
+    gridBg.style.zIndex = '5';
+    gridBg.style.pointerEvents = 'none';
+    stage.appendChild(gridBg);
+  }
+
+  // Render Image Tiles
+  current.placements.forEach((pl, idx) => {
+    const photo = photos.find(p => p.id === pl.id);
+    if (!photo) return;
+
+    const slot = document.createElement('div');
+    slot.className = 'tile' + (photo.id === selectedPhotoId ? ' selected-tile' : '');
+    slot.dataset.idx = idx;
+    slot.dataset.photoId = photo.id;
+    slot.style.left = (pl.x * scale) + 'px';
+    slot.style.top = (pl.y * scale) + 'px';
+    slot.style.width = (pl.w * scale) + 'px';
+    slot.style.height = (pl.h * scale) + 'px';
+    slot.style.zIndex = pl.isHero ? '1' : '10';
+
+    // Number badge on hover
+    const badge = document.createElement('div');
+    badge.className = 'tile-badge';
+    badge.textContent = pl.isHero ? '★ Hero #1' : `#${idx + 1}`;
+    slot.appendChild(badge);
+
+    const inner = document.createElement('div');
+    inner.className = 'tile-inner';
+
+    if (current.type !== 'poster') {
+      inner.style.borderRadius = radiusPx + 'px';
+    } else if (pl.isGrid && current.posterMeta) {
+      const pm = current.posterMeta;
+      const eps = 2;
+      const isLeft = Math.abs(pl.x - pm.gridX) < eps;
+      const isRight = Math.abs((pl.x + pl.w) - (pm.gridX + pm.gridW)) < eps;
+      const isTop = Math.abs(pl.y - pm.gridY) < eps;
+      const isBottom = Math.abs((pl.y + pl.h) - (pm.gridY + pm.gridH)) < eps;
+      const rTL = (isTop && isLeft) ? radiusPx : 0;
+      const rTR = (isTop && isRight) ? radiusPx : 0;
+      const rBR = (isBottom && isRight) ? radiusPx : 0;
+      const rBL = (isBottom && isLeft) ? radiusPx : 0;
+      inner.style.borderRadius = `${rTL}px ${rTR}px ${rBR}px ${rBL}px`;
+    }
+
+    let boxW, boxH;
+    if (fitMode === 'cover' || current.type === 'poster') {
+      boxW = pl.w * scale;
+      boxH = pl.h * scale;
+      inner.style.left = '0px';
+      inner.style.top = '0px';
+      inner.style.width = boxW + 'px';
+      inner.style.height = boxH + 'px';
+    } else {
+      const fit = containFit(photo.aspect, pl.w * scale, pl.h * scale);
+      boxW = fit.fw;
+      boxH = fit.fh;
+      inner.style.left = fit.fx + 'px';
+      inner.style.top = fit.fy + 'px';
+      inner.style.width = fit.fw + 'px';
+      inner.style.height = fit.fh + 'px';
+    }
+
+    const img = document.createElement('img');
+    img.src = photo.img.src;
+    img.draggable = false;
+    img.style.objectFit = (fitMode === 'cover' || current.type === 'poster') ? 'cover' : 'contain';
+
+    // Apply per-photo Pan, Zoom, Rotate, Flip & Global Filter
+    const zoom = photo.zoom || 1;
+    const panX = photo.panX || 0;
+    const panY = photo.panY || 0;
+    const rot = photo.rotation || 0;
+    const flipScaleX = photo.flipH ? -1 : 1;
+    img.style.objectPosition = `${50 - panX * 0.5}% ${50 - panY * 0.5}%`;
+    img.style.transform = `translate(${panX * 0.25}%, ${panY * 0.25}%) scale(${zoom * flipScaleX}, ${zoom}) rotate(${rot}deg)`;
+    if (FILTER_MAP[currentFilter]) {
+      img.style.filter = FILTER_MAP[currentFilter];
+    }
+
+    inner.appendChild(img);
+
+    if (photo.caption) {
+      const bandH = captionBandHeight(boxW, boxH);
+      const cap = document.createElement('div');
+      cap.className = 'cap';
+      cap.textContent = photo.caption;
+      cap.style.height = bandH + 'px';
+      cap.style.fontSize = Math.max(8, bandH * 0.42) + 'px';
+      inner.appendChild(cap);
+    }
+
+    slot.appendChild(inner);
+    makeDraggableAndClickable(slot, idx, photo.id, scale);
+    stage.appendChild(slot);
+  });
+
+  // If Poster Mode: Render Hero Bottom Fade, Typography Overlay, Grid Frame Border, and Footer
+  if (current.type === 'poster' && current.posterMeta) {
+    renderPosterOverlaysDOM(current.posterMeta, Lw, Lh, scale, radiusPx, effectiveBg, dividerColor);
+  }
+
+  // If Frame Caption Mode: Render divider lines and top/bottom text
+  if (current.type === 'frame' && current.frameMeta) {
+    renderFrameOverlaysDOM(current.frameMeta, scale);
+  }
+}
+
+function renderFrameOverlaysDOM(fm, scale) {
+  const cfg = getFrameConfig();
+  const mk = css => {
+    const d = document.createElement('div');
+    d.style.cssText = 'position:absolute;pointer-events:none;z-index:20;' + css;
+    stage.appendChild(d);
+    return d;
+  };
+  const W = fm.W * scale;
+  if (fm.topLines.length && fm.lineT > 0) {
+    mk(`left:0;top:${fm.topH * scale}px;width:${W}px;height:${fm.lineT * scale}px;background:${cfg.lineColor};`);
+  }
+  if (fm.botLines.length && fm.lineT > 0) {
+    mk(`left:0;top:${(fm.H - fm.botH - fm.lineT) * scale}px;width:${W}px;height:${fm.lineT * scale}px;background:${cfg.lineColor};`);
+  }
+  const block = (lines, y0, align) => {
+    if (!lines.length) return;
+    const ind = lines === fm.topLines ? fm.topInd : fm.botInd;
+    const d = mk(
+      `left:${(fm.padX + ind) * scale}px;top:${y0 * scale}px;width:${(fm.W - fm.padX * 2 - ind) * scale}px;` +
+      `text-align:${align};color:${cfg.textColor};font-family:"${cfg.font}",sans-serif;font-weight:500;` +
+      `font-size:${fm.fontPx * scale}px;line-height:${fm.lineH * scale}px;white-space:pre;overflow:visible;`
+    );
+    d.textContent = lines.join('\n');
+  };
+  block(fm.topLines, fm.vPad, cfg.topAlign);
+  block(fm.botLines, fm.H - fm.botH + fm.vPad, cfg.bottomAlign);
+}
+
+function renderPosterOverlaysDOM(pm, Lw, Lh, scale, radiusPx, effectiveBg, dividerColor) {
+  const cfg = getPosterConfig();
+  const padX = pm.padX * scale;
+  const W = Lw * scale;
+
+  // 1. Hero Seamless Gradient Fade Overlay
+  const heroFade = document.createElement('div');
+  heroFade.style.position = 'absolute';
+  heroFade.style.left = '0px';
+  heroFade.style.top = '0px';
+  heroFade.style.width = W + 'px';
+  heroFade.style.height = (pm.heroH * scale + 2) + 'px';
+  heroFade.style.background = `linear-gradient(to bottom, rgba(11,14,23,0) 0%, rgba(11,14,23,0) 42%, ${hexToRgba(effectiveBg, 0.74)} 74%, ${effectiveBg} 96%, ${effectiveBg} 100%)`;
+  heroFade.style.zIndex = '4';
+  heroFade.style.pointerEvents = 'none';
+  stage.appendChild(heroFade);
+
+  // 2. Title + Accent Vertical Bar + Optional Star Rating
+  const titleY = Lh * 0.328 * scale;
+  const titleFontSize = Math.max(12, Lw * 0.052 * scale);
+  const barW = Math.max(2.5, Lw * 0.0065 * scale);
+  const barH = titleFontSize * 1.08;
+
+  const titleWrap = document.createElement('div');
+  titleWrap.style.position = 'absolute';
+  titleWrap.style.left = padX + 'px';
+  titleWrap.style.top = titleY + 'px';
+  titleWrap.style.right = padX + 'px';
+  titleWrap.style.display = 'flex';
+  titleWrap.style.alignItems = 'center';
+  titleWrap.style.justifyContent = 'space-between';
+  titleWrap.style.zIndex = '15';
+  titleWrap.style.pointerEvents = 'none';
+
+  const leftTitleSide = document.createElement('div');
+  leftTitleSide.style.display = 'flex';
+  leftTitleSide.style.alignItems = 'center';
+  leftTitleSide.style.gap = (Lw * 0.015 * scale) + 'px';
+
+  const accentBar = document.createElement('div');
+  accentBar.style.width = barW + 'px';
+  accentBar.style.height = barH + 'px';
+  accentBar.style.backgroundColor = cfg.accent;
+  accentBar.style.borderRadius = '1px';
+  accentBar.style.flexShrink = '0';
+
+  const titleEl = document.createElement('div');
+  titleEl.textContent = cfg.title;
+  titleEl.style.color = '#ffffff';
+  titleEl.style.fontFamily = `"${cfg.fontFamily}", Inter, sans-serif`;
+  titleEl.style.fontWeight = '800';
+  titleEl.style.fontSize = (cfg.fontFamily === 'Bebas Neue' ? titleFontSize * 1.18 : titleFontSize) + 'px';
+  titleEl.style.lineHeight = '1';
+  titleEl.style.letterSpacing = cfg.fontFamily === 'Bebas Neue' ? '0.04em' : '-0.02em';
+  titleEl.style.textShadow = '0 2px 14px rgba(0,0,0,0.45)';
+
+  leftTitleSide.appendChild(accentBar);
+  leftTitleSide.appendChild(titleEl);
+  titleWrap.appendChild(leftTitleSide);
+
+  if (cfg.rating) {
+    const ratingEl = document.createElement('div');
+    ratingEl.textContent = cfg.rating;
+    ratingEl.style.color = cfg.accent;
+    ratingEl.style.fontSize = Math.max(9, Lw * 0.025 * scale) + 'px';
+    ratingEl.style.letterSpacing = '0.08em';
+    titleWrap.appendChild(ratingEl);
+  }
+
+  stage.appendChild(titleWrap);
+
+  // 3. Metadata Row (Left 4 Columns + Right Directed By)
+  const metaY = Lh * 0.395 * scale;
+  const labelSize = Math.max(6, Lw * 0.0165 * scale);
+  const valSize = Math.max(6.5, Lw * 0.0175 * scale);
+
+  const metaRow = document.createElement('div');
+  metaRow.style.position = 'absolute';
+  metaRow.style.left = padX + 'px';
+  metaRow.style.right = padX + 'px';
+  metaRow.style.top = metaY + 'px';
+  metaRow.style.display = 'flex';
+  metaRow.style.justifyContent = 'space-between';
+  metaRow.style.alignItems = 'flex-start';
+  metaRow.style.zIndex = '15';
+  metaRow.style.pointerEvents = 'none';
+
+  const leftGroup = document.createElement('div');
+  leftGroup.style.display = 'flex';
+  leftGroup.style.alignItems = 'flex-start';
+  leftGroup.style.gap = (Lw * 0.042 * scale) + 'px';
+
+  cfg.leftMeta.forEach(item => {
+    const col = document.createElement('div');
+    col.style.display = 'flex';
+    col.style.flexDirection = 'column';
+    col.style.gap = (Lh * 0.003 * scale) + 'px';
+
+    const lbl = document.createElement('div');
+    lbl.textContent = item.label;
+    lbl.style.color = '#94a3b8';
+    lbl.style.fontSize = labelSize + 'px';
+    lbl.style.fontWeight = '400';
+    lbl.style.letterSpacing = '0.03em';
+    lbl.style.lineHeight = '1.15';
+
+    const val = document.createElement('div');
+    val.textContent = item.val;
+    val.style.color = '#f8fafc';
+    val.style.fontSize = valSize + 'px';
+    val.style.fontWeight = '700';
+    val.style.letterSpacing = '0.02em';
+    val.style.lineHeight = '1.15';
+
+    col.appendChild(lbl);
+    col.appendChild(val);
+    leftGroup.appendChild(col);
+  });
+
+  const rightGroup = document.createElement('div');
+  rightGroup.style.display = 'flex';
+  rightGroup.style.flexDirection = 'column';
+  rightGroup.style.alignItems = 'flex-end';
+  rightGroup.style.textAlign = 'right';
+  rightGroup.style.gap = (Lh * 0.003 * scale) + 'px';
+
+  const rLbl = document.createElement('div');
+  rLbl.textContent = cfg.rightMeta.label;
+  rLbl.style.color = '#94a3b8';
+  rLbl.style.fontSize = labelSize + 'px';
+  rLbl.style.fontWeight = '400';
+  rLbl.style.letterSpacing = '0.03em';
+  rLbl.style.lineHeight = '1.15';
+
+  const rVal = document.createElement('div');
+  rVal.textContent = cfg.rightMeta.val;
+  rVal.style.color = '#f8fafc';
+  rVal.style.fontSize = valSize + 'px';
+  rVal.style.fontWeight = '700';
+  rVal.style.letterSpacing = '0.02em';
+  rVal.style.lineHeight = '1.15';
+
+  rightGroup.appendChild(rLbl);
+  rightGroup.appendChild(rVal);
+
+  metaRow.appendChild(leftGroup);
+  metaRow.appendChild(rightGroup);
+  stage.appendChild(metaRow);
+
+  // 4. Framed Grid Outer Border Overlay
+  if (pm.hasGrid && Number(frameOpacitySlider.value) > 0) {
+    const borderFrame = document.createElement('div');
+    borderFrame.style.position = 'absolute';
+    borderFrame.style.left = (pm.gridX * scale) + 'px';
+    borderFrame.style.top = (pm.gridY * scale) + 'px';
+    borderFrame.style.width = (pm.gridW * scale) + 'px';
+    borderFrame.style.height = (pm.gridH * scale) + 'px';
+    borderFrame.style.borderRadius = radiusPx + 'px';
+    borderFrame.style.border = `${Math.max(1, 1.8 * scale)}px solid ${dividerColor}`;
+    borderFrame.style.zIndex = '20';
+    borderFrame.style.pointerEvents = 'none';
+    stage.appendChild(borderFrame);
+  }
+
+  // 5. Bottom Footer Row
+  const footerY = Lh * 0.964 * scale;
+  const footerSize = Math.max(5.5, Lw * 0.0155 * scale);
+
+  const footerRow = document.createElement('div');
+  footerRow.style.position = 'absolute';
+  footerRow.style.left = padX + 'px';
+  footerRow.style.right = padX + 'px';
+  footerRow.style.top = footerY + 'px';
+  footerRow.style.display = 'flex';
+  footerRow.style.justifyContent = 'space-between';
+  footerRow.style.alignItems = 'center';
+  footerRow.style.zIndex = '15';
+  footerRow.style.pointerEvents = 'none';
+
+  const fLeft = document.createElement('div');
+  fLeft.textContent = cfg.footerLeft;
+  fLeft.style.color = '#526077';
+  fLeft.style.fontSize = footerSize + 'px';
+  fLeft.style.fontWeight = '500';
+  fLeft.style.letterSpacing = '0.06em';
+
+  const fRight = document.createElement('div');
+  fRight.textContent = cfg.footerRight;
+  fRight.style.color = '#526077';
+  fRight.style.fontSize = footerSize + 'px';
+  fRight.style.fontWeight = '600';
+  fRight.style.letterSpacing = '0.06em';
+
+  footerRow.appendChild(fLeft);
+  footerRow.appendChild(fRight);
+  stage.appendChild(footerRow);
+}
+
+function hexToRgba(hex, alpha) {
+  if (!hex || hex === 'transparent') return `rgba(11, 14, 23, ${alpha})`;
+  let c = hex.replace('#', '');
+  if (c.length === 3) c = c.split('').map(x => x + x).join('');
+  const num = parseInt(c, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function makeDraggableAndClickable(tile, ownIdx, photoId, scale) {
+  let startX, startY, origLeft, origTop;
+  let moved = false;
+  tile.addEventListener('dblclick', () => openEditorForPhoto(photoId));
+
+  tile.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    tile.setPointerCapture(e.pointerId);
+    const P = current.placements;
+    startX = e.clientX;
+    startY = e.clientY;
+    origLeft = P[ownIdx].x * scale;
+    origTop = P[ownIdx].y * scale;
+    moved = false;
+
+    const allTiles = Array.from(stage.querySelectorAll('.tile'));
+
+    function findOverlapTarget(curX, curY) {
+      const own = P[ownIdx];
+      const cur = { x: curX / scale, y: curY / scale, w: own.w, h: own.h };
+      let bestIdx = -1, bestArea = 0;
+      P.forEach((pl, i) => {
+        if (i === ownIdx) return;
+        const ix = Math.max(0, Math.min(cur.x + cur.w, pl.x + pl.w) - Math.max(cur.x, pl.x));
+        const iy = Math.max(0, Math.min(cur.y + cur.h, pl.y + pl.h) - Math.max(cur.y, pl.y));
+        const area = ix * iy;
+        const minTargetArea = Math.min(own.w * own.h, pl.w * pl.h) * 0.22;
+        if (area > bestArea && area > minTargetArea) {
+          bestArea = area;
+          bestIdx = i;
+        }
+      });
+      return bestIdx;
+    }
+
+    function onMove(ev) {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      if (Math.hypot(dx, dy) > 5) {
+        moved = true;
+        tile.classList.add('dragging');
+      }
+      if (!moved) return;
+
+      const nx = origLeft + dx;
+      const ny = origTop + dy;
+      tile.style.left = nx + 'px';
+      tile.style.top = ny + 'px';
+
+      const targetIdx = findOverlapTarget(nx, ny);
+      allTiles.forEach((t, i) => {
+        if (i === targetIdx) t.classList.add('drop-target');
+        else t.classList.remove('drop-target');
+      });
+    }
+
+    function onUp(ev) {
+      tile.releasePointerCapture(ev.pointerId);
+      tile.classList.remove('dragging');
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+
+      if (!moved) {
+        // Simple Click -> Open Per-Tile Inspector
+        openTileInspector(photoId);
+        return;
+      }
+
+      const nx = parseFloat(tile.style.left);
+      const ny = parseFloat(tile.style.top);
+      const bestIdx = findOverlapTarget(nx, ny);
+
+      if (bestIdx !== -1) {
+        const a = P[ownIdx].id, b = P[bestIdx].id;
+        const ia = photos.findIndex(p => p.id === a);
+        const ib = photos.findIndex(p => p.id === b);
+        if (ia !== -1 && ib !== -1) {
+          [photos[ia], photos[ib]] = [photos[ib], photos[ia]];
+          renderPhotoList();
+          saveHistory();
+          computeLayoutAndRender(true);
+          showToast('Posisi foto ditukar', '🔄');
+          return;
+        }
+      }
+      renderStage();
+    }
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  });
+}
+
+/* ---------- HIGH-RES EXPORT (PNG / JPG / WEBP & CLIPBOARD) ---------- */
+function roundedRectPath(ctx, x, y, w, h, r) {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
+
+function drawTransformedPhoto(ctx, photo, slotX, slotY, slotW, slotH, isCover) {
+  const img = photo.img;
+  const aspect = photo.aspect;
+  let drawW, drawH;
+
+  if (isCover) {
+    const slotAspect = slotW / slotH;
+    if (aspect > slotAspect) {
+      drawH = slotH;
+      drawW = slotH * aspect;
+    } else {
+      drawW = slotW;
+      drawH = slotW / aspect;
+    }
+  } else {
+    const fit = containFit(aspect, slotW, slotH);
+    drawW = fit.fw;
+    drawH = fit.fh;
+  }
+
+  const zoom = photo.zoom || 1;
+  const panX = photo.panX || 0;
+  const panY = photo.panY || 0;
+  const rot = (photo.rotation || 0) * Math.PI / 180;
+  const flipX = photo.flipH ? -1 : 1;
+
+  const cx = slotX + slotW / 2 + (panX / 100) * (slotW * 0.35);
+  const cy = slotY + slotH / 2 + (panY / 100) * (slotH * 0.35);
+
+  ctx.save();
+  if (FILTER_MAP[currentFilter]) {
+    ctx.filter = FILTER_MAP[currentFilter];
+  }
+  ctx.translate(cx, cy);
+  ctx.scale(zoom * flipX, zoom);
+  ctx.rotate(rot);
+
+  // If rotated 90 or 270 deg, swap draw dimensions so it matches aspect
+  const isRotated90 = Math.abs((photo.rotation || 0) % 180) === 90;
+  const finalW = isRotated90 ? drawH : drawW;
+  const finalH = isRotated90 ? drawW : drawH;
+
+  ctx.drawImage(img, -finalW / 2, -finalH / 2, finalW, finalH);
+  ctx.restore();
+}
+
+function exportImage(toClipboard = false) {
+  if (!current) return;
+  const origText = downloadBtnText.textContent;
+  downloadBtnText.textContent = toClipboard ? 'Menyalin...' : 'Merender...';
+  downloadBtn.disabled = true;
+  copyClipboardBtn.disabled = true;
+
+  const fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+  fontsReady.then(() => requestAnimationFrame(() => {
+    setTimeout(() => {
+      try {
+        const { Lw, Lh } = current.canvas;
+        const spec = getSpec();
+        const target = Number(resSelect.value);
+        let exportScale = (spec.auto && !isFixedType(current.type)) ? target / Lw : target / Math.max(Lw, Lh);
+        let W = Math.round(Lw * exportScale), H = Math.round(Lh * exportScale);
+        const MAX_AREA = 16e6;
+        if (W * H > MAX_AREA) {
+          exportScale *= Math.sqrt(MAX_AREA / (W * H));
+          W = Math.round(Lw * exportScale);
+          H = Math.round(Lh * exportScale);
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = W;
+        canvas.height = H;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        const mime = formatSelect.value || 'image/png';
+        const effectiveBg = bgColor === 'transparent' ? '#0b0e17' : bgColor;
+
+        // Always fill background if JPEG, Poster mode, or non-transparent
+        if (bgColor !== 'transparent' || isFixedType(current.type) || mime === 'image/jpeg') {
+          ctx.fillStyle = current.type === 'frame' ? getFrameConfig().paper : effectiveBg;
+          ctx.fillRect(0, 0, W, H);
+        }
+
+        const radiusExport = Number(radiusSlider.value) * exportScale;
+        const dividerColor = getFrameDividerRgba();
+
+        if (current.type === 'poster' && current.posterMeta) {
+          exportPosterCanvas(ctx, W, H, Lw, Lh, exportScale, radiusExport, effectiveBg, dividerColor);
+        } else {
+          exportStandardCanvas(ctx, exportScale, radiusExport);
+          if (current.type === 'frame' && current.frameMeta) {
+            exportFrameOverlays(ctx, exportScale);
+          }
+        }
+
+        if (toClipboard && !IS_NATIVE && navigator.clipboard && window.ClipboardItem) {
+          canvas.toBlob(async (blob) => {
+            if (!blob) { triggerDownload(canvas, mime, W, H); return; }
+            try {
+              await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+              showToast(`Gambar resolusi ${W}×${H} disalin ke Clipboard!`, '📋');
+            } catch (err) {
+              showToast('Gagal menyalin ke clipboard, mengunduh file...', '⚠️');
+              triggerDownload(canvas, mime, W, H);
+            }
+          }, 'image/png');
+        } else {
+          triggerDownload(canvas, mime, W, H);
+        }
+      } finally {
+        downloadBtnText.textContent = origText;
+        downloadBtn.disabled = false;
+        copyClipboardBtn.disabled = false;
+      }
+    }, 30);
+  }));
+}
+
+function triggerDownload(canvas, mime, W, H) {
+  const ext = mime === 'image/jpeg' ? 'jpg' : mime === 'image/webp' ? 'webp' : 'png';
+  canvas.toBlob(blob => {
+    if (!blob) { showToast('Gagal membuat file. Coba resolusi lebih kecil.', '⚠️'); return; }
+    if (IS_NATIVE) { nativeSaveBlob(blob, `collage-studio-${W}x${H}-${Date.now()}.${ext}`); return; }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `collage-studio-${W}x${H}-${Date.now()}.${ext}`;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    showToast(`Berhasil mengunduh ${ext.toUpperCase()} (${W}×${H}px)`, '✅');
+  }, mime, 0.94);
+}
+
+function exportStandardCanvas(ctx, exportScale, radiusExport) {
+  current.placements.forEach(pl => {
+    const photo = photos.find(p => p.id === pl.id);
+    if (!photo) return;
+
+    const slotX = pl.x * exportScale;
+    const slotY = pl.y * exportScale;
+    const slotW = pl.w * exportScale;
+    const slotH = pl.h * exportScale;
+
+    let clipX = slotX, clipY = slotY, clipW = slotW, clipH = slotH;
+    if (fitMode !== 'cover') {
+      const fit = containFit(photo.aspect, slotW, slotH);
+      clipX = slotX + fit.fx;
+      clipY = slotY + fit.fy;
+      clipW = fit.fw;
+      clipH = fit.fh;
+    }
+
+    ctx.save();
+    roundedRectPath(ctx, clipX, clipY, clipW, clipH, radiusExport);
+    ctx.clip();
+
+    drawTransformedPhoto(ctx, photo, slotX, slotY, slotW, slotH, fitMode === 'cover');
+    drawTileCaptionCanvas(ctx, photo.caption, clipX, clipY, clipW, clipH);
+    ctx.restore();
+  });
+}
+
+function exportFrameOverlays(ctx, s) {
+  const fm = current.frameMeta;
+  const cfg = getFrameConfig();
+  ctx.save();
+
+  ctx.fillStyle = cfg.lineColor;
+  if (fm.topLines.length && fm.lineT > 0) {
+    ctx.fillRect(0, fm.topH * s, fm.W * s, fm.lineT * s);
+  }
+  if (fm.botLines.length && fm.lineT > 0) {
+    ctx.fillRect(0, (fm.H - fm.botH - fm.lineT) * s, fm.W * s, fm.lineT * s);
+  }
+
+  ctx.fillStyle = cfg.textColor;
+  ctx.font = `500 ${fm.fontPx * s}px "${cfg.font}", sans-serif`;
+  ctx.textBaseline = 'middle';
+
+  const block = (lines, y0, align) => {
+    ctx.textAlign = align;
+    const ind = lines === fm.topLines ? fm.topInd : fm.botInd;
+    const x = align === 'left' ? (fm.padX + ind) * s
+            : align === 'right' ? (fm.W - fm.padX) * s
+            : (fm.padX + ind + (fm.W - fm.padX * 2 - ind) / 2) * s;
+    lines.forEach((ln, i) => {
+      ctx.fillText(ln, x, (y0 + i * fm.lineH + fm.lineH / 2) * s);
+    });
+  };
+  block(fm.topLines, fm.vPad, cfg.topAlign);
+  block(fm.botLines, fm.H - fm.botH + fm.vPad, cfg.bottomAlign);
+  ctx.restore();
+}
+
+function exportPosterCanvas(ctx, W, H, Lw, Lh, s, radiusExport, effectiveBg, dividerColor) {
+  const pm = current.posterMeta;
+  const cfg = getPosterConfig();
+
+  // 1. Draw Hero Image
+  const heroPl = current.placements.find(p => p.isHero);
+  if (heroPl) {
+    const heroPhoto = photos.find(p => p.id === heroPl.id);
+    if (heroPhoto) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, W, heroPl.h * s);
+      ctx.clip();
+      drawTransformedPhoto(ctx, heroPhoto, 0, 0, W, heroPl.h * s, true);
+      ctx.restore();
+    }
+  }
+
+  // 2. Draw Seamless Bottom Gradient over Hero Image
+  const heroHpx = pm.heroH * s;
+  const grad = ctx.createLinearGradient(0, 0, 0, heroHpx + 2 * s);
+  grad.addColorStop(0, hexToRgba(effectiveBg, 0));
+  grad.addColorStop(0.42, hexToRgba(effectiveBg, 0));
+  grad.addColorStop(0.74, hexToRgba(effectiveBg, 0.74));
+  grad.addColorStop(0.96, effectiveBg);
+  grad.addColorStop(1, effectiveBg);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, heroHpx + 2 * s);
+
+  // 3. Draw Framed Bottom Grid
+  const gridPlacements = current.placements.filter(p => p.isGrid);
+  if (gridPlacements.length > 0) {
+    const gx = pm.gridX * s;
+    const gy = pm.gridY * s;
+    const gw = pm.gridW * s;
+    const gh = pm.gridH * s;
+
+    ctx.save();
+    roundedRectPath(ctx, gx, gy, gw, gh, radiusExport);
+    ctx.clip();
+    ctx.fillStyle = dividerColor;
+    ctx.fillRect(gx, gy, gw, gh);
+
+    gridPlacements.forEach(pl => {
+      const photo = photos.find(p => p.id === pl.id);
+      if (!photo) return;
+      const cx = pl.x * s;
+      const cy = pl.y * s;
+      const cw = pl.w * s;
+      const ch = pl.h * s;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(cx, cy, cw, ch);
+      ctx.clip();
+      drawTransformedPhoto(ctx, photo, cx, cy, cw, ch, true);
+      drawTileCaptionCanvas(ctx, photo.caption, cx, cy, cw, ch);
+      ctx.restore();
+    });
+    ctx.restore();
+
+    if (Number(frameOpacitySlider.value) > 0) {
+      ctx.save();
+      roundedRectPath(ctx, gx, gy, gw, gh, radiusExport);
+      ctx.lineWidth = Math.max(1.5, 1.8 * s);
+      ctx.strokeStyle = dividerColor;
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // 4. Draw Typography: Accent Bar + Main Title + Optional Star Rating
+  const padX = pm.padX * s;
+  const titleY = Lh * 0.328 * s;
+  const baseTitleSize = Lw * 0.052 * s;
+  const titleFontSize = cfg.fontFamily === 'Bebas Neue' ? baseTitleSize * 1.18 : baseTitleSize;
+  const barW = Lw * 0.0065 * s;
+  const barH = baseTitleSize * 1.08;
+
+  ctx.save();
+  ctx.fillStyle = cfg.accent;
+  roundedRectPath(ctx, padX, titleY, barW, barH, 1.5 * s);
+  ctx.fill();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `800 ${titleFontSize}px "${cfg.fontFamily}", Inter, sans-serif`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+  ctx.shadowBlur = 12 * s;
+  ctx.shadowOffsetY = 2 * s;
+  ctx.fillText(cfg.title, padX + barW + (Lw * 0.015 * s), titleY + barH * 0.52);
+
+  if (cfg.rating) {
+    ctx.font = `600 ${Lw * 0.025 * s}px Inter, sans-serif`;
+    ctx.fillStyle = cfg.accent;
+    ctx.textAlign = 'right';
+    ctx.fillText(cfg.rating, W - padX, titleY + barH * 0.52);
+  }
+  ctx.restore();
+
+  // 5. Draw Metadata Row (Left 4 Columns & Right Directed By)
+  const metaY = Lh * 0.395 * s;
+  const labelSize = Lw * 0.0165 * s;
+  const valSize = Lw * 0.0175 * s;
+  const colGap = Lw * 0.042 * s;
+  const rowGap = Lh * 0.005 * s;
+
+  let curX = padX;
+  cfg.leftMeta.forEach(item => {
+    ctx.font = `400 ${labelSize}px Inter, sans-serif`;
+    ctx.fillStyle = '#94a3b8';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(item.label, curX, metaY);
+    const wLbl = ctx.measureText(item.label).width;
+
+    ctx.font = `700 ${valSize}px Inter, sans-serif`;
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillText(item.val, curX, metaY + labelSize + rowGap);
+    const wVal = ctx.measureText(item.val).width;
+
+    curX += Math.max(wLbl, wVal) + colGap;
+  });
+
+  const rightX = W - padX;
+  ctx.font = `400 ${labelSize}px Inter, sans-serif`;
+  ctx.fillStyle = '#94a3b8';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'top';
+  ctx.fillText(cfg.rightMeta.label, rightX, metaY);
+
+  ctx.font = `700 ${valSize}px Inter, sans-serif`;
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillText(cfg.rightMeta.val, rightX, metaY + labelSize + rowGap);
+
+  // 6. Draw Bottom Footer Bar
+  const footerY = Lh * 0.964 * s;
+  const footerSize = Lw * 0.0155 * s;
+
+  ctx.save();
+  ctx.font = `500 ${footerSize}px Inter, sans-serif`;
+  ctx.fillStyle = '#526077';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  drawTrackedText(ctx, cfg.footerLeft, padX, footerY, footerSize * 0.06, 'left');
+
+  ctx.font = `600 ${footerSize}px Inter, sans-serif`;
+  drawTrackedText(ctx, cfg.footerRight, W - padX, footerY, footerSize * 0.06, 'right');
+  ctx.restore();
+}
+
+function drawTrackedText(ctx, text, x, y, tracking, align) {
+  if (!text) return;
+  const chars = Array.from(text);
+  let totalW = 0;
+  chars.forEach((ch, i) => {
+    totalW += ctx.measureText(ch).width + (i < chars.length - 1 ? tracking : 0);
+  });
+  let curX = align === 'right' ? x - totalW : x;
+  ctx.textAlign = 'left';
+  chars.forEach(ch => {
+    ctx.fillText(ch, curX, y);
+    curX += ctx.measureText(ch).width + tracking;
+  });
+}
+
+function drawTileCaptionCanvas(ctx, caption, clipX, clipY, clipW, clipH) {
+  if (!caption) return;
+  const bandH = captionBandHeight(clipW, clipH);
+  const bandY = clipY + clipH - bandH;
+  const grad = ctx.createLinearGradient(0, bandY, 0, clipY + clipH);
+  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.82)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(clipX, bandY, clipW, bandH);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `500 ${Math.max(10, bandH * 0.42)}px Inter, "Segoe UI", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  let text = caption;
+  const maxW = clipW * 0.9;
+  while (ctx.measureText(text).width > maxW && text.length > 1) {
+    text = text.slice(0, -1);
+  }
+  if (text !== caption) text = text.slice(0, -1) + '…';
+  ctx.fillText(text, clipX + clipW / 2, clipY + clipH - bandH / 2);
+}
+
+
+/* ---------- NATIVE (Capacitor Android) ---------- */
+const CAP = window.Capacitor;
+const IS_NATIVE = !!(CAP && CAP.isNativePlatform && CAP.isNativePlatform());
+async function nativeSaveBlob(blob, name) {
+  try {
+    const { Filesystem, Share } = CAP.Plugins;
+    const b64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(String(r.result).split(',')[1]);
+      r.onerror = () => rej(r.error);
+      r.readAsDataURL(blob);
+    });
+    const saved = await Filesystem.writeFile({ path: name, data: b64, directory: 'CACHE' });
+    showToast('Pilih "Simpan" / Galeri / aplikasi tujuan', '📤');
+    await Share.share({ title: 'Collage Studio', files: [saved.uri], dialogTitle: 'Simpan atau bagikan' });
+  } catch (err) {
+    if (!/cancel/i.test(String(err && err.message))) showToast('Gagal menyimpan: ' + (err && err.message || err), '⚠️');
+  }
+}
+if (IS_NATIVE && CAP.Plugins.App) {
+  CAP.Plugins.App.addListener('backButton', () => {
+    if (tbModal.classList.contains('open')) return closeTextEditor();
+    if (cropModal.classList.contains('open')) return closeCropEditor();
+    if (!tileInspector.classList.contains('hidden')) return closeTileInspector();
+    CAP.Plugins.App.exitApp();
+  });
+}
+
+let resizeRaf = 0;
+window.addEventListener('resize', () => {
+  cancelAnimationFrame(resizeRaf);
+  resizeRaf = requestAnimationFrame(() => { if (current) renderStage(); });
+});
+
+/* ---------- TAMBAHAN: pintasan, peringatan keluar, ingat pengaturan ekspor ---------- */
+window.addEventListener('keydown', (e) => {
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === 's') {            // Ctrl/Cmd+S = unduh
+    e.preventDefault();
+    if (current && !downloadBtn.disabled) downloadBtn.click();
+  } else if (mod && e.shiftKey && e.key.toLowerCase() === 'c' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+    e.preventDefault();                                  // Ctrl/Cmd+Shift+C = salin
+    if (current && !copyClipboardBtn.disabled) copyClipboardBtn.click();
+  }
+});
+
+window.addEventListener('beforeunload', (e) => {
+  if (photos.length > 0) { e.preventDefault(); e.returnValue = ''; }
+});
+
+try {
+  const saved = JSON.parse(localStorage.getItem('collageStudio.export') || '{}');
+  if (saved.res && [...resSelect.options].some(o => o.value === saved.res)) resSelect.value = saved.res;
+  if (saved.fmt && [...formatSelect.options].some(o => o.value === saved.fmt)) formatSelect.value = saved.fmt;
+} catch (_) {}
+const saveExportPrefs = () => {
+  try { localStorage.setItem('collageStudio.export', JSON.stringify({ res: resSelect.value, fmt: formatSelect.value })); } catch (_) {}
+};
+resSelect.addEventListener('change', saveExportPrefs);
+formatSelect.addEventListener('change', saveExportPrefs);
+</script>
+</body>
+</html>

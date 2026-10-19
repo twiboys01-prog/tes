@@ -1,0 +1,7 @@
+{
+  "appId": "com.collagestudio.app",
+  "appName": "Collage Studio",
+  "webDir": "www",
+  "backgroundColor": "#090a0c",
+  "android": { "allowMixedContent": false }
+}

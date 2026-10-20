@@ -457,6 +457,18 @@
   .hm-dash.back{right:40px;bottom:26px;transform:rotate(-9deg);border:none;background:rgba(255,255,255,.1)}
   .hm-foot{text-align:center;font-size:11px;color:#6f7496;margin-top:18px}
 
+
+  /* ===== Pemisahan mode: Kolase vs Template ===== */
+  body.kind-kolase [data-tab="tab-template"], body.kind-kolase #tab-template { display:none !important; }
+  body.kind-kolase #panelNav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  body.kind-template #layoutStyleWrap, body.kind-template #layoutTplNotice,
+  body.kind-template .tpl-card[data-template="none"], body.kind-template #tplNonePanel { display:none !important; }
+  body.kind-template #tplCards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body.kind-template #panelNav [data-tab="tab-photos"] { order:1; }
+  body.kind-template #panelNav [data-tab="tab-template"] { order:2; }
+  body.kind-template #panelNav [data-tab="tab-layout"] { order:3; }
+  body.kind-template #panelNav [data-tab="tab-style"] { order:4; }
+
   /* ===== Pilih template (sheet) ===== */
   .hm-sheetwrap{position:fixed;inset:0;z-index:120;display:flex;align-items:flex-end;justify-content:center}
   .hm-sheetwrap.hm-hide{display:none}
@@ -526,7 +538,7 @@
           <span class="hm-deco" style="inset:0"><span class="hm-dash back"></span><span class="hm-dash"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></span>
         </button>
       </div>
-      <p class="hm-foot">Hasil kolase disimpan langsung ke Galeri</p>
+      <p class="hm-foot">Hasil kolase disimpan langsung ke Galeri · versi 5</p>
     </div>
   </div>
 
@@ -591,21 +603,21 @@
     <nav id="panelNav" class="px-3 pt-2 pb-2 border-b border-[#272a3d] bg-[#0d0e1a] grid grid-cols-4 gap-1" aria-label="Menu Pengaturan">
       <button type="button" data-tab="tab-photos" class="sidebar-tab py-2 px-1 rounded-lg border border-transparent text-[11px] font-medium text-zinc-400 hover:text-zinc-200 flex flex-col items-center gap-1 relative active">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        <span>1. Foto</span>
+        <span id="navLblPhotos">1. Foto</span>
         <span id="photoCountMini" class="mono text-[9px] absolute top-1 right-1.5 text-violet-400"></span>
       </button>
       <button type="button" data-tab="tab-layout" class="sidebar-tab py-2 px-1 rounded-lg border border-transparent text-[11px] font-medium text-zinc-400 hover:text-zinc-200 flex flex-col items-center gap-1 relative">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-        <span>2. Layout</span>
+        <span id="navLblLayout">2. Layout</span>
       </button>
       <button type="button" data-tab="tab-template" id="posterTabBtn" class="sidebar-tab py-2 px-1 rounded-lg border border-transparent text-[11px] font-medium text-zinc-400 hover:text-zinc-200 flex flex-col items-center gap-1 relative">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
-        <span>3. Template</span>
+        <span id="navLblTemplate">3. Template</span>
         <span id="posterActiveDot" class="hidden w-2 h-2 rounded-full bg-blue-400 absolute top-1.5 right-2"></span>
       </button>
       <button type="button" data-tab="tab-style" class="sidebar-tab py-2 px-1 rounded-lg border border-transparent text-[11px] font-medium text-zinc-400 hover:text-zinc-200 flex flex-col items-center gap-1 relative">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 1 0 10 10"/></svg>
-        <span>4. Gaya</span>
+        <span id="navLblStyle">4. Gaya</span>
       </button>
     </nav>
 
@@ -626,7 +638,7 @@
               </svg>
             </div>
             <p class="text-xs font-medium text-zinc-200 mt-2">Klik, tarik foto, atau tekan <kbd class="px-1.5 py-0.5 text-[10px] rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Ctrl+V</kbd></p>
-            <p class="text-[11px] text-zinc-500 mt-0.5">Pilih beberapa foto sekaligus. Template (poster/bingkai) bersifat opsional di tab Template.</p>
+            <p class="text-[11px] text-zinc-500 mt-0.5"><span id="dzHint">Pilih beberapa foto sekaligus.</span></p>
           </div>
         </section>
 
@@ -678,7 +690,7 @@
             <option value="hero">Hero Besar di Atas + Grid Bawah</option>
             <option value="strips">Strip Komik / Manga + Masonry</option>
           </select>
-        <div class="space-y-1.5">
+        <div id="layoutStyleWrap" class="space-y-1.5">
           <label class="text-xs text-zinc-300 font-medium block" for="layoutStyleSelect">Gaya Tata Letak</label>
           <select id="layoutStyleSelect" class="ui-select w-full">
             <option value="auto" selected>✨ Otomatis (Rekomendasi Terbaik)</option>
@@ -899,7 +911,7 @@
         <div id="framePanel" class="hidden space-y-3.5 p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/20">
           <div class="text-xs text-violet-200 leading-snug">
             <span class="font-semibold block">🖼️ Bingkai Caption</span>
-            <span class="text-[11px] text-violet-300/70">Teks di atas, garis tebal, kotak berisi grid foto di tengah, garis tebal, lalu teks di bawah. Ukuran kanvas mengikuti <em>Rasio Kanvas</em> di tab Layout.</span>
+            <span class="text-[11px] text-violet-300/70">Teks di atas, garis tebal, kotak berisi grid foto di tengah, garis tebal, lalu teks di bawah. Ukuran kanvas mengikuti <em>Rasio Kanvas</em> di tab Kanvas.</span>
             <button type="button" id="demoFrameBtn" class="mt-2 block text-[11px] font-medium px-3 py-2 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 text-violet-200 border border-violet-500/35">✨ Muat 7 foto contoh bingkai</button>
           </div>
 
@@ -4650,7 +4662,7 @@ async function nativeSaveBlob(blob, name) {
 
   try {
     const GS = (CAP.Plugins && CAP.Plugins.GallerySaver) || (CAP.registerPlugin && CAP.registerPlugin('GallerySaver'));
-    if (!GS) throw new Error('GallerySaver tidak tersedia');
+    if (!GS) throw new Error('plugin native belum ikut terpasang di APK ini, build ulang dari GitHub dengan folder native/ dan scripts/');
     await GS.saveImage({ data: b64, fileName: name, mimeType: blob.type || 'image/png', album: 'Collage Studio' });
     showToast('Tersimpan di Galeri → album "Collage Studio"', '✅');
     return;
@@ -4737,6 +4749,25 @@ document.addEventListener('focusout', () => {
 // Di aplikasi Android tombol "salin" tidak berfungsi sebagai clipboard -> sembunyikan
 if (typeof IS_NATIVE !== 'undefined' && IS_NATIVE) copyClipboardBtn.style.display = 'none';
 
+/* ---------- MODE PROYEK: Kolase / Template dipisah ----------
+   kolase  : tab Layout (Gaya Tata Letak), tanpa tab Template.
+   template: tab Template (Poster / Bingkai), tanpa pilihan Gaya Tata Letak. */
+let projectKind = 'kolase';
+function applyProjectKind(kind) {
+  projectKind = kind === 'template' ? 'template' : 'kolase';
+  const isTpl = projectKind === 'template';
+  document.body.classList.toggle('kind-kolase', !isTpl);
+  document.body.classList.toggle('kind-template', isTpl);
+  $('navLblPhotos').textContent = '1. Foto';
+  $('navLblLayout').textContent = isTpl ? '3. Kanvas' : '2. Layout';
+  $('navLblTemplate').textContent = '2. Template';
+  $('navLblStyle').textContent = isTpl ? '4. Gaya' : '3. Gaya';
+  $('dzHint').textContent = isTpl
+    ? 'Pilih beberapa foto sekaligus. Pilih desain di tab Template.'
+    : 'Pilih beberapa foto sekaligus. Atur susunannya di tab Layout.';
+}
+applyProjectKind('kolase');
+
 syncModeUI();
 
 /* ============================================================
@@ -4789,6 +4820,7 @@ function resetProject() {
 function startProject(kind, template) {
   if (photos.length > 0 && !confirm('Mulai proyek baru? Foto yang sedang dikerjakan akan dihapus.')) return;
   resetProject();
+  applyProjectKind(template ? 'template' : 'kolase');
   if (template) {
     modeSelect.value = template;
     onModeChanged();

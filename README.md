@@ -28,3 +28,6 @@ npm install && npx cap add android && npx capacitor-assets generate --android &&
 
 ## Menu utama (beranda)
 Saat aplikasi dibuka muncul 3 kartu: **Kolase** (kolase biasa tanpa template), **Template** (pilih Poster Sinematik / Bingkai Caption), dan **Kanvas Kosong** (kanvas teks). Tombol rumah di pojok kiri atas editor (atau tombol Kembali Android) membawa kembali ke menu; proyek yang sedang dikerjakan bisa dilanjutkan lewat tombol "Lanjutkan proyek". Memulai proyek baru mengembalikan semua pengaturan ke bawaan.
+
+## Plugin simpan-ke-Galeri
+Kode native ada di `native/`, dipasang otomatis oleh `scripts/setup-native.js` lewat hook `capacitor:sync:before` di `package.json` (jadi tidak bergantung pada isi workflow). Yang HARUS ikut di-upload ke GitHub: folder `native/`, folder `scripts/`, dan `package.json`.

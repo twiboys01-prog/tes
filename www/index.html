@@ -540,6 +540,30 @@
   #homeBtn{flex:0 0 auto}
   #downloadBtn{background-image:linear-gradient(90deg,#a78bfa,#f472b6);color:#140a2c}
   #downloadBtn:hover{filter:brightness(1.08)}
+
+  /* ===== Template Bingo Karakter ===== */
+  .hm-mp.bingo{width:92px;height:118px;right:-6px;bottom:-18px;transform:rotate(8deg);background:#fff;padding:8px}
+  .hm-mp.bingo u{display:block;height:4px;width:70%;background:#222;border-radius:2px;margin:2px auto 6px;text-decoration:none}
+  .hm-mp.bingo s{display:grid;grid-template-columns:repeat(5,1fr);border:2px solid #222;text-decoration:none}
+  .hm-mp.bingo s b{display:block;aspect-ratio:1/1;border:1px solid #222;background:#fff}
+  .hm-mp.bingo s b:nth-child(3n+1){background:linear-gradient(135deg,#f9a8d4,#a78bfa)}
+  .hm-tpl .hm-mp.bingo{left:6px;right:auto;top:4px;bottom:auto;transform:rotate(-4deg);width:62px;height:82px;padding:6px}
+  .hm-tpl .hm-mp.bingo u{margin:2px auto 5px}
+  .bn-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .bn-chip{padding:10px 4px;border-radius:12px;border:1px solid #272a3d;background:#1a1b2a;color:#e4e4e7;font-size:13px;font-weight:600;-webkit-tap-highlight-color:transparent;transition:border-color .15s,background .15s}
+  .bn-chip.on{border-color:rgba(167,139,250,.65);background:rgba(167,139,250,.14);color:#fff}
+  body.tpl-bingo #rowParam, body.tpl-timeline #rowParam{display:none !important}
+
+  /* ===== Template Linimasa ===== */
+  .hm-mp.timeline{width:92px;height:118px;right:-6px;bottom:-18px;transform:rotate(8deg);background:#fff;padding:8px}
+  .hm-mp.timeline u{display:block;height:4px;width:80%;background:#222;border-radius:2px;margin:2px auto 0;text-decoration:none}
+  .hm-mp.timeline s{display:block;position:relative;height:76px;margin-top:6px;text-decoration:none}
+  .hm-mp.timeline s::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:#222}
+  .hm-mp.timeline s b{position:absolute;width:2px;background:#222}
+  .hm-mp.timeline s i{position:absolute;width:15px;height:15px;background:linear-gradient(135deg,#f9a8d4,#a78bfa);border-radius:1px}
+  .hm-tpl .hm-mp.timeline{left:6px;right:auto;top:4px;bottom:auto;transform:rotate(-4deg);width:62px;height:82px;padding:6px}
+  .hm-tpl .hm-mp.timeline s{height:52px;margin-top:4px}
+  .hm-tpl .hm-mp.timeline s i{width:10px;height:10px}
 </style>
 </head>
 <body class="min-h-screen flex flex-col lg:flex-row selection:bg-violet-500/20 selection:text-violet-300">
@@ -606,6 +630,19 @@
       <button type="button" class="hm-tpl" data-pick="frame">
         <span class="hm-tpl-pic"><span class="hm-mp frame"><u></u><s><b></b><b></b><b></b><b></b></s><em></em></span></span>
         <span><b class="t">Bingkai Caption</b><small>Teks di atas, kotak berisi grid foto di tengah, lalu teks di bawah.</small></span>
+      </button>
+      <button type="button" class="hm-tpl" data-pick="bingo">
+        <span class="hm-tpl-pic"><span class="hm-mp bingo"><u></u><s><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></s></span></span>
+        <span><b class="t">Bingo Karakter</b><small>Judul di atas dan grid bingo 3×3, 4×4, atau 5×5. Isi kotaknya dengan foto karakter favoritmu.</small></span>
+      </button>
+      <button type="button" class="hm-tpl" data-pick="timeline">
+        <span class="hm-tpl-pic"><span class="hm-mp timeline"><u></u><s>
+          <b style="left:14%;top:22%;height:28%"></b><i style="left:5%;top:0"></i>
+          <b style="left:36%;top:50%;height:22%"></b><i style="left:28%;top:74%"></i>
+          <b style="left:58%;top:22%;height:28%"></b><i style="left:50%;top:0"></i>
+          <b style="left:80%;top:50%;height:22%"></b><i style="left:72%;top:74%"></i>
+        </s></span></span>
+        <span><b class="t">Linimasa Peristiwa</b><small>Garis waktu dengan foto dan teks berselang-seling di atas dan bawah. Jumlah garisnya bisa diatur.</small></span>
       </button>
       <button type="button" class="hm-cancel" data-close="1">Batal</button>
     </div>
@@ -739,6 +776,8 @@
             <option value="auto" selected>✨ Otomatis (Rekomendasi Terbaik)</option>
             <option value="poster">🎬 Poster Sinematik (Gaya Perfect Blue)</option>
             <option value="frame">🖼️ Bingkai Caption (Teks Atas + Kotak Grid + Teks Bawah)</option>
+            <option value="bingo">🎯 Bingo Karakter (Grid 3×3 sampai 5×5)</option>
+            <option value="timeline">🕰️ Linimasa (Garis Waktu + Foto &amp; Teks)</option>
             <option value="grid">Grid Rapi (Ukuran Seragam)</option>
             <option value="justified">Baris Rata (Justified / Tanpa Celah)</option>
             <option value="masonry">Masonry (Kolom Pinterest)</option>
@@ -764,7 +803,7 @@
         <div id="lyKolase"><div id="styleChips" class="chipbar"></div><div id="layoutThumbs" class="lt-grid"></div></div>
 
         <!-- Kolom / Baris -->
-        <div class="grid grid-cols-3 items-center gap-2">
+        <div id="rowParam" class="grid grid-cols-3 items-center gap-2">
           <label class="text-xs text-zinc-400">Jumlah Kolom</label>
           <select id="paramSelect" class="ui-select col-span-2">
             <option value="0" selected>Auto (Optimal / 2 Kolom Poster)</option>
@@ -790,6 +829,7 @@
             <option value="2:3">2:3 — Poster Film Klasik</option>
             <option value="1:1">1:1 — Persegi (Square)</option>
             <option value="16:9">16:9 — Landscape / Youtube</option>
+            <option value="5:4">5:4 — Linimasa / Landscape</option>
           </select>
         </div>
 
@@ -878,12 +918,22 @@
             <span><b>Bingkai<br>Caption</b><small>Teks atas, kotak berisi grid foto, lalu teks bawah</small></span>
             <span class="tpl-check">✓</span>
           </button>
+          <button type="button" class="tpl-card" data-template="bingo" role="radio" aria-checked="false">
+            <span class="tpl-ico">🎯</span>
+            <span><b>Bingo<br>Karakter</b><small>Judul di atas, grid bingo 3×3 sampai 5×5 berisi foto karakter</small></span>
+            <span class="tpl-check">✓</span>
+          </button>
+          <button type="button" class="tpl-card" data-template="timeline" role="radio" aria-checked="false">
+            <span class="tpl-ico">🕰️</span>
+            <span><b>Linimasa<br>Peristiwa</b><small>Garis waktu dengan foto dan teks berselang-seling atas dan bawah</small></span>
+            <span class="tpl-check">✓</span>
+          </button>
         </div>
 
         <p id="tplDesc" class="text-[11.5px] text-zinc-400 leading-snug -mt-1"></p>
 
         <div id="tplNonePanel" class="p-3 rounded-xl border border-dashed border-[#2b303c] text-[11.5px] text-zinc-500 leading-snug">
-          Belum ada template aktif. Pilih <b class="text-zinc-300">Poster Sinematik</b> atau <b class="text-zinc-300">Bingkai Caption</b> di atas untuk menampilkan pengaturan teksnya.
+          Belum ada template aktif. Pilih <b class="text-zinc-300">Poster Sinematik</b>, <b class="text-zinc-300">Bingkai Caption</b>, <b class="text-zinc-300">Bingo Karakter</b>, atau <b class="text-zinc-300">Linimasa</b> di atas untuk menampilkan pengaturannya.
         </div>
 
         <div id="tplPosterPanel" class="hidden space-y-4">
@@ -1068,6 +1118,182 @@ definitely flicker.</textarea>
             </label>
           </div>
           <p class="text-[10.5px] text-zinc-500 leading-snug">Jumlah kolom grid diatur di “Jumlah Kolom”, jarak antar foto di “Spasi &amp; Sudut”. Pilih <em>Auto — Ikuti Isi</em> pada Rasio Kanvas agar tinggi kanvas menyesuaikan isi.</p>
+        </div>
+
+        <!-- ============ PANEL BINGO KARAKTER (muncul saat template Bingo aktif) ============ -->
+        <div id="bingoPanel" class="hidden space-y-3.5 p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/20">
+          <div class="text-xs text-violet-200 leading-snug">
+            <span class="font-semibold block">🎯 Bingo Karakter</span>
+            <span class="text-[11px] text-violet-300/70">Judul di atas, lalu grid kotak berisi foto karakter favoritmu. Foto mengisi kotak berurutan dari kiri atas. Tahan lalu geser foto untuk menukar posisi. Nama karakter bisa ditulis lewat keterangan foto (ketuk foto).</span>
+            <button type="button" id="demoBingoBtn" class="mt-2 block text-[11px] font-medium px-3 py-2 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 text-violet-200 border border-violet-500/35">✨ Muat foto contoh bingo</button>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-medium text-zinc-300 block">Ukuran Grid</label>
+            <div class="bn-chips" id="bingoSizeChips">
+              <button type="button" class="bn-chip" data-n="3">3 × 3</button>
+              <button type="button" class="bn-chip" data-n="4">4 × 4</button>
+              <button type="button" class="bn-chip on" data-n="5">5 × 5</button>
+            </div>
+            <input type="hidden" id="bingoSize" value="5">
+            <p id="bingoFillInfo" class="text-[10.5px] text-zinc-500 leading-snug"></p>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-[11px] font-medium text-zinc-300">Judul</label>
+              <select id="bingoTitleAlign" class="ui-select !py-1 !px-2 !text-[11px]">
+                <option value="left">Rata Kiri</option>
+                <option value="center" selected>Tengah</option>
+                <option value="right">Rata Kanan</option>
+              </select>
+            </div>
+            <textarea id="bingoTitle" rows="2" class="ui-input w-full resize-y leading-snug" placeholder="Judul bingo (Enter = baris baru)">Favorite Character Bingo</textarea>
+          </div>
+
+          <div class="grid grid-cols-3 items-center gap-2">
+            <label class="text-xs text-zinc-400">Font Judul</label>
+            <select id="bingoFont" class="ui-select col-span-2 !py-1.5 !text-xs">
+              <option value="Poppins" selected>Bulat Modern (Poppins)</option>
+              <option value="Arial">Klasik (Arial)</option>
+              <option value="Inter">Sans Modern (Inter)</option>
+              <option value="Bebas Neue">Display Tinggi (Bebas)</option>
+              <option value="Cinzel">Serif (Cinzel)</option>
+              <option value="Playfair Display">Serif Elegan (Playfair)</option>
+              <option value="Caveat">Tulisan Tangan (Caveat)</option>
+              <option value="Dancing Script">Script (Dancing)</option>
+              <option value="Special Elite">Mesin Tik</option>
+            </select>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Ukuran Judul</span>
+              <span id="bingoTitleSizeVal" class="mono text-zinc-300 text-[11px]">58</span>
+            </div>
+            <input type="range" id="bingoTitleSize" min="20" max="120" step="1" value="58" class="w-full">
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-zinc-400">Ketebalan Garis Kotak</span>
+              <span id="bingoLineWVal" class="mono text-zinc-300 text-[11px]">5</span>
+            </div>
+            <input type="range" id="bingoLineW" min="0" max="20" step="1" value="5" class="w-full">
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <label class="flex flex-col items-center gap-1 text-[10px] text-zinc-400 cursor-pointer">
+              <input type="color" id="bingoPaper" value="#ffffff" class="w-full h-8 rounded-md border border-[#2b303c] bg-transparent cursor-pointer p-0">
+              <span>Kertas</span>
+            </label>
+            <label class="flex flex-col items-center gap-1 text-[10px] text-zinc-400 cursor-pointer">
+              <input type="color" id="bingoTextColor" value="#111111" class="w-full h-8 rounded-md border border-[#2b303c] bg-transparent cursor-pointer p-0">
+              <span>Judul</span>
+            </label>
+            <label class="flex flex-col items-center gap-1 text-[10px] text-zinc-400 cursor-pointer">
+              <input type="color" id="bingoLineColor" value="#000000" class="w-full h-8 rounded-md border border-[#2b303c] bg-transparent cursor-pointer p-0">
+              <span>Garis</span>
+            </label>
+          </div>
+          <p class="text-[10.5px] text-zinc-500 leading-snug">Ukuran kanvas mengikuti <em>Rasio Kanvas</em> di tab Kanvas. Pilih <em>Auto — Ikuti Isi</em> agar tinggi kanvas pas dengan grid.</p>
+        </div>
+
+        <!-- ============ PANEL LINIMASA (muncul saat template Linimasa aktif) ============ -->
+        <div id="timelinePanel" class="hidden space-y-3.5 p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/20">
+          <div class="text-xs text-violet-200 leading-snug">
+            <span class="font-semibold block">🕰️ Linimasa Peristiwa</span>
+            <span class="text-[11px] text-violet-300/70">Satu foto = satu garis di linimasa. Garis berselang-seling atas dan bawah, mengikuti urutan foto di tab Foto. Ganti foto atau teksnya kapan saja, dan tambah foto baru untuk menambah garis.</span>
+            <span class="text-[11px] text-violet-300/70 block mt-1.5">Teks tiap peristiwa diisi di kolom caption pada daftar foto. Contoh: <b>Fate/Stay Night (2004)</b>. Bagian dalam kurung otomatis turun ke baris kedua. Boleh juga pakai tanda <b>|</b> untuk memecah baris, misalnya <b>Tsukihime | 2000</b>.</span>
+            <button type="button" id="demoTimelineBtn" class="mt-2 block text-[11px] font-medium px-3 py-2 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 text-violet-200 border border-violet-500/35">✨ Muat contoh linimasa (8 foto)</button>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-zinc-400">Jumlah Garis</span>
+              <span id="tlCountVal" class="mono text-zinc-300 text-[11px]">8</span>
+            </div>
+            <label class="flex items-center gap-2 text-[11px] text-zinc-300 cursor-pointer">
+              <input type="checkbox" id="tlAuto" checked style="accent-color:#a78bfa" class="w-4 h-4">
+              <span>Otomatis mengikuti jumlah foto</span>
+            </label>
+            <input type="range" id="tlCount" min="2" max="12" step="1" value="8" class="w-full">
+            <p id="tlInfo" class="text-[10.5px] text-zinc-500 leading-snug"></p>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-[11px] font-medium text-zinc-300">Judul</label>
+              <select id="tlTitleAlign" class="ui-select !py-1 !px-2 !text-[11px]">
+                <option value="left">Rata Kiri</option>
+                <option value="center" selected>Tengah</option>
+                <option value="right">Rata Kanan</option>
+              </select>
+            </div>
+            <textarea id="tlTitle" rows="2" class="ui-input w-full resize-y leading-snug" placeholder="Judul linimasa (Enter = baris baru)">Most important events in history</textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-1.5">
+            <div>
+              <label class="text-[10px] text-zinc-500 block mb-1">Label Ujung Kiri</label>
+              <input type="text" id="tlLeft" value="Long time ago" class="ui-input w-full !px-2.5 !py-1.5 !text-[11px]" placeholder="Long time ago">
+            </div>
+            <div>
+              <label class="text-[10px] text-zinc-500 block mb-1">Label Ujung Kanan</label>
+              <input type="text" id="tlRight" value="Today" class="ui-input w-full !px-2.5 !py-1.5 !text-[11px]" placeholder="Today">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 items-center gap-2">
+            <label class="text-xs text-zinc-400">Font</label>
+            <select id="tlFont" class="ui-select col-span-2 !py-1.5 !text-xs">
+              <option value="Inter" selected>Sans Modern (Inter)</option>
+              <option value="Poppins">Bulat Modern (Poppins)</option>
+              <option value="Arial">Klasik (Arial)</option>
+              <option value="Bebas Neue">Display Tinggi (Bebas)</option>
+              <option value="Cinzel">Serif (Cinzel)</option>
+              <option value="Playfair Display">Serif Elegan (Playfair)</option>
+              <option value="Caveat">Tulisan Tangan (Caveat)</option>
+              <option value="Special Elite">Mesin Tik</option>
+            </select>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs"><span class="text-zinc-400">Ukuran Judul</span><span id="tlTitleSizeVal" class="mono text-zinc-300 text-[11px]">56</span></div>
+            <input type="range" id="tlTitleSize" min="20" max="110" step="1" value="56" class="w-full">
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs"><span class="text-zinc-400">Ukuran Label Ujung</span><span id="tlEndSizeVal" class="mono text-zinc-300 text-[11px]">24</span></div>
+            <input type="range" id="tlEndSize" min="12" max="50" step="1" value="24" class="w-full">
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs"><span class="text-zinc-400">Ukuran Teks Peristiwa</span><span id="tlLabelSizeVal" class="mono text-zinc-300 text-[11px]">22</span></div>
+            <input type="range" id="tlLabelSize" min="10" max="44" step="1" value="22" class="w-full">
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs"><span class="text-zinc-400">Ukuran Foto</span><span id="tlPhotoSizeVal" class="mono text-zinc-300 text-[11px]">140</span></div>
+            <input type="range" id="tlPhotoSize" min="60" max="260" step="2" value="140" class="w-full">
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs"><span class="text-zinc-400">Ketebalan Garis</span><span id="tlLineWVal" class="mono text-zinc-300 text-[11px]">7</span></div>
+            <input type="range" id="tlLineW" min="1" max="20" step="1" value="7" class="w-full">
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <label class="flex flex-col items-center gap-1 text-[10px] text-zinc-400 cursor-pointer">
+              <input type="color" id="tlPaper" value="#ffffff" class="w-full h-8 rounded-md border border-[#2b303c] bg-transparent cursor-pointer p-0">
+              <span>Kertas</span>
+            </label>
+            <label class="flex flex-col items-center gap-1 text-[10px] text-zinc-400 cursor-pointer">
+              <input type="color" id="tlTextColor" value="#111111" class="w-full h-8 rounded-md border border-[#2b303c] bg-transparent cursor-pointer p-0">
+              <span>Teks</span>
+            </label>
+            <label class="flex flex-col items-center gap-1 text-[10px] text-zinc-400 cursor-pointer">
+              <input type="color" id="tlLineColor" value="#000000" class="w-full h-8 rounded-md border border-[#2b303c] bg-transparent cursor-pointer p-0">
+              <span>Garis</span>
+            </label>
+          </div>
+          <p class="text-[10.5px] text-zinc-500 leading-snug">Ukuran kanvas mengikuti <em>Rasio Kanvas</em> di tab Kanvas (bawaan 5:4). Pilih <em>Auto — Ikuti Isi</em> agar tinggi kanvas menyesuaikan.</p>
         </div>
       </div>
 
@@ -1405,18 +1631,140 @@ function updateFrameLabels() {
   $('framePadVal').textContent = frameEls.framePad.value;
 }
 
+// Bingo Karakter Inputs
+const BINGO_IDS = ['bingoSize','bingoTitle','bingoTitleAlign','bingoFont','bingoTitleSize','bingoLineW','bingoPaper','bingoTextColor','bingoLineColor'];
+const bingoEls = {};
+BINGO_IDS.forEach(id => { bingoEls[id] = $(id); });
+const bingoPanel = $('bingoPanel');
+const RELAYOUT_FREE_BINGO_IDS = ['bingoTitleAlign','bingoPaper','bingoTextColor','bingoLineColor'];
+
+function getBingoConfig() {
+  const e = bingoEls;
+  const n = Math.max(3, Math.min(5, Number(e.bingoSize.value) || 5));
+  return {
+    size: n,
+    title: e.bingoTitle.value,
+    titleAlign: e.bingoTitleAlign.value || 'center',
+    font: e.bingoFont.value || 'Poppins',
+    titleSize: Number(e.bingoTitleSize.value),
+    lineW: Number(e.bingoLineW.value),
+    paper: e.bingoPaper.value || '#ffffff',
+    textColor: e.bingoTextColor.value || '#111111',
+    lineColor: e.bingoLineColor.value || '#000000'
+  };
+}
+
+function updateBingoLabels() {
+  $('bingoTitleSizeVal').textContent = bingoEls.bingoTitleSize.value;
+  $('bingoLineWVal').textContent = bingoEls.bingoLineW.value;
+}
+
+function syncBingoChips() {
+  const n = String(getBingoConfig().size);
+  document.querySelectorAll('#bingoSizeChips .bn-chip').forEach(b => b.classList.toggle('on', b.dataset.n === n));
+}
+
+function updateBingoInfo() {
+  const info = $('bingoFillInfo');
+  if (!info) return;
+  const n = getBingoConfig().size, cap = n * n, have = photos.length;
+  let t = `Grid ${n} × ${n} = ${cap} kotak. Terisi ${Math.min(have, cap)} dari ${cap}.`;
+  if (have > cap) t += ` ${have - cap} foto lainnya belum tampil (kapasitas penuh).`;
+  else if (have < cap) t += ` Tambah ${cap - have} foto lagi untuk mengisi semua kotak.`;
+  info.textContent = t;
+}
+
+// Pastikan font judul sudah termuat supaya pemotongan baris akurat
+function ensureBingoFont() {
+  if (!document.fonts || !document.fonts.load) return;
+  const f = getBingoConfig().font;
+  document.fonts.load(`700 40px "${f}"`).then(() => {
+    if (getTemplate() === 'bingo' && current) computeLayoutAndRender(true);
+  }).catch(() => {});
+}
+
+// Linimasa Inputs
+const TL_IDS = ['tlAuto','tlCount','tlTitle','tlTitleAlign','tlFont','tlTitleSize','tlLeft','tlRight','tlEndSize','tlLabelSize','tlPhotoSize','tlLineW','tlPaper','tlTextColor','tlLineColor'];
+const tlEls = {};
+TL_IDS.forEach(id => { tlEls[id] = $(id); });
+const timelinePanel = $('timelinePanel');
+const RELAYOUT_FREE_TL_IDS = ['tlTitleAlign','tlPaper','tlTextColor','tlLineColor'];
+const TL_DEMO_CAPTIONS = [
+  'Lahirnya Si Pembuat (1973)', 'Karya Pertama (1998)', 'Rilis Perdana (2000)', 'Fate/Stay Night (2004)',
+  'Edisi Lengkap (2010)', 'Remake (2012)', 'Sekuel Besar (2012)', 'Rilis Terbaru (2024)'
+];
+const tlGet = el => el.type === 'checkbox' ? el.checked : el.value;
+const tlSet = (el, v) => { if (el.type === 'checkbox') el.checked = !!v; else el.value = v; };
+
+function getTimelineConfig() {
+  const e = tlEls;
+  return {
+    auto: e.tlAuto.checked,
+    count: Math.max(2, Math.min(12, Number(e.tlCount.value) || 8)),
+    title: e.tlTitle.value,
+    titleAlign: e.tlTitleAlign.value || 'center',
+    font: e.tlFont.value || 'Inter',
+    titleSize: Number(e.tlTitleSize.value),
+    left: e.tlLeft.value,
+    right: e.tlRight.value,
+    endSize: Number(e.tlEndSize.value),
+    labelSize: Number(e.tlLabelSize.value),
+    photoSize: Number(e.tlPhotoSize.value),
+    lineW: Number(e.tlLineW.value),
+    paper: e.tlPaper.value || '#ffffff',
+    textColor: e.tlTextColor.value || '#111111',
+    lineColor: e.tlLineColor.value || '#000000'
+  };
+}
+
+function updateTimelineLabels() {
+  $('tlCountVal').textContent = tlEls.tlCount.value;
+  $('tlTitleSizeVal').textContent = tlEls.tlTitleSize.value;
+  $('tlEndSizeVal').textContent = tlEls.tlEndSize.value;
+  $('tlLabelSizeVal').textContent = tlEls.tlLabelSize.value;
+  $('tlPhotoSizeVal').textContent = tlEls.tlPhotoSize.value;
+  $('tlLineWVal').textContent = tlEls.tlLineW.value;
+}
+
+function updateTimelineInfo() {
+  if (!$('tlInfo')) return;
+  const have = photos.length;
+  if (tlEls.tlAuto.checked) {
+    tlEls.tlCount.value = Math.max(2, Math.min(12, have || 2));
+    updateTimelineLabels();
+  }
+  tlEls.tlCount.disabled = tlEls.tlAuto.checked;
+  const n = getTimelineConfig().auto ? Math.max(2, Math.min(12, have || 2)) : getTimelineConfig().count;
+  let t = `${n} garis, ${Math.min(have, n)} terisi foto.`;
+  if (have > n) t += ` ${have - n} foto lainnya belum tampil.`;
+  else if (have < n) t += ` ${n - have} garis kosong, tambah foto untuk mengisinya.`;
+  if (have > 12 && tlEls.tlAuto.checked) t += ' Maksimal 12 garis.';
+  $('tlInfo').textContent = t;
+}
+
+function ensureTimelineFont() {
+  if (!document.fonts || !document.fonts.load) return;
+  const f = getTimelineConfig().font;
+  Promise.all([document.fonts.load(`700 40px "${f}"`), document.fonts.load(`400 40px "${f}"`)]).then(() => {
+    if (getTemplate() === 'timeline' && current) computeLayoutAndRender(true);
+  }).catch(() => {});
+}
+
 /* ---------- TEMPLATE vs GAYA TATA LETAK ----------
    modeSelect (tersembunyi) = mode efektif yang dipakai mesin layout.
    - Template aktif (poster/frame): mode = template, Gaya Tata Letak dikunci.
    - Tanpa template: mode = pilihan di Gaya Tata Letak. */
-const TEMPLATE_NAMES = { poster: 'Poster Sinematik', frame: 'Bingkai Caption' };
+const TEMPLATE_NAMES = { poster: 'Poster Sinematik', frame: 'Bingkai Caption', bingo: 'Bingo Karakter', timeline: 'Linimasa Peristiwa' };
+const TEMPLATE_ICONS = { poster: '🎬', frame: '🖼️', bingo: '🎯', timeline: '🕰️' };
 const TEMPLATE_DESC = {
   none: 'Tanpa template: kolase mengikuti Gaya Tata Letak di tab Layout.',
   poster: 'Foto #1 jadi Hero besar, lengkap dengan judul, metadata, dan footer ala poster film.',
-  frame: 'Teks di atas, kotak berisi grid foto di tengah, lalu teks di bawah.'
+  frame: 'Teks di atas, kotak berisi grid foto di tengah, lalu teks di bawah.',
+  bingo: 'Judul di atas dan grid bingo 3×3 sampai 5×5. Foto mengisi kotak berurutan.',
+  timeline: 'Garis waktu dengan foto dan teks berselang-seling atas dan bawah. Jumlah garis bisa diatur.'
 };
 let lastLayoutStyle = 'auto';
-const getTemplate = () => (modeSelect.value === 'poster' || modeSelect.value === 'frame') ? modeSelect.value : 'none';
+const getTemplate = () => (['poster', 'frame', 'bingo', 'timeline'].includes(modeSelect.value)) ? modeSelect.value : 'none';
 
 function syncModeUI() {
   const tpl = getTemplate();
@@ -1431,6 +1779,10 @@ function syncModeUI() {
   $('tplNonePanel').classList.toggle('hidden', tpl !== 'none');
   $('tplPosterPanel').classList.toggle('hidden', tpl !== 'poster');
   framePanel.classList.toggle('hidden', tpl !== 'frame');
+  bingoPanel.classList.toggle('hidden', tpl !== 'bingo');
+  timelinePanel.classList.toggle('hidden', tpl !== 'timeline');
+  document.body.classList.toggle('tpl-timeline', tpl === 'timeline');
+  document.body.classList.toggle('tpl-bingo', tpl === 'bingo');
   $('layoutTplNotice').classList.toggle('hidden', tpl === 'none');
   $('layoutTplName').textContent = TEMPLATE_NAMES[tpl] || '';
   $('tplDesc').textContent = TEMPLATE_DESC[tpl] || '';
@@ -1439,7 +1791,7 @@ function syncModeUI() {
 
 function updateFramePanelVisibility() { syncModeUI(); }
 
-const isFixedType = t => t === 'poster' || t === 'frame';
+const isFixedType = t => t === 'poster' || t === 'frame' || t === 'bingo' || t === 'timeline';
 
 // Application State
 let photos = [];        // { id, img, aspect, origAspect, caption, zoom:1, panX:0, panY:0, rotation:0, flipH:false }
@@ -1515,7 +1867,9 @@ function captureStateSnapshot() {
     radius: radiusSlider.value,
     frameColor: frameColorInput.value,
     frameOpacity: frameOpacitySlider.value,
-    frameCaption: Object.fromEntries(FRAME_IDS.map(id => [id, frameEls[id].value]))
+    frameCaption: Object.fromEntries(FRAME_IDS.map(id => [id, frameEls[id].value])),
+    bingo: Object.fromEntries(BINGO_IDS.map(id => [id, bingoEls[id].value])),
+    timeline: Object.fromEntries(TL_IDS.map(id => [id, tlGet(tlEls[id])]))
   };
 }
 
@@ -1552,6 +1906,15 @@ function restoreStateSnapshot(snap) {
   if (snap.frameCaption) {
     FRAME_IDS.forEach(id => { if (snap.frameCaption[id] !== undefined) frameEls[id].value = snap.frameCaption[id]; });
     updateFrameLabels();
+  }
+  if (snap.bingo) {
+    BINGO_IDS.forEach(id => { if (snap.bingo[id] !== undefined) bingoEls[id].value = snap.bingo[id]; });
+    updateBingoLabels();
+    syncBingoChips();
+  }
+  if (snap.timeline) {
+    TL_IDS.forEach(id => { if (snap.timeline[id] !== undefined) tlSet(tlEls[id], snap.timeline[id]); });
+    updateTimelineLabels();
   }
 
   renderPhotoList();
@@ -1634,7 +1997,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 
 /* ---------- DEMO SAMPLE GENERATOR (7 CINEMATIC SCENES) ---------- */
 async function loadDemoPhotos(kind) {
-  if (kind !== 'poster' && kind !== 'frame') kind = null;   // klik tombol biasa = demo kolase biasa
+  if (kind !== 'poster' && kind !== 'frame' && kind !== 'bingo' && kind !== 'timeline') kind = null;   // klik tombol biasa = demo kolase biasa
   const scenes = [
     { title: 'Hero — Stage Spotlight', c1: '#0f172a', c2: '#1e3a8a', accent: '#60a5fa', type: 'hero' },
     { title: 'Scene 01 — Subway Reflection', c1: '#090d16', c2: '#1e293b', accent: '#38bdf8', type: 'city' },
@@ -1724,7 +2087,13 @@ async function loadDemoPhotos(kind) {
     });
   }));
 
-  photos = generated.map(p => ({
+  // Bingo: ulangi 7 foto contoh sampai semua kotak grid terisi
+  const demoSrc = kind === 'bingo'
+    ? Array.from({ length: getBingoConfig().size ** 2 }, (_, i) => generated[i % generated.length])
+    : kind === 'timeline'
+      ? Array.from({ length: 8 }, (_, i) => generated[(i + 1) % generated.length])
+      : generated;
+  photos = demoSrc.map(p => ({
     id: nextId++,
     img: p.img,
     aspect: p.aspect,
@@ -1741,12 +2110,23 @@ async function loadDemoPhotos(kind) {
     // Demo khusus template: hanya dipakai dari tombol di tab Template
     modeSelect.value = kind;
     syncModeUI();
-    if (kind === 'poster') applyPosterPresetDefaults(); else applyFramePresetDefaults();
+    if (kind === 'poster') applyPosterPresetDefaults();
+    else if (kind === 'bingo') { applyBingoPresetDefaults(); ensureBingoFont(); }
+    else if (kind === 'timeline') {
+      applyTimelinePresetDefaults();
+      ensureTimelineFont();
+      photos.forEach((p, i) => { p.caption = TL_DEMO_CAPTIONS[i] || ''; });
+    }
+    else applyFramePresetDefaults();
   }
   renderPhotoList();
   saveHistory();
   computeLayoutAndRender();
-  showToast(kind === 'poster' ? '7 foto contoh poster dimuat!' : kind === 'frame' ? '7 foto contoh bingkai dimuat!' : '7 foto contoh dimuat!', kind === 'poster' ? '🎬' : kind === 'frame' ? '🖼️' : '✨');
+  showToast(kind === 'poster' ? '7 foto contoh poster dimuat!'
+    : kind === 'frame' ? '7 foto contoh bingkai dimuat!'
+    : kind === 'bingo' ? `${photos.length} foto contoh bingo dimuat!`
+    : kind === 'timeline' ? `${photos.length} foto contoh linimasa dimuat!`
+    : '7 foto contoh dimuat!', TEMPLATE_ICONS[kind] || '✨');
 }
 
 [emptyDemoBtn, demoHeaderBtn, sideDemoBtn].forEach(btn => {
@@ -1754,6 +2134,8 @@ async function loadDemoPhotos(kind) {
 });
 $('demoPosterBtn').addEventListener('click', () => loadDemoPhotos('poster'));
 $('demoFrameBtn').addEventListener('click', () => loadDemoPhotos('frame'));
+$('demoBingoBtn').addEventListener('click', () => loadDemoPhotos('bingo'));
+$('demoTimelineBtn').addEventListener('click', () => loadDemoPhotos('timeline'));
 
 /* ---------- UPLOAD, DRAG-DROP & PASTE EVENTS ---------- */
 dropzone.addEventListener('click', () => fileInput.click());
@@ -1881,9 +2263,35 @@ function applyFramePresetDefaults() {
   marginValLabel.textContent = '0px';
 }
 
+function applyBingoPresetDefaults() {
+  ratioSelect.value = '4:5';
+  setFitModeUI('cover');
+  gapSlider.value = 0;
+  gapValLabel.textContent = '0px';
+  radiusSlider.value = 0;
+  radiusValLabel.textContent = '0px';
+  marginSlider.value = 0;
+  marginValLabel.textContent = '0px';
+  paramSelect.value = '0';
+}
+
+function applyTimelinePresetDefaults() {
+  ratioSelect.value = '5:4';
+  setFitModeUI('cover');
+  gapSlider.value = 0;
+  gapValLabel.textContent = '0px';
+  radiusSlider.value = 0;
+  radiusValLabel.textContent = '0px';
+  marginSlider.value = 0;
+  marginValLabel.textContent = '0px';
+  paramSelect.value = '0';
+}
+
 function onModeChanged() {
   if (modeSelect.value === 'poster') applyPosterPresetDefaults();
   else if (modeSelect.value === 'frame') applyFramePresetDefaults();
+  else if (modeSelect.value === 'bingo') { applyBingoPresetDefaults(); ensureBingoFont(); }
+  else if (modeSelect.value === 'timeline') { applyTimelinePresetDefaults(); ensureTimelineFont(); }
   syncModeUI();
   saveHistory();
   computeLayoutAndRender();
@@ -1902,7 +2310,7 @@ document.querySelectorAll('.tpl-card').forEach(btn => {
     if (t === getTemplate()) return;
     modeSelect.value = t === 'none' ? lastLayoutStyle : t;
     onModeChanged();
-    showToast(t === 'none' ? 'Template dimatikan' : `Template ${TEMPLATE_NAMES[t]} aktif`, t === 'poster' ? '🎬' : t === 'frame' ? '🖼️' : '🧩');
+    showToast(t === 'none' ? 'Template dimatikan' : `Template ${TEMPLATE_NAMES[t]} aktif`, TEMPLATE_ICONS[t] || '🧩');
   });
 });
 
@@ -1940,6 +2348,47 @@ FRAME_IDS.forEach(id => {
     else renderStage();
   });
   el.addEventListener('change', saveHistory);
+});
+
+// Live update for Bingo Karakter controls
+BINGO_IDS.forEach(id => {
+  const el = bingoEls[id];
+  if (id === 'bingoSize') return;   // diatur lewat chip 3x3 / 4x4 / 5x5
+  const needsRelayout = !RELAYOUT_FREE_BINGO_IDS.includes(id);
+  el.addEventListener('input', () => {
+    updateBingoLabels();
+    if (needsRelayout) computeLayoutAndRender(true);
+    else renderStage();
+  });
+  el.addEventListener('change', () => {
+    if (id === 'bingoFont') ensureBingoFont();
+    saveHistory();
+  });
+});
+
+// Live update for Linimasa controls
+TL_IDS.forEach(id => {
+  const el = tlEls[id];
+  const needsRelayout = !RELAYOUT_FREE_TL_IDS.includes(id);
+  el.addEventListener(el.type === 'checkbox' ? 'change' : 'input', () => {
+    updateTimelineLabels();
+    if (needsRelayout) computeLayoutAndRender(true);
+    else renderStage();
+  });
+  el.addEventListener('change', () => {
+    if (id === 'tlFont') ensureTimelineFont();
+    saveHistory();
+  });
+});
+
+document.querySelectorAll('#bingoSizeChips .bn-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (bingoEls.bingoSize.value === btn.dataset.n) return;
+    bingoEls.bingoSize.value = btn.dataset.n;
+    syncBingoChips();
+    saveHistory();
+    computeLayoutAndRender(true);
+  });
 });
 
 posterAccentInput.addEventListener('input', () => {
@@ -3162,7 +3611,8 @@ function renderPhotoList() {
     capInput.className = 'ui-input flex-1 min-w-0 !py-1 !px-2 !text-xs !bg-[#12121f]';
     capInput.addEventListener('input', () => {
       p.caption = capInput.value;
-      renderStage();
+      if (current && current.type === 'timeline') computeLayoutAndRender(true);
+      else renderStage();
     });
     row.appendChild(capInput);
 
@@ -3488,9 +3938,9 @@ function posterLayout(seq, spec, colsParam, gSlider) {
 
 
 // 7) Bingkai Caption: teks atas + garis + kotak (grid di tengah) + garis + teks bawah
-function wrapTextLines(text, fontFamily, px, maxW) {
+function wrapTextLines(text, fontFamily, px, maxW, weight = 500) {
   const ctx = wrapTextLines._ctx || (wrapTextLines._ctx = document.createElement('canvas').getContext('2d'));
-  ctx.font = `500 ${px}px "${fontFamily}", sans-serif`;
+  ctx.font = `${weight} ${px}px "${fontFamily}", sans-serif`;
   const out = [];
   String(text || '').replace(/\r/g, '').split('\n').forEach(par => {
     if (par.trim() === '') { out.push(''); return; }
@@ -3595,6 +4045,165 @@ function frameLayout(seq, spec, cols, gSlider) {
   };
 }
 
+// 8) Bingo Karakter: judul di atas + grid N x N kotak persegi (N = 3..5)
+function bingoLayout(seq, spec) {
+  const cfg = getBingoConfig();
+  const N = cfg.size;
+  const W = spec.auto ? 1000 : spec.Lw;
+  const fixedH = spec.auto ? 0 : spec.Lh;
+  const edge = W * 0.03;
+  const lineT = W * cfg.lineW / 1000;
+  const gridMaxW = W - edge * 2;
+
+  let fontPx = W * cfg.titleSize / 1000;
+  let lineH, vPad, lines, titleH;
+  const measure = () => {
+    lineH = fontPx * 1.2;
+    vPad = fontPx * 0.45;
+    lines = wrapTextLines(cfg.title, cfg.font, fontPx, gridMaxW, 700);
+    titleH = lines.length ? lines.length * lineH + vPad * 2 : edge;
+  };
+  measure();
+
+  // Kanvas tetap: kecilkan judul bila grid jadi terlalu sempit
+  if (!spec.auto) {
+    let guard = 0;
+    while (guard++ < 40 && fontPx > W * 0.015 && (fixedH - titleH - edge) < Math.min(gridMaxW, fixedH) * 0.6) {
+      fontPx *= 0.93;
+      measure();
+    }
+  }
+
+  let cell, H, gx, gy, topOff = 0;
+  if (spec.auto) {
+    cell = gridMaxW / N;
+    H = titleH + cell * N + edge;
+    gy = titleH;
+  } else {
+    H = fixedH;
+    const availH = Math.max(10, H - titleH - edge);
+    cell = Math.min(gridMaxW, availH) / N;
+    // judul + grid dipusatkan sebagai satu kelompok
+    topOff = Math.max(0, (H - titleH - cell * N) / 2);
+    gy = topOff + titleH;
+  }
+  const gridSize = cell * N;
+  gx = (W - gridSize) / 2;
+
+  const items = [];
+  seq.slice(0, N * N).forEach((p, i) => {
+    items.push({
+      id: p.id,
+      x: gx + (i % N) * cell,
+      y: gy + Math.floor(i / N) * cell,
+      w: cell,
+      h: cell,
+      isGrid: true
+    });
+  });
+
+  return {
+    W, H, items,
+    label: `🎯 Bingo ${N}×${N}`,
+    type: 'bingo',
+    bingoMeta: { W, H, N, cell, gx, gy, gridSize, edge, lineT, fontPx, lineH, vPad, lines, titleH, topOff }
+  };
+}
+
+// 9) Linimasa: judul + garis waktu; foto & teks berselang-seling atas / bawah
+function tlTextW(text, font, px, weight) {
+  const ctx = wrapTextLines._ctx || (wrapTextLines._ctx = document.createElement('canvas').getContext('2d'));
+  ctx.font = `${weight} ${px}px "${font}", sans-serif`;
+  return ctx.measureText(text).width;
+}
+
+// "Nama (1998)" -> 2 baris; "Nama | 1998" -> 2 baris; selain itu tetap (dibungkus otomatis)
+function tlSplitCaption(c) {
+  c = String(c || '').trim();
+  if (!c) return '';
+  if (c.indexOf('|') !== -1) return c.split('|').map(x => x.trim()).filter(Boolean).join('\n');
+  const m = c.match(/^(.*\S)\s*(\([^()]*\))$/);
+  return m ? m[1] + '\n' + m[2] : c;
+}
+
+function timelineLayout(seq, spec) {
+  const cfg = getTimelineConfig();
+  const W = spec.auto ? 1000 : spec.Lw;
+  const fixedH = spec.auto ? 0 : spec.Lh;
+  const edge = W * 0.03;
+  const lineT = Math.max(0, W * cfg.lineW / 1000);
+  const n = cfg.auto ? Math.max(2, Math.min(12, seq.length)) : cfg.count;
+  const evs = seq.slice(0, n);
+
+  // Judul
+  const tPx = W * cfg.titleSize / 1000;
+  const tLH = tPx * 1.2, tPad = tPx * 0.4;
+  const tLines = wrapTextLines(cfg.title, cfg.font, tPx, W - edge * 2, 700);
+  const titleH = tLines.length ? tLines.length * tLH + tPad * 2 : edge;
+
+  // Label ujung ("Long time ago" ... "Today")
+  const endPx = W * cfg.endSize / 1000;
+  const leftW = cfg.left ? tlTextW(cfg.left, cfg.font, endPx, 700) : 0;
+  const rightW = cfg.right ? tlTextW(cfg.right, cfg.font, endPx, 700) : 0;
+  const gap = W * 0.015;
+  let tickStart = edge + leftW + gap * 1.5;
+  let tickEnd = W - edge - rightW - gap * 1.5;
+  if (tickEnd - tickStart < W * 0.35) { tickStart = W * 0.14; tickEnd = W * 0.86; }
+  const step = (tickEnd - tickStart) / (n - 1);
+  const xs = Array.from({ length: n }, (_, i) => tickStart + i * step);
+  const colW = Math.min(W * 0.3, Math.max(W * 0.06, 2 * step * 0.94));
+
+  const photoW = Math.min(cfg.photoSize * W / 1000, colW);
+  const labelPx = W * cfg.labelSize / 1000;
+  const labelLH = labelPx * 1.28;
+  const labels = evs.map(p => {
+    const t = tlSplitCaption(p.caption);
+    return t ? wrapTextLines(t, cfg.font, labelPx, colW, 400) : [];
+  });
+  const maxLines = Math.max(0, ...labels.map(l => l.length));
+  const labelBlockH = maxLines * labelLH;
+  const tickUp = W * 0.075, tickDown = W * 0.05, g = W * 0.012, g2 = W * 0.008;
+
+  let photoH = photoW * 1.4;
+  const needUp = () => tickUp + g + photoH + g2 + labelBlockH + edge;
+  const needDown = () => tickDown + g + photoH + g2 + labelBlockH + edge;
+  let H, axisY;
+  if (spec.auto) {
+    axisY = titleH + needUp();
+    H = axisY + needDown();
+  } else {
+    H = fixedH;
+    const availH = H - titleH;
+    const room = availH - tickUp - tickDown - 2 * (g + g2 + edge) - 2 * labelBlockH;
+    photoH = Math.max(W * 0.04, Math.min(photoH, room / 2));
+    axisY = titleH + availH * needUp() / (needUp() + needDown());
+  }
+
+  const items = [], events = [];
+  evs.forEach((p, i) => {
+    const up = i % 2 === 0;
+    const f = containFit(p.aspect, photoW, photoH);
+    const y = up ? axisY - tickUp - g - f.fh : axisY + tickDown + g;
+    items.push({ id: p.id, x: xs[i] - f.fw / 2, y, w: f.fw, h: f.fh, isGrid: true });
+    const lines = labels[i];
+    const ly = up ? y - g2 - lines.length * labelLH : y + f.fh + g2;
+    events.push({ x: xs[i], up, lines, ly });
+  });
+  // garis tanpa foto (jumlah garis > jumlah foto)
+  for (let i = evs.length; i < n; i++) events.push({ x: xs[i], up: i % 2 === 0, lines: [], ly: axisY });
+
+  return {
+    W, H, items,
+    label: `🕰️ Linimasa (${n} Garis)`,
+    type: 'timeline',
+    timelineMeta: {
+      W, H, edge, axisY, lineT, tickUp, tickDown, colW, labelPx, labelLH,
+      x0: Math.max(edge, tickStart - W * 0.05), x1: Math.min(W - edge, tickEnd + W * 0.06),
+      xs, events, tPx, tLH, tPad, tLines, endPx
+    }
+  };
+}
+
 /* ---------- FIT TO CANVAS & SCORING ---------- */
 function getSpec() {
   if (ratioSelect.value === 'auto') return { auto: true };
@@ -3668,7 +4277,9 @@ function finalize(c, spec) {
     score,
     type: c.type,
     posterMeta: c.posterMeta || null,
-    frameMeta: c.frameMeta || null
+    frameMeta: c.frameMeta || null,
+    bingoMeta: c.bingoMeta || null,
+    timelineMeta: c.timelineMeta || null
   };
 }
 
@@ -3679,7 +4290,11 @@ function buildCandidates(seq, spec, mode, param) {
   const rowsList = param > 0 ? [Math.min(param, n)] : range(1, Math.min(10, n));
   const want = m => mode === 'auto' || mode === m;
 
-  if (mode === 'frame') {
+  if (mode === 'timeline') {
+    raw.push(timelineLayout(seq, spec));
+  } else if (mode === 'bingo') {
+    raw.push(bingoLayout(seq, spec));
+  } else if (mode === 'frame') {
     const frameCols = param > 0 ? [Math.min(param, n)] : range(1, Math.min(4, n));
     frameCols.forEach(c => raw.push(frameLayout(seq, spec, c, g)));
   } else if (mode === 'poster') {
@@ -3714,6 +4329,8 @@ function buildCandidates(seq, spec, mode, param) {
 
 function computeLayoutAndRender(keepIdx = false) {
   updateFramePanelVisibility();
+  updateBingoInfo();
+  updateTimelineInfo();
   if (photos.length === 0) {
     candidates = [];
     current = null;
@@ -3809,11 +4426,14 @@ function renderStage() {
     stage.classList.add('checkerboard');
   } else {
     stage.classList.remove('checkerboard');
-    stage.style.background = current.type === 'frame' ? getFrameConfig().paper : cssBg(effectiveBg);
+    stage.style.background = current.type === 'frame' ? getFrameConfig().paper
+      : current.type === 'bingo' ? getBingoConfig().paper
+      : current.type === 'timeline' ? getTimelineConfig().paper
+      : cssBg(effectiveBg);
   }
 
   const scale = previewW / Lw;
-  const radiusPx = Number(radiusSlider.value) * scale;
+  const radiusPx = current.type === 'bingo' ? 0 : Number(radiusSlider.value) * scale;
   const dividerColor = getFrameDividerRgba();
 
   // If Poster Mode: Render Framed Grid Background Behind Grid Cells
@@ -3909,7 +4529,7 @@ function renderStage() {
 
     inner.appendChild(img);
 
-    if (photo.caption) {
+    if (photo.caption && current.type !== 'timeline') {
       const bandH = captionBandHeight(boxW, boxH);
       const cap = document.createElement('div');
       cap.className = 'cap';
@@ -3932,6 +4552,80 @@ function renderStage() {
   // If Frame Caption Mode: Render divider lines and top/bottom text
   if (current.type === 'frame' && current.frameMeta) {
     renderFrameOverlaysDOM(current.frameMeta, scale);
+  }
+
+  // Bingo Karakter: garis grid + judul
+  if (current.type === 'bingo' && current.bingoMeta) {
+    renderBingoOverlaysDOM(current.bingoMeta, scale);
+  }
+
+  // Linimasa: garis, label ujung, judul & teks peristiwa
+  if (current.type === 'timeline' && current.timelineMeta) {
+    renderTimelineOverlaysDOM(current.timelineMeta, scale);
+  }
+}
+
+function renderTimelineOverlaysDOM(tm, scale) {
+  const cfg = getTimelineConfig();
+  const mk = css => {
+    const d = document.createElement('div');
+    d.style.cssText = 'position:absolute;pointer-events:none;z-index:20;' + css;
+    stage.appendChild(d);
+    return d;
+  };
+  const font = `font-family:"${cfg.font}",sans-serif;color:${cfg.textColor};white-space:pre;`;
+  const t = tm.lineT;
+
+  if (t > 0) {
+    mk(`left:${tm.x0 * scale}px;top:${(tm.axisY - t / 2) * scale}px;width:${(tm.x1 - tm.x0) * scale}px;height:${t * scale}px;background:${cfg.lineColor};`);
+    tm.events.forEach(ev => {
+      const len = ev.up ? tm.tickUp : tm.tickDown;
+      const top = ev.up ? tm.axisY - len : tm.axisY;
+      mk(`left:${(ev.x - t / 2) * scale}px;top:${top * scale}px;width:${t * scale}px;height:${len * scale}px;background:${cfg.lineColor};`);
+    });
+  }
+
+  // label ujung
+  const ey = tm.axisY - tm.endPx * 1.0;
+  const endLH = tm.endPx * 1.2;
+  if (cfg.left) mk(`left:${tm.edge * scale}px;top:${(ey - endLH / 2) * scale}px;${font}font-weight:700;font-size:${tm.endPx * scale}px;line-height:${endLH * scale}px;`).textContent = cfg.left;
+  if (cfg.right) mk(`right:${tm.edge * scale}px;top:${(ey - endLH / 2) * scale}px;${font}font-weight:700;text-align:right;font-size:${tm.endPx * scale}px;line-height:${endLH * scale}px;`).textContent = cfg.right;
+
+  // teks peristiwa
+  tm.events.forEach(ev => {
+    if (!ev.lines.length) return;
+    mk(`left:${(ev.x - tm.colW / 2) * scale}px;top:${ev.ly * scale}px;width:${tm.colW * scale}px;text-align:center;${font}font-weight:400;font-size:${tm.labelPx * scale}px;line-height:${tm.labelLH * scale}px;`).textContent = ev.lines.join('\n');
+  });
+
+  // judul
+  if (tm.tLines.length) {
+    mk(`left:${tm.edge * scale}px;top:${tm.tPad * scale}px;width:${(tm.W - tm.edge * 2) * scale}px;text-align:${cfg.titleAlign};${font}font-weight:700;font-size:${tm.tPx * scale}px;line-height:${tm.tLH * scale}px;`).textContent = tm.tLines.join('\n');
+  }
+}
+
+function renderBingoOverlaysDOM(bm, scale) {
+  const cfg = getBingoConfig();
+  const mk = css => {
+    const d = document.createElement('div');
+    d.style.cssText = 'position:absolute;pointer-events:none;z-index:20;' + css;
+    stage.appendChild(d);
+    return d;
+  };
+  const t = bm.lineT;
+  if (t > 0) {
+    for (let i = 0; i <= bm.N; i++) {
+      const p = i * bm.cell;
+      mk(`left:${(bm.gx + p - t / 2) * scale}px;top:${(bm.gy - t / 2) * scale}px;width:${t * scale}px;height:${(bm.gridSize + t) * scale}px;background:${cfg.lineColor};`);
+      mk(`left:${(bm.gx - t / 2) * scale}px;top:${(bm.gy + p - t / 2) * scale}px;width:${(bm.gridSize + t) * scale}px;height:${t * scale}px;background:${cfg.lineColor};`);
+    }
+  }
+  if (bm.lines.length) {
+    const d = mk(
+      `left:${bm.edge * scale}px;top:${(bm.topOff + bm.vPad) * scale}px;width:${(bm.W - bm.edge * 2) * scale}px;` +
+      `text-align:${cfg.titleAlign};color:${cfg.textColor};font-family:"${cfg.font}",sans-serif;font-weight:700;` +
+      `font-size:${bm.fontPx * scale}px;line-height:${bm.lineH * scale}px;white-space:pre;overflow:visible;`
+    );
+    d.textContent = bm.lines.join('\n');
   }
 }
 
@@ -4401,10 +5095,13 @@ function exportImage(toClipboard = false) {
 
         // Always fill background if JPEG, Poster mode, or non-transparent
         if (bgColor !== 'transparent' || isFixedType(current.type) || mime === 'image/jpeg') {
-          fillBg(ctx, current.type === 'frame' ? getFrameConfig().paper : effectiveBg, W, H);
+          fillBg(ctx, current.type === 'frame' ? getFrameConfig().paper
+            : current.type === 'bingo' ? getBingoConfig().paper
+            : current.type === 'timeline' ? getTimelineConfig().paper
+            : effectiveBg, W, H);
         }
 
-        const radiusExport = Number(radiusSlider.value) * exportScale;
+        const radiusExport = current.type === 'bingo' ? 0 : Number(radiusSlider.value) * exportScale;
         const dividerColor = getFrameDividerRgba();
 
         if (current.type === 'poster' && current.posterMeta) {
@@ -4413,6 +5110,12 @@ function exportImage(toClipboard = false) {
           exportStandardCanvas(ctx, exportScale, radiusExport);
           if (current.type === 'frame' && current.frameMeta) {
             exportFrameOverlays(ctx, exportScale);
+          }
+          if (current.type === 'bingo' && current.bingoMeta) {
+            exportBingoOverlays(ctx, exportScale);
+          }
+          if (current.type === 'timeline' && current.timelineMeta) {
+            exportTimelineOverlays(ctx, exportScale);
           }
         }
 
@@ -4480,7 +5183,7 @@ function exportStandardCanvas(ctx, exportScale, radiusExport) {
     ctx.clip();
 
     drawTransformedPhoto(ctx, photo, slotX, slotY, slotW, slotH, fitMode === 'cover');
-    drawTileCaptionCanvas(ctx, photo.caption, clipX, clipY, clipW, clipH);
+    if (current.type !== 'timeline') drawTileCaptionCanvas(ctx, photo.caption, clipX, clipY, clipW, clipH);
     ctx.restore();
   });
 }
@@ -4514,6 +5217,80 @@ function exportFrameOverlays(ctx, s) {
   };
   block(fm.topLines, fm.vPad, cfg.topAlign);
   block(fm.botLines, fm.H - fm.botH + fm.vPad, cfg.bottomAlign);
+  ctx.restore();
+}
+
+function exportBingoOverlays(ctx, s) {
+  const bm = current.bingoMeta;
+  const cfg = getBingoConfig();
+  ctx.save();
+
+  const t = bm.lineT * s;
+  if (t > 0) {
+    ctx.fillStyle = cfg.lineColor;
+    for (let i = 0; i <= bm.N; i++) {
+      const p = i * bm.cell;
+      ctx.fillRect((bm.gx + p) * s - t / 2, bm.gy * s - t / 2, t, bm.gridSize * s + t);
+      ctx.fillRect(bm.gx * s - t / 2, (bm.gy + p) * s - t / 2, bm.gridSize * s + t, t);
+    }
+  }
+
+  if (bm.lines.length) {
+    ctx.fillStyle = cfg.textColor;
+    ctx.font = `700 ${bm.fontPx * s}px "${cfg.font}", sans-serif`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = cfg.titleAlign;
+    const x = cfg.titleAlign === 'left' ? bm.edge * s
+            : cfg.titleAlign === 'right' ? (bm.W - bm.edge) * s
+            : (bm.W / 2) * s;
+    bm.lines.forEach((ln, i) => {
+      ctx.fillText(ln, x, (bm.topOff + bm.vPad + i * bm.lineH + bm.lineH / 2) * s);
+    });
+  }
+  ctx.restore();
+}
+
+function exportTimelineOverlays(ctx, s) {
+  const tm = current.timelineMeta;
+  const cfg = getTimelineConfig();
+  const t = tm.lineT * s;
+  ctx.save();
+
+  if (t > 0) {
+    ctx.fillStyle = cfg.lineColor;
+    ctx.fillRect(tm.x0 * s, tm.axisY * s - t / 2, (tm.x1 - tm.x0) * s, t);
+    tm.events.forEach(ev => {
+      const len = ev.up ? tm.tickUp : tm.tickDown;
+      const top = ev.up ? tm.axisY - len : tm.axisY;
+      ctx.fillRect(ev.x * s - t / 2, top * s, t, len * s);
+    });
+  }
+
+  ctx.fillStyle = cfg.textColor;
+  ctx.textBaseline = 'middle';
+
+  // label ujung
+  const ey = (tm.axisY - tm.endPx * 1.0) * s;
+  ctx.font = `700 ${tm.endPx * s}px "${cfg.font}", sans-serif`;
+  if (cfg.left) { ctx.textAlign = 'left'; ctx.fillText(cfg.left, tm.edge * s, ey); }
+  if (cfg.right) { ctx.textAlign = 'right'; ctx.fillText(cfg.right, (tm.W - tm.edge) * s, ey); }
+
+  // teks peristiwa
+  ctx.font = `400 ${tm.labelPx * s}px "${cfg.font}", sans-serif`;
+  ctx.textAlign = 'center';
+  tm.events.forEach(ev => {
+    ev.lines.forEach((ln, i) => ctx.fillText(ln, ev.x * s, (ev.ly + i * tm.labelLH + tm.labelLH / 2) * s));
+  });
+
+  // judul
+  if (tm.tLines.length) {
+    ctx.font = `700 ${tm.tPx * s}px "${cfg.font}", sans-serif`;
+    ctx.textAlign = cfg.titleAlign;
+    const x = cfg.titleAlign === 'left' ? tm.edge * s
+            : cfg.titleAlign === 'right' ? (tm.W - tm.edge) * s
+            : (tm.W / 2) * s;
+    tm.tLines.forEach((ln, i) => ctx.fillText(ln, x, (tm.tPad + i * tm.tLH + tm.tLH / 2) * s));
+  }
   ctx.restore();
 }
 

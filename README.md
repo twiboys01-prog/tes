@@ -23,11 +23,24 @@ npm install && npx cap add android && npx capacitor-assets generate --android &&
 ## Tampilan HP & Template
 - Di HP: preview kolase selalu di atas (tidak ikut scroll), panel kontrol di bawah dan scroll sendiri. Tombol ⤢ di pojok kanan atas preview memperbesar/memperkecil preview.
 - Ketuk foto = buka panel edit (bottom sheet). **Tahan lalu geser** = tukar posisi foto (geser biasa tidak menukar apa-apa).
-- Tab **Template** berisi Poster Sinematik dan Bingkai Caption. Pengaturan teksnya hanya muncul saat template dipilih. Saat template aktif, Gaya Tata Letak di tab Layout dikunci supaya tidak bentrok.
+- Tab **Template** berisi Poster Sinematik, Bingkai Caption, Bingo Karakter, dan Linimasa Peristiwa. Pengaturan teksnya hanya muncul saat template dipilih. Saat template aktif, Gaya Tata Letak di tab Layout dikunci supaya tidak bentrok.
 - Kalau menambah class Tailwind baru di `www/index.html`, tidak perlu apa-apa: workflow menjalankan `npm run build:css` otomatis. Untuk tes lokal: `npm install && npm run build:css`.
 
 ## Menu utama (beranda)
-Saat aplikasi dibuka muncul 3 kartu: **Kolase** (kolase biasa tanpa template), **Template** (pilih Poster Sinematik / Bingkai Caption), dan **Kanvas Kosong** (kanvas teks). Tombol rumah di pojok kiri atas editor (atau tombol Kembali Android) membawa kembali ke menu; proyek yang sedang dikerjakan bisa dilanjutkan lewat tombol "Lanjutkan proyek". Memulai proyek baru mengembalikan semua pengaturan ke bawaan.
+Saat aplikasi dibuka muncul 3 kartu: **Kolase** (kolase biasa tanpa template), **Template** (pilih Poster Sinematik / Bingkai Caption / Bingo Karakter / Linimasa), dan **Kanvas Kosong** (kanvas teks). Tombol rumah di pojok kiri atas editor (atau tombol Kembali Android) membawa kembali ke menu; proyek yang sedang dikerjakan bisa dilanjutkan lewat tombol "Lanjutkan proyek". Memulai proyek baru mengembalikan semua pengaturan ke bawaan.
 
 ## Plugin simpan-ke-Galeri
 Kode native ada di `native/`, dipasang otomatis oleh `scripts/setup-native.js` lewat hook `capacitor:sync:before` di `package.json` (jadi tidak bergantung pada isi workflow). Yang HARUS ikut di-upload ke GitHub: folder `native/`, folder `scripts/`, dan `package.json`.
+
+## Template Bingo Karakter
+- Grid bingo persegi **3x3, 4x4, atau 5x5** (pilih lewat tombol Ukuran Grid di tab Template). Foto mengisi kotak berurutan dari kiri atas; kotak yang belum terisi dibiarkan kosong, foto berlebih belum ditampilkan (ada info jumlahnya).
+- Judul bisa diedit (default "Favorite Character Bingo"), plus rata teks, font, ukuran, tebal garis, dan warna kertas/judul/garis. Nama karakter bisa ditulis lewat keterangan foto (ketuk foto).
+- Ukuran kanvas mengikuti Rasio Kanvas (bawaan 4:5); pilih Auto agar tinggi kanvas pas dengan grid.
+- Kode: `bingoLayout()`, `renderBingoOverlaysDOM()`, `exportBingoOverlays()` di `www/index.html`.
+
+## Template Linimasa Peristiwa
+- Garis waktu dengan garis-garis (tick) berselang-seling atas dan bawah. Satu foto = satu garis, urutannya mengikuti daftar foto di tab Foto.
+- **Jumlah garis**: otomatis mengikuti jumlah foto (2 sampai 12), atau matikan "Otomatis" dan atur sendiri lewat slider. Garis yang belum ada fotonya tetap tampil kosong.
+- **Teks peristiwa** diisi di kolom caption pada daftar foto. "Nama (1998)" otomatis dipecah jadi 2 baris; atau pakai tanda `|`, misalnya `Tsukihime | 2000`. Teks panjang dibungkus otomatis.
+- Judul, label ujung ("Long time ago" / "Today"), font, ukuran judul/label/teks/foto, tebal garis, dan warna semuanya bisa diubah. Ganti foto lewat panel edit foto (ketuk foto).
+- Rasio bawaan 5:4 (opsi baru di Rasio Kanvas). Kode: `timelineLayout()`, `renderTimelineOverlaysDOM()`, `exportTimelineOverlays()` di `www/index.html`.
